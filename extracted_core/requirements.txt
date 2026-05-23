@@ -1,0 +1,4 @@
+duckduckgo-search
+openai
+requests
+trafilatura
