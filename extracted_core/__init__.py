@@ -1,8 +1,8 @@
 """Reusable core for recursive web search agents."""
 
-from .crawler import fetch_page_text
-from .llm_agent import AgentConfig, AgentEvent, run_agent, run_agent_generator
-from .positioning_product_workflow import (
+from agents.search_agent.crawler import fetch_page_text
+from agents.search_agent.llm_agent import AgentConfig, AgentEvent, run_agent, run_agent_generator
+from agents.analysis_agent.positioning_product_workflow import (
     PositioningProductConfig,
     PositioningProductResult,
     collect_search_results,
@@ -10,9 +10,9 @@ from .positioning_product_workflow import (
     rewrite_search_queries,
     run_positioning_product_search,
 )
-from .product_workflow import ProductWorkflowConfig, ProductWorkflowResult, run_product_workflow
-from .quality_agent import QualityConfig, QualityIssue, QualityReport, IssueSeverity, IssueType, inspect_quality, llm_enhanced_inspect
-from .recursive_search_workflow import (
+from agents.analysis_agent.product_workflow import ProductWorkflowConfig, ProductWorkflowResult, run_product_workflow
+from agents.quality_agent.core import QualityConfig, QualityIssue, QualityReport, IssueSeverity, IssueType, inspect_quality, llm_enhanced_inspect
+from agents.search_agent.recursive_search_workflow import (
     EvidenceItem,
     RecursiveSearchConfig,
     RecursiveSearchResult,
@@ -22,7 +22,7 @@ from .recursive_search_workflow import (
     run_recursive_search,
     run_tree_search,
 )
-from .search import SearchConfig, SearchResult, SearchSource, search, unified_search
+from agents.search_agent.search import SearchConfig, SearchResult, SearchSource, search, unified_search
 
 __all__ = [
     "AgentConfig",
