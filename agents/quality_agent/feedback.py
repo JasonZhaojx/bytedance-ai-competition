@@ -13,18 +13,24 @@ from .config import QualityConfig, QualityReport
 
 
 @dataclass
+# 质检反馈记录
 class QualityFeedback:
     """质检反馈记录."""
+    # 质检报告
     report: QualityReport
+    # 产品名称
     product_name: str
+    # 人工审批结果
     human_approved: bool
+    # 人工审批评论
     human_comment: str = ""
+    # 时间戳
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 class QualityFeedbackRecorder:
     """质检反馈记录器，用于持续学习."""
-    
+    # 日志目录
     def __init__(self, log_dir: Optional[str] = None):
         """初始化反馈记录器."""
         if log_dir:
@@ -34,6 +40,7 @@ class QualityFeedbackRecorder:
         
         self.log_dir.mkdir(parents=True, exist_ok=True)
     
+    # 记录人工复核反馈
     def record_feedback(
         self,
         report: QualityReport,
@@ -43,9 +50,13 @@ class QualityFeedbackRecorder:
     ) -> str:
         """记录人工复核反馈."""
         feedback = QualityFeedback(
+            # 质检报告
             report=report,
+            # 产品名称
             product_name=product_name,
+            # 人工审批结果
             human_approved=human_approved,
+            # 人工审批评论
             human_comment=human_comment
         )
         
