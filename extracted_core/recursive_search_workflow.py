@@ -38,6 +38,7 @@ class RecursiveSearchConfig:
     skip_final_summary: bool = False
     filter_irrelevant_evidence: bool = True
     comparison_keyword_library: str = ""
+    search_func: Optional[Callable[[str, SearchConfig], List[SearchResult]]] = None
 
 
 FULL_TEXT_CHARS = 0
@@ -353,6 +354,7 @@ def _dedupe_results(
                 url=result.url,
                 snippet=result.snippet,
                 content=result.content,
+                content_source=result.content_source,
             )
         )
     return items
@@ -774,7 +776,8 @@ def run_tree_search(
         log_progress(f"开始 {node.node_id}")
         try:
             _log(config, f"[tree-search] node={node.node_id} depth={node.depth} query={node.query}")
-            results = search(node.query, config.search_config)
+            search_runner = config.search_func or search
+            results = search_runner(node.query, config.search_config)
             _log(config, f"[tree-search] node={node.node_id} results={len(results)}")
             results = filter_relevant_search_results(question, node.query, results, config)
             _log(config, f"[tree-search] node={node.node_id} relevant_results={len(results)}")
@@ -932,7 +935,8 @@ def run_recursive_search(
                 searched_queries.add(query)
 
                 _log(config, f"[search] Round {round_index}: {query}")
-                results = search(query, config.search_config)
+                search_runner = config.search_func or search
+                results = search_runner(query, config.search_config)
                 _log(config, f"[search] Results: {len(results)}")
                 items = _dedupe_results(results, seen_urls, query, round_index)
                 round_new_items.extend(items)

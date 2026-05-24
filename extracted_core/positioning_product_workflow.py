@@ -25,6 +25,7 @@ class PositioningProductConfig:
     llm_timeout: int = 120
     verbose: bool = True
     progress_printer: Optional[Callable[[str], None]] = print
+    search_func: Optional[Callable[[str, SearchConfig], List[SearchResult]]] = None
 
 
 @dataclass
@@ -127,7 +128,8 @@ def collect_search_results(
         for query in queries:
             _log(config, f"[search] {query}")
             try:
-                for item in search(query, config.search_config):
+                search_runner = config.search_func or search
+                for item in search_runner(query, config.search_config):
                     url = (item.url or "").split("#", 1)[0].rstrip("/")
                     if not url or url in seen_urls:
                         continue

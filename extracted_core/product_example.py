@@ -21,9 +21,10 @@ from extracted_core.search import SearchConfig, SearchSource
 # ===== Direct configuration =====
 QUESTION = "claude code"
 
+# 0 = 豆包/火山 Ark, 1 = SiliconFlow, 2 = 小米 MiMo
 LLM_PROVIDER = 0
 
-LLM0_API_KEY = "ark-4126af52-1fda-4c17-8561-8db89e066502-95563"
+LLM0_API_KEY = ""
 LLM0_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
 LLM0_MODEL = "ep-20260514111325-xjmj7"
 
@@ -31,13 +32,17 @@ LLM1_API_KEY = ""
 LLM1_BASE_URL = "https://api.siliconflow.cn/v1/chat/completions"
 LLM1_MODEL = "deepseek-ai/DeepSeek-V4-Flash"
 
+LLM2_API_KEY = ""
+LLM2_BASE_URL = "https://token-plan-cn.xiaomimimo.com/v1"
+LLM2_MODEL = "Xiaomi MiMo-V2.5-Pro"
+
 BOCHA_API_KEY = ""
 
 HTTP_PROXY = ""
 
 MAX_ROUNDS = 2
-NEXT_QUERY_COUNT = 3
-RESULTS_PER_QUERY = 5
+NEXT_QUERY_COUNT = 4
+RESULTS_PER_QUERY = 8
 MAX_EVIDENCE_ITEMS = 30
 EVIDENCE_TEXT_CHARS = 0
 NODE_SUMMARY_CHARS = 0
@@ -48,6 +53,9 @@ LLM_TIMEOUT = 120
 FINAL_LLM_TIMEOUT = 900
 FILTER_IRRELEVANT_EVIDENCE = True
 COMPARISON_KEYWORD_LIBRARY = ""
+
+# 搜索 API 固定用博查；0 = 博查URL+传统爬虫, 1 = 博查URL+Playwright 动态渲染抓正文
+SEARCH_BACKEND = 0
 
 
 def value_or_env(value: str, env_name: str, default: str = "") -> str:
@@ -68,7 +76,13 @@ def get_llm_provider_config() -> tuple[str, str, str]:
             os.getenv("LLM1_BASE_URL") or LLM1_BASE_URL,
             os.getenv("LLM1_MODEL") or LLM1_MODEL,
         )
-    raise ValueError("LLM_PROVIDER must be 0 or 1")
+    if provider == 2:
+        return (
+            os.getenv("LLM2_API_KEY") or os.getenv("MIMO_API_KEY") or LLM2_API_KEY,
+            os.getenv("LLM2_BASE_URL") or LLM2_BASE_URL,
+            os.getenv("LLM2_MODEL") or LLM2_MODEL,
+        )
+    raise ValueError("LLM_PROVIDER must be 0, 1, or 2")
 
 
 def count_nodes(node) -> int:
@@ -95,9 +109,12 @@ def main() -> None:
     )
     llm_api_key, llm_base_url, llm_model = get_llm_provider_config()
     bocha_api_key = value_or_env(BOCHA_API_KEY, "BOCHA_API_KEY")
+    search_backend = int(os.getenv("SEARCH_BACKEND", str(SEARCH_BACKEND)))
 
     if not llm_api_key:
-        raise RuntimeError("Please set an active API key for LLM_PROVIDER 0 or 1.")
+        raise RuntimeError("Please set an active API key for LLM_PROVIDER 0, 1, or 2.")
+    if search_backend not in {0, 1}:
+        raise RuntimeError("SEARCH_BACKEND must be 0 or 1.")
     if not bocha_api_key:
         raise RuntimeError("Please fill BOCHA_API_KEY at the top of product_example.py")
 
@@ -108,6 +125,7 @@ def main() -> None:
         count=RESULTS_PER_QUERY,
         max_search_results=RESULTS_PER_QUERY,
         crawl_max_chars=0,
+        crawl_backend=search_backend,
         target_language="zh",
     )
 
