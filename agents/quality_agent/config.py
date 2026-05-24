@@ -78,11 +78,17 @@ class QualityReport:
     
     # 增强字段
     confidence_level: ConfidenceLevel = ConfidenceLevel.HIGH
+    # 是否需要人工审核
     needs_human_review: bool = False
+    # 低置信度原因列表
     low_confidence_reasons: List[str] = field(default_factory=list)
+    # 证据质量平均值
     evidence_quality_avg: float = 1.0
+    # 领域类型
     domain_type: ProductType = ProductType.HARDWARE
+    # 质检时间（秒）
     inspection_time_sec: float = 0.0
+    # 质检轮次
     inspection_rounds: int = 1
 
 
@@ -91,9 +97,13 @@ class QualityReport:
 @dataclass
 class DomainConfig:
     """领域特定配置."""
+    # 产品类型
     product_type: ProductType
+    # 所需字段列表
     required_fields: List[str]
+    # 证据权重因子
     evidence_weight_factor: Dict[str, float]
+    # 冲突阈值
     conflict_threshold: float = 0.5
     
     @classmethod

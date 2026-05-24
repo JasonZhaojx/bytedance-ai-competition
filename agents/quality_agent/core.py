@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 
 
 # ========== 辅助函数 ==========
-
+# 日志记录
 def _log(config: QualityConfig, message: str) -> None:
     if config.verbose:
         print(f"[quality] {message}")
 
 
 # ========== 产品类型识别 ==========
-
+# 使用 LLM 智能判断产品类型
 def _detect_product_type_with_llm(
     result: ProductWorkflowResult, config: QualityConfig
 ) -> ProductType:
@@ -65,7 +65,7 @@ def _detect_product_type_with_llm(
   "reasoning": "理由说明"
 }}
 """
-        
+        # 调用 LLM 模型
         content = chat_content(
             api_key=config.llm_api_key,
             base_url=config.llm_base_url,
@@ -77,9 +77,11 @@ def _detect_product_type_with_llm(
             temperature=0.1,
             max_tokens=500,
         )
-        
+        # 解析 LLM 模型输出
         if content:
+            # 清理 JSON 格式
             cleaned = content.replace("```json", "").replace("```", "").strip()
+            # 解析 JSON 字符串
             llm_result = json.loads(cleaned)
             
             type_str = llm_result.get("product_type", "hardware")
@@ -94,14 +96,14 @@ def _detect_product_type_with_llm(
     
     return _detect_product_type_by_keywords(result)
 
-
+# 基于关键词判断产品类型（降级方案）
 def _detect_product_type_by_keywords(result: ProductWorkflowResult) -> ProductType:
     """基于关键词判断产品类型（降级方案）."""
-    software_keywords = ["软件", "应用", "app", "website", "平台", "系统", "程序"]
+    software_keywords = ["软件", "应用", "app", "website", "平台", "系统", "程序", "服务","插件"]
     hardware_keywords = ["手机", "电脑", "设备", "机器", "产品", "硬件"]
     
     product_name_lower = result.product_name.lower()
-    
+    # 检查产品名称是否包含软件关键词
     if any(k in product_name_lower for k in software_keywords):
         return ProductType.SOFTWARE
     if any(k in product_name_lower for k in hardware_keywords):
@@ -109,7 +111,7 @@ def _detect_product_type_by_keywords(result: ProductWorkflowResult) -> ProductTy
     
     return ProductType.HARDWARE
 
-
+# 自动检测产品类型（优先 LLM，降级关键词）
 def _detect_product_type(
     result: ProductWorkflowResult, config: Optional[QualityConfig] = None
 ) -> ProductType:
@@ -119,12 +121,12 @@ def _detect_product_type(
     else:
         return _detect_product_type_by_keywords(result)
 
-
+# 获取领域配置
 def _get_domain_config(config: QualityConfig, result: ProductWorkflowResult) -> DomainConfig:
     """获取领域配置."""
     if config.domain_config:
         return config.domain_config
-    
+    #如果没有指定产品类型，默认使用自动检测结果
     product_type = config.product_type
     if product_type == ProductType.AUTO_DETECT:
         product_type = _detect_product_type(result, config)
@@ -299,13 +301,12 @@ def _check_conflicting_evidence(
 
 
 # ========== 评分与置信度计算 ==========
-
 def _calculate_score(
     issues: List[QualityIssue], evidence_quality: float
 ) -> float:
     """计算质检分数."""
     score = 1.0
-    
+    # 计算质检分数
     for issue in issues:
         if issue.severity == IssueSeverity.CRITICAL:
             score -= 0.3 * issue.confidence
@@ -318,17 +319,19 @@ def _calculate_score(
     
     return max(0.0, min(1.0, score))
 
-
+# 计算置信度等级
 def _calculate_confidence(
     score: float,
     issues: List[QualityIssue],
     evidence_quality: float,
     total_evidence: int
 ) -> ConfidenceLevel:
-    """计算置信度等级."""
     critical_issues = [i for i in issues if i.severity == IssueSeverity.CRITICAL]
     major_issues = [i for i in issues if i.severity == IssueSeverity.MAJOR]
     
+    # 高置信度：质检分数高，无严重问题，证据质量高，证据数量多
+    # 中置信度：质检分数中等，无严重问题，证据质量中等，证据数量中等
+    # 低置信度：质检分数低，存在严重问题，证据质量低，证据数量少
     if score >= 0.85 and not critical_issues and len(major_issues) <= 1:
         if evidence_quality < 0.6 or total_evidence < 3:
             return ConfidenceLevel.MEDIUM
@@ -362,7 +365,6 @@ def inspect_quality(
     score = _calculate_score(issues, evidence_quality)
     total_evidence = len(result.candidates) + len(result.reviews)
     confidence_level = _calculate_confidence(score, issues, evidence_quality, total_evidence)
-    
     suggestions = [issue.suggestion for issue in issues]
     
     needs_human_review = (
@@ -513,9 +515,11 @@ def inspect(
 ) -> QualityReport:
     """执行质检（多阶段）."""
     start_time = time.time()
-    
+    # 多阶段质检
     if config.enable_multistage_inspection:
+        # 实现快速质检
         quick_result = inspect_quality(result, config)
+        # 如果快速质检通过，直接返回结果
         if quick_result.passed and quick_result.confidence_level == ConfidenceLevel.HIGH:
             _log(config, "Quick check passed, returning early")
             return quick_result
