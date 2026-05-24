@@ -10,11 +10,11 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from extracted_core.positioning_product_workflow import (
+from agents.analysis_agent.positioning_product_workflow import (
     PositioningProductConfig,
     run_positioning_product_search,
 )
-from extracted_core.search import SearchConfig, SearchSource
+from agents.search_agent.search import SearchConfig, SearchSource
 
 
 def env(name: str, default: str = "") -> str:

@@ -10,12 +10,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from extracted_core.recursive_search_workflow import (
+from agents.search_agent.recursive_search_workflow import (
     RecursiveSearchConfig,
     run_tree_search,
     tree_final_summarize,
 )
-from extracted_core.search import SearchConfig, SearchSource
+from agents.search_agent.recursive_search_workflow import SearchConfig, SearchSource
 
 
 # ===== Direct configuration =====
