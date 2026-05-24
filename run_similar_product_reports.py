@@ -24,7 +24,7 @@ from agents.analysis_agent.positioning_product_workflow import (  # noqa: E402
     run_positioning_product_search,
 )
 from agents.search_agent.search import SearchConfig, SearchSource  # noqa: E402
-from agents.search_agent.llm_client import chat_content, stream_chat_content  # noqa: E402      
+from agents.workflow.llm_client import chat_content, stream_chat_content  # noqa: E402      
 
 try:
     from tqdm import tqdm
