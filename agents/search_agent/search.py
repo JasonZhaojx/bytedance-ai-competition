@@ -40,6 +40,7 @@ class SearchConfig:
     blacklist: List[str] = field(default_factory=lambda: list(DEFAULT_BLACKLIST))
     crawl_max_chars: int = 5000
     crawl_min_chars: int = 200
+    crawl_backend: int = 0
     target_language: Optional[str] = None
     timeout: int = 15
 
@@ -58,17 +59,96 @@ def _is_blacklisted(url: str, blacklist: Iterable[str]) -> bool:
     return any(domain in url for domain in blacklist)
 
 
-def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResult:
-    text = fetch_page_text(
-        result.url,
-        proxy=config.proxy,
-        timeout=config.timeout,
-        max_chars=config.crawl_max_chars,
-        target_language=config.target_language,
+def _fetch_with_playwright(url: str, config: SearchConfig) -> str:
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        page = browser.new_page(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0 Safari/537.36"
+            )
+        )
+        try:
+            try:
+                page.goto(
+                    url,
+                    wait_until="domcontentloaded",
+                    timeout=max(1000, config.timeout * 1000),
+                )
+            except Exception as exc:
+                print(f"[playwright] goto warning: {url} ({exc})")
+                return ""
+
+            page.wait_for_timeout(1000)
+            try:
+                page.evaluate("window.stop()")
+            except Exception:
+                pass
+
+            try:
+                html = page.content()
+            except Exception as exc:
+                print(f"[playwright] page.content warning: {url} ({exc})")
+                try:
+                    text = page.locator("body").inner_text(timeout=2000)
+                except Exception:
+                    text = ""
+                return text[: config.crawl_max_chars] if config.crawl_max_chars else text
+        finally:
+            browser.close()
+
+    import trafilatura
+
+    content = trafilatura.extract(
+        html,
+        include_comments=False,
+        include_tables=False,
+        favor_recall=True,
     )
+    text = content or ""
+    if config.crawl_max_chars and len(text) > config.crawl_max_chars:
+        text = text[: config.crawl_max_chars]
+    return text
+
+
+def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResult:
+    if config.crawl_backend == 1:
+        try:
+            text = _fetch_with_playwright(result.url, config)
+            source_name = "Playwright网页正文"
+        except Exception as exc:
+            print(f"[playwright] crawl failed: {result.url} ({exc})")
+            text = ""
+            source_name = "网页正文"
+        if len(text) < config.crawl_min_chars:
+            try:
+                print(f"[crawler] Playwright未获取到足够正文，改用传统爬虫: {result.url}")
+                text = fetch_page_text(
+                    result.url,
+                    proxy=config.proxy,
+                    timeout=config.timeout,
+                    max_chars=config.crawl_max_chars,
+                    target_language=config.target_language,
+                )
+                source_name = "网页正文"
+            except Exception as exc:
+                print(f"[crawler] fallback failed: {result.url} ({exc})")
+    else:
+        text = fetch_page_text(
+            result.url,
+            proxy=config.proxy,
+            timeout=config.timeout,
+            max_chars=config.crawl_max_chars,
+            target_language=config.target_language,
+        )
+        source_name = "网页正文"
+
     if len(text) >= config.crawl_min_chars:
         result.content = text
-        result.content_source = "网页正文"
+        result.content_source = source_name
     else:
         result.content = result.snippet
         result.content_source = "搜索摘要"

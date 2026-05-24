@@ -1,4 +1,4 @@
-"""Find similar products, analyze selected products in parallel, and save reports."""
+﻿"""Find similar products, analyze selected products in parallel, and save reports."""
 
 from __future__ import annotations
 
@@ -32,7 +32,11 @@ except ImportError:
     tqdm = None
 
 
-LLM0_API_KEY = os.getenv("LLM0_API_KEY") or os.getenv("ARK_API_KEY") or "ark-4126af52-1fda-4c17-8561-8db89e066502-95563"
+# 0 = 豆包/火山 Ark, 1 = SiliconFlow, 2 = 小米 MiMo
+LLM_PROVIDER = 0
+LLM_PROVIDER = int(os.getenv("LLM_PROVIDER", str(LLM_PROVIDER)))
+
+LLM0_API_KEY = os.getenv("LLM0_API_KEY") or os.getenv("ARK_API_KEY") or "ark-3a6a7711-6bc2-444d-9572-f9e1887a7aab-40a6c"
 LLM0_BASE_URL = os.getenv("LLM0_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")
 LLM0_MODEL = os.getenv("LLM0_MODEL", "ep-20260514111325-xjmj7")
 
@@ -41,11 +45,19 @@ LLM_API_KEYS = os.getenv("LLM_API_KEYS", "")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1/chat/completions")
 LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 
+LLM2_API_KEY = os.getenv("LLM2_API_KEY") or os.getenv("MIMO_API_KEY") or ""
+LLM2_BASE_URL = os.getenv("LLM2_BASE_URL", "https://token-plan-cn.xiaomimimo.com/v1")
+LLM2_MODEL = os.getenv("LLM2_MODEL", "mimo-v2.5-pro")
+
 SEARCH_SOURCE = os.getenv("SEARCH_SOURCE", "bocha")
-BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "sk-892f8ed5abbf4cd3b5457fbd7d7504e9")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
+
+# 搜索 API 固定用博查；0 = 博查URL+传统爬虫, 1 = 博查URL+Playwright 动态渲染抓正文
+SEARCH_BACKEND = 1
+SEARCH_BACKEND = int(os.getenv("SEARCH_BACKEND", str(SEARCH_BACKEND)))
 
 QUERY_COUNT = int(os.getenv("QUERY_COUNT", "3"))
 SEARCH_COUNT = int(os.getenv("SEARCH_COUNT", "3"))
@@ -57,6 +69,8 @@ FINAL_SUMMARY_MARKER = "===== FINAL SUMMARY ====="
 REFERENCE_EVIDENCE_MARKER = "===== REFERENCE EVIDENCE ====="
 REFERENCE_POINT_RE = re.compile(r"(?<!\])\[参考点(\d+)\]")
 KNOWN_PRODUCT_PARAM_MAX_CHARS = int(os.getenv("KNOWN_PRODUCT_PARAM_MAX_CHARS", "12000"))
+QUESTIONNAIRE_ANALYSIS_MAX_CHARS = int(os.getenv("QUESTIONNAIRE_ANALYSIS_MAX_CHARS", "16000"))
+QUESTIONNAIRE_CODE_SUMMARY_MARKER = "===== CODE SUMMARY JSON ====="
 
 
 @dataclass
@@ -93,18 +107,59 @@ def mask_key(key: str) -> str:
     return f"{key[:6]}...{key[-4:]}"
 
 
+def provider_name(provider: int) -> str:
+    names = {
+        0: "豆包/火山 Ark",
+        1: "SiliconFlow",
+        2: "小米 MiMo",
+    }
+    return names.get(provider, "未知 provider")
+
+
+def print_active_provider() -> None:
+    provider = active_provider()
+    try:
+        api_key, base_url, model = provider_llm_config()
+    except ValueError:
+        api_key, base_url, model = "", "", ""
+    print("\n===== LLM API 提供商 =====")
+    print(f"provider: {provider} ({provider_name(provider)})")
+    print(f"base_url: {base_url or '未配置'}")
+    print(f"model: {model or '未配置'}")
+    print(f"api_key: {mask_key(api_key) if api_key else '未配置'}")
+
+
+def search_backend_name() -> str:
+    if SEARCH_BACKEND == 0:
+        return "博查搜索 + 传统爬虫抓正文"
+    if SEARCH_BACKEND == 1:
+        return "博查搜索 + Playwright 抓正文"
+    return "未知搜索后端"
+
+
+def print_search_backend() -> None:
+    print("\n===== 搜索后端 =====")
+    print(f"search_backend: {SEARCH_BACKEND} ({search_backend_name()})")
+    print(f"search_api: {SEARCH_SOURCE}")
+
+
 def active_provider() -> int:
-    return int(os.getenv("LLM_PROVIDER", "0"))
+    return LLM_PROVIDER
 
 
 def provider_llm_config() -> tuple[str, str, str]:
-    if active_provider() == 0:
+    provider = active_provider()
+    if provider == 0:
         return LLM0_API_KEY, LLM0_BASE_URL, LLM0_MODEL
-    return (
-        os.getenv("LLM1_API_KEY") or LLM_API_KEY,
-        os.getenv("LLM1_BASE_URL") or LLM_BASE_URL,
-        os.getenv("LLM1_MODEL") or LLM_MODEL,
-    )
+    if provider == 1:
+        return (
+            os.getenv("LLM1_API_KEY") or LLM_API_KEY,
+            os.getenv("LLM1_BASE_URL") or LLM_BASE_URL,
+            os.getenv("LLM1_MODEL") or LLM_MODEL,
+        )
+    if provider == 2:
+        return LLM2_API_KEY, LLM2_BASE_URL, LLM2_MODEL
+    raise ValueError("LLM_PROVIDER must be 0, 1, or 2")
 
 
 def read_product_description() -> str:
@@ -135,6 +190,29 @@ def read_known_product_param_text() -> tuple[str, str]:
     if len(text) > KNOWN_PRODUCT_PARAM_MAX_CHARS:
         text = text[:KNOWN_PRODUCT_PARAM_MAX_CHARS]
         print(f"[warn] 已知产品参数 txt 较长，已截取前 {KNOWN_PRODUCT_PARAM_MAX_CHARS} 字符。")
+    return str(path), text
+
+
+def read_questionnaire_analysis_text() -> tuple[str, str]:
+    path_text = os.getenv("QUESTIONNAIRE_ANALYSIS_MD", "").strip()
+    if not path_text:
+        path_text = input("请输入问卷分析报告 md 路径（可直接回车跳过）: ").strip().strip('"')
+    if not path_text:
+        return "", ""
+
+    path = Path(path_text)
+    if not path.is_absolute():
+        path = ROOT / path
+    if not path.exists():
+        print(f"[warn] 问卷分析报告不存在，已跳过: {path}")
+        return "", ""
+
+    text = path.read_text(encoding="utf-8", errors="replace").strip()
+    if QUESTIONNAIRE_CODE_SUMMARY_MARKER in text:
+        text = text.split(QUESTIONNAIRE_CODE_SUMMARY_MARKER, 1)[0].strip()
+    if len(text) > QUESTIONNAIRE_ANALYSIS_MAX_CHARS:
+        text = text[:QUESTIONNAIRE_ANALYSIS_MAX_CHARS]
+        print(f"[warn] 问卷分析正文较长，已截取前 {QUESTIONNAIRE_ANALYSIS_MAX_CHARS} 字符。")
     return str(path), text
 
 
@@ -203,13 +281,17 @@ def build_search_config() -> SearchConfig:
         max_search_results=SEARCH_COUNT,
         crawl_max_chars=2500,
         crawl_min_chars=120,
+        crawl_backend=SEARCH_BACKEND,
         timeout=20,
     )
 
 
 def final_llm_config() -> tuple[str, str, str]:
-    if active_provider() == 0:
+    provider = active_provider()
+    if provider == 0:
         return LLM0_API_KEY, LLM0_BASE_URL, LLM0_MODEL
+    if provider == 2:
+        return LLM2_API_KEY, LLM2_BASE_URL, LLM2_MODEL
     keys = llm_key_pool()
     return (
         keys[0] if keys else LLM_API_KEY,
@@ -320,7 +402,11 @@ def analyze_product(
             "LLM0_MODEL": env.get("LLM0_MODEL") or LLM0_MODEL,
             "LLM1_BASE_URL": env.get("LLM1_BASE_URL") or LLM_BASE_URL,
             "LLM1_MODEL": env.get("LLM1_MODEL") or LLM_MODEL,
+            "LLM2_API_KEY": env.get("LLM2_API_KEY") or LLM2_API_KEY,
+            "LLM2_BASE_URL": env.get("LLM2_BASE_URL") or LLM2_BASE_URL,
+            "LLM2_MODEL": env.get("LLM2_MODEL") or LLM2_MODEL,
             "BOCHA_API_KEY": env.get("BOCHA_API_KEY") or BOCHA_API_KEY,
+            "SEARCH_BACKEND": str(SEARCH_BACKEND),
             "HTTP_PROXY": env.get("HTTP_PROXY") or HTTP_PROXY,
             "PYTHONUNBUFFERED": "1",
         }
@@ -430,6 +516,8 @@ def summarize_all_reports(
     product_description: str,
     timestamp: str,
     comparison_keyword_library: str = "",
+    questionnaire_analysis_text: str = "",
+    questionnaire_analysis_path: str = "",
 ) -> Path:
     items = [read_report_for_summary(path) for path in report_paths]
     summaries = "\n\n".join(
@@ -440,7 +528,7 @@ def summarize_all_reports(
     )
     product_names = "、".join(item.product_name for item in items)
     prompt = f"""
-你是产品策略分析师。请只根据下面这些单品报告的 FINAL SUMMARY 正文，写一份中文横向对比总结。
+你是产品策略分析师。请根据单品报告的 FINAL SUMMARY 正文，并结合可选的问卷分析补充背景，写一份中文横向对比总结。
 
 用户原始需求:
 {product_description}
@@ -451,6 +539,9 @@ def summarize_all_reports(
 参与对比的产品:
 {product_names}
 
+问卷分析补充背景:
+{questionnaire_analysis_text.strip() or "无"}
+
 单品 FINAL SUMMARY:
 {summaries}
 
@@ -458,7 +549,9 @@ def summarize_all_reports(
 - 用中文输出。
 - 分析每个产品的定位、核心能力、优势、短板、适合用户和不适合场景。
 - 如果“已知产品参数关键词库”不为空，请优先按这些共同参数点做横向对比；缺失证据的参数点要说明未找到明确证据。
+- 如果“问卷分析补充背景”不为空，请结合其中的用户画像、场景、价格敏感度、替换意愿、采购决策、风险顾虑，生成更多维度、更丰富的横向分析。
 - 给出横向对比和选择建议。
+- 单品事实和引用必须来自单品 FINAL SUMMARY；问卷分析只能作为需求侧、用户侧、决策侧补充，不要把问卷结论当成某个产品的官方事实。
 - 保留原文里已有的引用标记，例如 [产品名][参考点15]。
 - 不要编造单品 FINAL SUMMARY 里没有的信息。
 """.strip()
@@ -506,6 +599,10 @@ def summarize_all_reports(
             "===== 已知产品参数关键词库 =====",
             comparison_keyword_library.strip() or "无",
             "",
+            "===== 问卷分析补充背景 =====",
+            f"来源: {questionnaire_analysis_path}" if questionnaire_analysis_path else "来源: 无",
+            questionnaire_analysis_text.strip() or "无",
+            "",
             "===== FINAL COMPARISON SUMMARY =====",
             final_summary,
             "",
@@ -522,10 +619,20 @@ def summarize_all_reports(
 
 
 def main() -> None:
+    print_active_provider()
+    print_search_backend()
     provider = active_provider()
     keys = llm_key_pool() if provider == 1 else []
     if provider == 1 and not keys:
         raise RuntimeError("Please set LLM_API_KEYS, LLM_API_KEY, or ARK_API_KEY for provider 1.")
+    if provider in {0, 2} and not provider_llm_config()[0]:
+        raise RuntimeError(f"Please set an active API key for LLM_PROVIDER={provider}.")
+    if provider not in {0, 1, 2}:
+        raise RuntimeError("LLM_PROVIDER must be 0, 1, or 2.")
+    if SEARCH_BACKEND not in {0, 1}:
+        raise RuntimeError("SEARCH_BACKEND must be 0 or 1.")
+    if SearchSource(SEARCH_SOURCE) != SearchSource.BOCHA:
+        raise RuntimeError("当前 SEARCH_BACKEND 仅支持博查搜索 API，请设置 SEARCH_SOURCE=bocha。")
     if SearchSource(SEARCH_SOURCE) == SearchSource.BOCHA and not BOCHA_API_KEY:
         raise RuntimeError("当前 SEARCH_SOURCE=bocha，请先填写 BOCHA_API_KEY。")
 
@@ -540,6 +647,10 @@ def main() -> None:
     )
     if known_param_path:
         print(f"\n已读取已知产品参数: {known_param_path}")
+
+    questionnaire_analysis_path, questionnaire_analysis_text = read_questionnaire_analysis_text()
+    if questionnaire_analysis_path:
+        print(f"\n已读取问卷分析报告: {questionnaire_analysis_path}")
 
     queries, product_names = find_product_names(product_description)
 
@@ -577,6 +688,8 @@ def main() -> None:
                     index = targets.index(name) + 1
                     key = keys[(index - 1) % len(keys)]
                     print(f"[started] {name} provider=1 api_key={mask_key(key)} -> {path}")
+                elif provider == 2:
+                    print(f"[started] {name} provider=2 Xiaomi MiMo shared config -> {path}")
                 else:
                     print(f"[started] {name} provider=0 doubao shared config -> {path}")
             except Exception as exc:
@@ -593,6 +706,8 @@ def main() -> None:
         product_description,
         timestamp,
         comparison_keyword_library,
+        questionnaire_analysis_text,
+        questionnaire_analysis_path,
     )
     print(f"\n总总结已保存: {final_path}")
 
