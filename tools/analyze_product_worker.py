@@ -11,7 +11,7 @@ import traceback
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent  # 项目根目录
 sys.path.insert(0, str(ROOT))
 
 from extracted_core import product_example  # noqa: E402
@@ -23,7 +23,14 @@ class Tee(io.TextIOBase):
 
     def write(self, text: str) -> int:
         for stream in self.streams:
-            stream.write(text)
+            try:
+                stream.write(text)
+            except UnicodeEncodeError:
+                # Windows 默认 GBK 编码，处理特殊字符
+                if hasattr(stream, 'buffer'):
+                    stream.buffer.write(text.encode('utf-8', errors='replace'))
+                else:
+                    stream.write(text.encode('ascii', errors='replace').decode('ascii'))
             stream.flush()
         return len(text)
 

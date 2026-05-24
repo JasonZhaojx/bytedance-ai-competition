@@ -15,7 +15,7 @@ from agents.search_agent.recursive_search_workflow import (
     run_tree_search,
     tree_final_summarize,
 )
-from agents.search_agent.recursive_search_workflow import SearchConfig, SearchSource
+from agents.search_agent.search import SearchConfig, SearchSource
 
 
 # ===== Direct configuration =====
