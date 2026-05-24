@@ -39,3 +39,6 @@ build/
 *.tmp
 *.temp
 *.bak
+
+# 报告目录
+reports/

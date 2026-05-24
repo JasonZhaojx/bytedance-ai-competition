@@ -11,6 +11,7 @@ from typing import Callable, Dict, List, Optional
 
 from ..workflow.llm_client import chat_content, stream_chat_content
 from .search import SearchConfig, SearchResult, search
+@dataclass
 class RecursiveSearchConfig:
     llm_api_key: str
     llm_base_url: str
