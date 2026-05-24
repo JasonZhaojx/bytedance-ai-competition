@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from typing import Dict, Generator, List, Optional
 
-from .llm_client import chat_content
+from ..workflow.llm_client import chat_content
 from .search import SearchConfig, unified_search
 
 

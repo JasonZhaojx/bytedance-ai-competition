@@ -98,6 +98,7 @@ def stream_chat_content(
     temperature: Optional[float] = None,
     max_tokens: Optional[int] = None,
     timeout: int = 120,
+    retries: int = 2,
 ) -> Iterator[str]:
     """Stream /chat/completions content chunks from an OpenAI-compatible API."""
     payload: Dict[str, Any] = {
@@ -110,38 +111,51 @@ def stream_chat_content(
     if max_tokens is not None:
         payload["max_tokens"] = max_tokens
 
-    response = requests.post(
-        _chat_completions_url(base_url),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=timeout,
-        stream=True,
-    )
-    if not response.ok:
-        raise requests.HTTPError(
-            f"{response.status_code} {response.reason}: {response.text}",
-            response=response,
-        )
+    url = _chat_completions_url(base_url)
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    last_error: Optional[Exception] = None
 
-    for raw_line in response.iter_lines(decode_unicode=False):
-        if not raw_line:
-            continue
-        if isinstance(raw_line, bytes):
-            raw_line = raw_line.decode("utf-8", errors="replace")
-        line = raw_line.strip()
-        if line.startswith("data:"):
-            line = line[5:].strip()
-        if not line or line == "[DONE]":
-            continue
+    for attempt in range(retries + 1):
         try:
-            data = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        for choice in data.get("choices") or []:
-            delta = choice.get("delta") or {}
-            content = delta.get("content")
-            if content:
-                yield content
+            response = requests.post(
+                url,
+                headers=headers,
+                json=payload,
+                timeout=timeout,
+                stream=True,
+            )
+            if not response.ok:
+                raise requests.HTTPError(
+                    f"{response.status_code} {response.reason}: {response.text}",
+                    response=response,
+                )
+
+            for raw_line in response.iter_lines(decode_unicode=False):
+                if not raw_line:
+                    continue
+                if isinstance(raw_line, bytes):
+                    raw_line = raw_line.decode("utf-8", errors="replace")
+                line = raw_line.strip()
+                if line.startswith("data:"):
+                    line = line[5:].strip()
+                if not line or line == "[DONE]":
+                    continue
+                try:
+                    data = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                for choice in data.get("choices") or []:
+                    delta = choice.get("delta") or {}
+                    content = delta.get("content")
+                    if content:
+                        yield content
+            return  # 正常结束
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as exc:
+            last_error = exc
+            if attempt >= retries:
+                break
+            time.sleep(min(2**attempt, 8))
+    raise last_error or RuntimeError("LLM stream request failed")

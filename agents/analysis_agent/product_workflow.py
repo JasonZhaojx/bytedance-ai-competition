@@ -10,9 +10,10 @@ from urllib.parse import urlparse
 
 import requests
 
-from .crawler import DEFAULT_HEADERS, fetch_page_text
-from .llm_client import chat_content
-from .search import SearchConfig, search
+from ..search_agent.crawler import DEFAULT_HEADERS, fetch_page_text
+from ..workflow.llm_client import chat_content
+from ..quality_agent.quality_agent import QualityConfig, QualityReport, llm_enhanced_inspect
+from ..search_agent.search import SearchConfig, search
 
 
 JD_PLATFORM = "JD"
@@ -50,6 +51,9 @@ class ProductWorkflowConfig:
     max_tokens: int = 3000
     verbose: bool = True
     use_llm_query_rewrite: bool = True
+    use_quality_inspection: bool = True
+    max_iterations: int = 3
+    quality_threshold: float = 0.6
     progress_printer: Optional[Callable[[str], None]] = print
 
 
@@ -81,6 +85,8 @@ class ProductWorkflowResult:
     reviews: List[ReviewEvidence]
     summary: str
     raw_prompt: str
+    quality_report: Optional[QualityReport] = None
+    iterations: int = 1
 
 
 def _log(config: ProductWorkflowConfig, message: str) -> None:
@@ -665,23 +671,96 @@ def summarize_product_candidates(
     return summary
 
 
+def run_product_workflow_with_quality(
+    product_name: str,
+    config: ProductWorkflowConfig,
+) -> ProductWorkflowResult:
+    """Run search, crawl, extraction, summarization with quality inspection loop."""
+    _log(config, "[workflow] Start")
+    
+    candidates: List[ProductCandidate] = []
+    reviews: List[ReviewEvidence] = []
+    query_plan = plan_search_queries(product_name, config)
+    seen_urls = set()
+    
+    for iteration in range(1, config.max_iterations + 1):
+        _log(config, f"[workflow] Iteration {iteration}/{config.max_iterations}")
+        
+        current_candidates = collect_product_candidates(product_name, config, query_plan)
+        current_reviews = collect_review_evidence(product_name, config, query_plan)
+        
+        for c in current_candidates:
+            if c.url not in seen_urls:
+                seen_urls.add(c.url)
+                candidates.append(c)
+        
+        for r in current_reviews:
+            if r.url not in seen_urls:
+                seen_urls.add(r.url)
+                reviews.append(r)
+        
+        _log(config, "[workflow] Building LLM prompt")
+        prompt = build_product_summary_prompt(product_name, candidates, reviews)
+        summary = summarize_product_candidates(product_name, candidates, reviews, config)
+        
+        if not config.use_quality_inspection:
+            _log(config, "[workflow] Quality inspection disabled")
+            return ProductWorkflowResult(
+                product_name=product_name,
+                candidates=candidates,
+                reviews=reviews,
+                summary=summary,
+                raw_prompt=prompt,
+                iterations=iteration,
+            )
+        
+        _log(config, "[workflow] Running quality inspection")
+        quality_config = QualityConfig(
+            llm_api_key=config.llm_api_key,
+            llm_base_url=config.llm_base_url,
+            llm_model=config.llm_model,
+            min_score_threshold=config.quality_threshold,
+            verbose=config.verbose,
+        )
+        
+        result = ProductWorkflowResult(
+            product_name=product_name,
+            candidates=candidates,
+            reviews=reviews,
+            summary=summary,
+            raw_prompt=prompt,
+            iterations=iteration,
+        )
+        
+        quality_report = llm_enhanced_inspect(result, quality_config)
+        result.quality_report = quality_report
+        
+        _log(config, f"[workflow] Quality score: {quality_report.score:.2f}")
+        
+        if quality_report.passed:
+            _log(config, "[workflow] Quality inspection passed, finishing")
+            return result
+        
+        _log(config, "[workflow] Quality inspection failed, generating new queries")
+        if quality_report.suggestions:
+            new_queries = {
+                "jd_queries": query_plan.get("jd_queries", []),
+                "taobao_tmall_queries": query_plan.get("taobao_tmall_queries", []),
+                "review_queries": query_plan.get("review_queries", []) + quality_report.suggestions[:2],
+            }
+            query_plan = new_queries
+            _log(config, f"[workflow] Updated queries for retry: {quality_report.suggestions}")
+        else:
+            _log(config, "[workflow] No suggestions, finishing despite low quality")
+            return result
+    
+    _log(config, f"[workflow] Reached max iterations ({config.max_iterations})")
+    return result
+
+
 def run_product_workflow(
     product_name: str,
     config: ProductWorkflowConfig,
 ) -> ProductWorkflowResult:
     """Run search, crawl, parameter extraction, and LLM summarization."""
-    _log(config, "[workflow] Start")
-    query_plan = plan_search_queries(product_name, config)
-    candidates = collect_product_candidates(product_name, config, query_plan)
-    reviews = collect_review_evidence(product_name, config, query_plan)
-    _log(config, "[workflow] Building LLM prompt")
-    prompt = build_product_summary_prompt(product_name, candidates, reviews)
-    summary = summarize_product_candidates(product_name, candidates, reviews, config)
-    _log(config, "[workflow] Done")
-    return ProductWorkflowResult(
-        product_name=product_name,
-        candidates=candidates,
-        reviews=reviews,
-        summary=summary,
-        raw_prompt=prompt,
-    )
+    return run_product_workflow_with_quality(product_name, config)

@@ -7,8 +7,8 @@ import re
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
-from .llm_client import chat_content
-from .search import SearchConfig, SearchResult, search
+from ..workflow.llm_client import chat_content
+from ..search_agent.search import SearchConfig, SearchResult, search
 
 
 @dataclass

@@ -19,12 +19,12 @@ ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
 
 sys.path.insert(0, str(ROOT))
 
-from extracted_core.positioning_product_workflow import (  # noqa: E402
+from agents.analysis_agent.positioning_product_workflow import (  # noqa: E402
     PositioningProductConfig,
     run_positioning_product_search,
 )
-from extracted_core.search import SearchConfig, SearchSource  # noqa: E402
-from extracted_core.llm_client import chat_content, stream_chat_content  # noqa: E402
+from agents.search_agent.search import SearchConfig, SearchSource  # noqa: E402
+from agents.workflow.llm_client import chat_content, stream_chat_content  # noqa: E402      
 
 try:
     from tqdm import tqdm
