@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Reports
+reports/
+*.md
+*.done
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg/
+
+# Scrapy
+scrapy.cfg
+*.scrapy
+
+# Playwright
+playwright/.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker
+docker-compose.override.yml
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+.test/
