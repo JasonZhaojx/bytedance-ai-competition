@@ -12,19 +12,18 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
 
 sys.path.insert(0, str(ROOT))
 
+from extracted_core.llm_client import chat_content, stream_chat_content  # noqa: E402
 from extracted_core.positioning_product_workflow import (  # noqa: E402
     PositioningProductConfig,
     run_positioning_product_search,
 )
 from extracted_core.search import SearchConfig, SearchSource  # noqa: E402
-from extracted_core.llm_client import chat_content, stream_chat_content  # noqa: E402
 
 try:
     from tqdm import tqdm
@@ -36,13 +35,19 @@ except ImportError:
 LLM_PROVIDER = 0
 LLM_PROVIDER = int(os.getenv("LLM_PROVIDER", str(LLM_PROVIDER)))
 
-LLM0_API_KEY = os.getenv("LLM0_API_KEY") or os.getenv("ARK_API_KEY") or ""
+LLM0_API_KEY = (
+    os.getenv("LLM0_API_KEY")
+    or os.getenv("ARK_API_KEY")
+    or "ark-7bf37d28-942e-40b4-839d-f9ea281f135e-dd134"
+)
 LLM0_BASE_URL = os.getenv("LLM0_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")
 LLM0_MODEL = os.getenv("LLM0_MODEL", "ep-20260514111325-xjmj7")
 
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_API_KEYS = os.getenv("LLM_API_KEYS", "")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1/chat/completions")
+LLM_BASE_URL = os.getenv(
+    "LLM_BASE_URL", "https://api.siliconflow.cn/v1/chat/completions"
+)
 LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 
 LLM2_API_KEY = os.getenv("LLM2_API_KEY") or os.getenv("MIMO_API_KEY") or ""
@@ -50,14 +55,14 @@ LLM2_BASE_URL = os.getenv("LLM2_BASE_URL", "https://token-plan-cn.xiaomimimo.com
 LLM2_MODEL = os.getenv("LLM2_MODEL", "mimo-v2.5-pro")
 
 SEARCH_SOURCE = os.getenv("SEARCH_SOURCE", "bocha")
-BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "sk-4ecfea3e70b54d33a416b981ec94f25d")
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
 
 # 搜索 API 固定用博查；0 = 传统爬虫, 1 = Playwright, 2 = Crawl4AI
 # 使用Crawl4AI请确保设备有足够的内存
-SEARCH_BACKEND = 1
+SEARCH_BACKEND = 0
 SEARCH_BACKEND = int(os.getenv("SEARCH_BACKEND", str(SEARCH_BACKEND)))
 
 QUERY_COUNT = int(os.getenv("QUERY_COUNT", "3"))
@@ -70,7 +75,9 @@ FINAL_SUMMARY_MARKER = "===== FINAL SUMMARY ====="
 REFERENCE_EVIDENCE_MARKER = "===== REFERENCE EVIDENCE ====="
 REFERENCE_POINT_RE = re.compile(r"(?<!\])\[参考点(\d+)\]")
 KNOWN_PRODUCT_PARAM_MAX_CHARS = int(os.getenv("KNOWN_PRODUCT_PARAM_MAX_CHARS", "12000"))
-QUESTIONNAIRE_ANALYSIS_MAX_CHARS = int(os.getenv("QUESTIONNAIRE_ANALYSIS_MAX_CHARS", "16000"))
+QUESTIONNAIRE_ANALYSIS_MAX_CHARS = int(
+    os.getenv("QUESTIONNAIRE_ANALYSIS_MAX_CHARS", "16000")
+)
 QUESTIONNAIRE_CODE_SUMMARY_MARKER = "===== CODE SUMMARY JSON ====="
 
 
@@ -175,7 +182,9 @@ def read_product_description() -> str:
 def read_known_product_param_text() -> tuple[str, str]:
     path_text = os.getenv("KNOWN_PRODUCT_PARAM_TXT", "").strip()
     if not path_text:
-        path_text = input("请输入已知产品参数 txt 路径（可直接回车跳过）: ").strip().strip('"')
+        path_text = (
+            input("请输入已知产品参数 txt 路径（可直接回车跳过）: ").strip().strip('"')
+        )
     if not path_text:
         return "", ""
 
@@ -192,14 +201,18 @@ def read_known_product_param_text() -> tuple[str, str]:
         return "", ""
     if len(text) > KNOWN_PRODUCT_PARAM_MAX_CHARS:
         text = text[:KNOWN_PRODUCT_PARAM_MAX_CHARS]
-        print(f"[warn] 已知产品参数 txt 较长，已截取前 {KNOWN_PRODUCT_PARAM_MAX_CHARS} 字符。")
+        print(
+            f"[warn] 已知产品参数 txt 较长，已截取前 {KNOWN_PRODUCT_PARAM_MAX_CHARS} 字符。"
+        )
     return str(path), text
 
 
 def read_questionnaire_analysis_text() -> tuple[str, str]:
     path_text = os.getenv("QUESTIONNAIRE_ANALYSIS_MD", "").strip()
     if not path_text:
-        path_text = input("请输入问卷分析报告 md 路径（可直接回车跳过）: ").strip().strip('"')
+        path_text = (
+            input("请输入问卷分析报告 md 路径（可直接回车跳过）: ").strip().strip('"')
+        )
     if not path_text:
         return "", ""
 
@@ -215,11 +228,15 @@ def read_questionnaire_analysis_text() -> tuple[str, str]:
         text = text.split(QUESTIONNAIRE_CODE_SUMMARY_MARKER, 1)[0].strip()
     if len(text) > QUESTIONNAIRE_ANALYSIS_MAX_CHARS:
         text = text[:QUESTIONNAIRE_ANALYSIS_MAX_CHARS]
-        print(f"[warn] 问卷分析正文较长，已截取前 {QUESTIONNAIRE_ANALYSIS_MAX_CHARS} 字符。")
+        print(
+            f"[warn] 问卷分析正文较长，已截取前 {QUESTIONNAIRE_ANALYSIS_MAX_CHARS} 字符。"
+        )
     return str(path), text
 
 
-def build_comparison_keyword_library(product_description: str, known_param_text: str) -> str:
+def build_comparison_keyword_library(
+    product_description: str, known_param_text: str
+) -> str:
     if not known_param_text:
         return ""
 
@@ -256,7 +273,10 @@ def build_comparison_keyword_library(product_description: str, known_param_text:
         base_url=base_url,
         model=model,
         messages=[
-            {"role": "system", "content": "你把已知产品参数提炼成竞品调研的共同搜索关键词库。"},
+            {
+                "role": "system",
+                "content": "你把已知产品参数提炼成竞品调研的共同搜索关键词库。",
+            },
             {"role": "user", "content": prompt},
         ],
         temperature=0.2,
@@ -442,18 +462,26 @@ def analyze_product(
 
 def wait_for_reports(targets: list[str], timestamp: str) -> list[Path]:
     expected = [
-        (name, report_path_for(name, index, timestamp), done_path_for(name, index, timestamp))
+        (
+            name,
+            report_path_for(name, index, timestamp),
+            done_path_for(name, index, timestamp),
+        )
         for index, name in enumerate(targets, 1)
     ]
     deadline = time.time() + ANALYZE_TIMEOUT
     pending = set(name for name, _, _ in expected)
-    progress = tqdm(
-        total=len(expected),
-        desc="等待产品报告",
-        unit="个",
-        dynamic_ncols=True,
-        file=sys.stdout,
-    ) if tqdm else None
+    progress = (
+        tqdm(
+            total=len(expected),
+            desc="等待产品报告",
+            unit="个",
+            dynamic_ncols=True,
+            file=sys.stdout,
+        )
+        if tqdm
+        else None
+    )
     try:
         while pending and time.time() < deadline:
             for name, report_path, done_path in expected:
@@ -474,7 +502,9 @@ def wait_for_reports(targets: list[str], timestamp: str) -> list[Path]:
             progress.close()
     if pending:
         print(f"[warn] 等待超时，未完成: {', '.join(sorted(pending))}")
-    return [report_path for name, report_path, done_path in expected if report_path.exists()]
+    return [
+        report_path for name, report_path, done_path in expected if report_path.exists()
+    ]
 
 
 def add_product_prefix(text: str, product_name: str) -> str:
@@ -496,7 +526,7 @@ def extract_reference_points(before_final_summary: str) -> str:
         return before_final_summary.split(REFERENCE_EVIDENCE_MARKER, 1)[1].strip()
     match = re.search(r"\[参考点\d+\]", before_final_summary)
     if match:
-        return before_final_summary[match.start():].strip()
+        return before_final_summary[match.start() :].strip()
     return before_final_summary.strip()
 
 
@@ -562,7 +592,10 @@ def summarize_all_reports(
     print("\n===== 生成所选产品大总结 =====")
     api_key, base_url, model = final_llm_config()
     messages = [
-        {"role": "system", "content": "你把多份产品调研总结合并成一份有引用标记的中文横向对比报告。"},
+        {
+            "role": "system",
+            "content": "你把多份产品调研总结合并成一份有引用标记的中文横向对比报告。",
+        },
         {"role": "user", "content": prompt},
     ]
     chunks = []
@@ -603,7 +636,9 @@ def summarize_all_reports(
             comparison_keyword_library.strip() or "无",
             "",
             "===== 问卷分析补充背景 =====",
-            f"来源: {questionnaire_analysis_path}" if questionnaire_analysis_path else "来源: 无",
+            f"来源: {questionnaire_analysis_path}"
+            if questionnaire_analysis_path
+            else "来源: 无",
             questionnaire_analysis_text.strip() or "无",
             "",
             "===== FINAL COMPARISON SUMMARY =====",
@@ -627,7 +662,9 @@ def main() -> None:
     provider = active_provider()
     keys = llm_key_pool() if provider == 1 else []
     if provider == 1 and not keys:
-        raise RuntimeError("Please set LLM_API_KEYS, LLM_API_KEY, or ARK_API_KEY for provider 1.")
+        raise RuntimeError(
+            "Please set LLM_API_KEYS, LLM_API_KEY, or ARK_API_KEY for provider 1."
+        )
     if provider in {0, 2} and not provider_llm_config()[0]:
         raise RuntimeError(f"Please set an active API key for LLM_PROVIDER={provider}.")
     if provider not in {0, 1, 2}:
@@ -635,7 +672,9 @@ def main() -> None:
     if SEARCH_BACKEND not in {0, 1, 2}:
         raise RuntimeError("SEARCH_BACKEND must be 0, 1, or 2.")
     if SearchSource(SEARCH_SOURCE) != SearchSource.BOCHA:
-        raise RuntimeError("当前 SEARCH_BACKEND 仅支持博查搜索 API，请设置 SEARCH_SOURCE=bocha。")
+        raise RuntimeError(
+            "当前 SEARCH_BACKEND 仅支持博查搜索 API，请设置 SEARCH_SOURCE=bocha。"
+        )
     if SearchSource(SEARCH_SOURCE) == SearchSource.BOCHA and not BOCHA_API_KEY:
         raise RuntimeError("当前 SEARCH_SOURCE=bocha，请先填写 BOCHA_API_KEY。")
 
@@ -651,7 +690,9 @@ def main() -> None:
     if known_param_path:
         print(f"\n已读取已知产品参数: {known_param_path}")
 
-    questionnaire_analysis_path, questionnaire_analysis_text = read_questionnaire_analysis_text()
+    questionnaire_analysis_path, questionnaire_analysis_text = (
+        read_questionnaire_analysis_text()
+    )
     if questionnaire_analysis_path:
         print(f"\n已读取问卷分析报告: {questionnaire_analysis_path}")
 
@@ -690,15 +731,21 @@ def main() -> None:
                 if provider == 1:
                     index = targets.index(name) + 1
                     key = keys[(index - 1) % len(keys)]
-                    print(f"[started] {name} provider=1 api_key={mask_key(key)} -> {path}")
+                    print(
+                        f"[started] {name} provider=1 api_key={mask_key(key)} -> {path}"
+                    )
                 elif provider == 2:
-                    print(f"[started] {name} provider=2 Xiaomi MiMo shared config -> {path}")
+                    print(
+                        f"[started] {name} provider=2 Xiaomi MiMo shared config -> {path}"
+                    )
                 else:
                     print(f"[started] {name} provider=0 doubao shared config -> {path}")
             except Exception as exc:
                 print(f"[failed] {name}: {exc}")
 
-    print(f"\n{len(targets)} 个分析窗口已经启动。每个窗口会独立显示进度，并把报告写入 reports 目录。")
+    print(
+        f"\n{len(targets)} 个分析窗口已经启动。每个窗口会独立显示进度，并把报告写入 reports 目录。"
+    )
     print("\n===== 等待所选产品分析报告完成 =====")
     report_paths = wait_for_reports(targets, timestamp)
     if len(report_paths) < len(targets):
