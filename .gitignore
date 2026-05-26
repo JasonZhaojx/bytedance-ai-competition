@@ -23,6 +23,8 @@ ENV/
 reports/
 *.md
 *.done
+outputs/
+logs/
 
 # Logs
 *.log
