@@ -74,3 +74,4 @@ yarn.lock
 
 # Testing
 .test/
+.env

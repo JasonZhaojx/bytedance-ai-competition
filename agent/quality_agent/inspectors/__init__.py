@@ -13,7 +13,7 @@ from .competitor_inspector import check_competitor_coverage
 from .logic_inspector import check_logical_consistency
 from .recommendation_inspector import check_recommendation_feasibility
 from .llm_inspector import LLMInspector
-from .hybrid_inspector import HybridInspector, HybridMode
+from .hybrid_inspector import HybridInspector
 
 __all__ = [
     "check_claim_evidence_linkage",
@@ -26,5 +26,4 @@ __all__ = [
     "check_recommendation_feasibility",
     "LLMInspector",
     "HybridInspector",
-    "HybridMode",
 ]
