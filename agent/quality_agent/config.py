@@ -42,6 +42,14 @@ class ProductType(str, Enum):
     AI_TOOLS = "ai_tools"  # AI编程工具等软件产品
 
 
+class InspectionMode(str, Enum):
+    """检查模式."""
+    LLM_ONLY = "llm_only"           # 仅使用LLM检测
+    RULE_ONLY = "rule_only"         # 仅使用规则检测
+    HYBRID_VOTING = "hybrid_voting" # 混合投票模式（LLM+规则投票）
+    LLM_FALLBACK = "llm_fallback"   # LLM为主，规则兜底
+
+
 # AI编程工具专用配置
 AI_TOOLS_KEYWORDS = [
     "编程", "代码", "开发", "IDE", "copilot", "coding",
@@ -198,7 +206,23 @@ class QualityConfig:
     llm_base_url: str
     llm_model: str
     
-    # 基础配置
+    # ========== 检查模式配置（核心超参数）==========
+    # 检查模式：llm_only / rule_only / hybrid_voting / llm_fallback
+    inspection_mode: InspectionMode = InspectionMode.HYBRID_VOTING
+    
+    # 投票机制超参数
+    voting_threshold: float = 0.6          # 投票通过阈值（0-1）
+    voting_llm_weight: float = 0.5         # LLM在投票中的权重（0-1）
+    
+    # LLM检测配置
+    llm_enabled: bool = True               # 是否启用LLM检测
+    llm_timeout_sec: float = 30.0          # LLM调用超时时间
+    llm_max_retries: int = 2               # LLM调用重试次数
+    
+    # 规则检测配置
+    rule_enabled: bool = True              # 是否启用规则检测
+    
+    # ========== 基础配置 ==========
     min_score_threshold: float = 0.6
     min_evidence_count: int = 3
     required_fields: Optional[List[str]] = None
@@ -206,12 +230,59 @@ class QualityConfig:
     max_tokens: int = 2000
     verbose: bool = True
     
-    # 领域配置
+    # ========== 领域配置 ==========
     domain_config: Optional[DomainConfig] = None
     product_type: ProductType = ProductType.AUTO_DETECT
     
-    # 增强功能配置
+    # ========== 增强功能配置 ==========
     enable_quality_feedback: bool = False
     feedback_log_dir: Optional[str] = None
     enable_multistage_inspection: bool = True
     quick_check_timeout_sec: float = 5.0
+    
+    @classmethod
+    def from_env(cls) -> "QualityConfig":
+        """从环境变量加载配置."""
+        import os
+        
+        # 解析检查模式
+        mode_str = os.getenv("INSPECTION_MODE", "hybrid_voting").lower()
+        try:
+            mode = InspectionMode(mode_str)
+        except ValueError:
+            mode = InspectionMode.HYBRID_VOTING
+        
+        return cls(
+            llm_api_key=os.getenv("LLM_API_KEY", ""),
+            llm_base_url=os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1/chat/completions"),
+            llm_model=os.getenv("LLM_MODEL", "deepseek-ai/DeepSeek-V4-Flash"),
+            
+            # 检查模式配置
+            inspection_mode=mode,
+            voting_threshold=float(os.getenv("VOTING_THRESHOLD", "0.6")),
+            voting_llm_weight=float(os.getenv("VOTING_LLM_WEIGHT", "0.5")),
+            
+            # LLM配置
+            llm_enabled=bool(os.getenv("LLM_API_KEY")),
+            llm_timeout_sec=float(os.getenv("LLM_TIMEOUT_SEC", "30.0")),
+            llm_max_retries=int(os.getenv("LLM_MAX_RETRIES", "2")),
+            
+            # 规则配置
+            rule_enabled=bool(os.getenv("RULE_ENABLED", "true").lower() == "true"),
+            
+            # 基础配置
+            min_score_threshold=float(os.getenv("MIN_SCORE_THRESHOLD", "0.6")),
+            min_evidence_count=int(os.getenv("MIN_EVIDENCE_COUNT", "3")),
+            temperature=float(os.getenv("LLM_TEMPERATURE", "0.2")),
+            max_tokens=int(os.getenv("LLM_MAX_TOKENS", "2000")),
+            verbose=bool(os.getenv("VERBOSE", "true").lower() == "true"),
+            
+            # 领域配置
+            product_type=ProductType(os.getenv("PRODUCT_TYPE", "auto")),
+            
+            # 增强功能配置
+            enable_quality_feedback=bool(os.getenv("ENABLE_FEEDBACK", "false").lower() == "true"),
+            feedback_log_dir=os.getenv("FEEDBACK_LOG_DIR"),
+            enable_multistage_inspection=bool(os.getenv("ENABLE_MULTISTAGE", "true").lower() == "true"),
+            quick_check_timeout_sec=float(os.getenv("QUICK_CHECK_TIMEOUT", "5.0")),
+        )

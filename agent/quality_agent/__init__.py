@@ -1,9 +1,16 @@
-"""Quality agent submodule exports."""
+"""Quality agent submodule exports.
+
+Modules:
+- adapters: Data format adapters
+- inspectors: Individual inspection modules
+- report_quality_agent: Main entry for report inspection
+"""
 
 from .config import (
     ConfidenceLevel,
     DomainConfig,
     EvidenceQualityScore,
+    InspectionMode,
     IssueSeverity,
     IssueType,
     ProductType,
@@ -13,9 +20,10 @@ from .config import (
 )
 from .core import inspect, inspect_quality, llm_enhanced_inspect
 from .feedback import QualityFeedback, QualityFeedbackRecorder
+from .report_quality_agent import inspect_report_package, inspect, inspect_with_llm
 
 __all__ = [
-    # 配置和数据结构
+    # Configuration and data structures
     "QualityConfig",
     "DomainConfig",
     "QualityReport",
@@ -25,11 +33,15 @@ __all__ = [
     "IssueSeverity",
     "ConfidenceLevel",
     "ProductType",
-    # 核心函数
+    "InspectionMode",
+    # Core functions (for ProductWorkflowResult)
     "inspect",
     "inspect_quality",
     "llm_enhanced_inspect",
-    # 反馈记录
+    # Report inspection (for ReportPackage)
+    "inspect_report_package",
+    "inspect_with_llm",
+    # Feedback recording
     "QualityFeedback",
     "QualityFeedbackRecorder",
 ]
