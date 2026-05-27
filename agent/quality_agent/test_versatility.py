@@ -146,6 +146,12 @@ def main():
         ProductType.HARDWARE
     ))
 
+    results.append(test_product_type(
+        "华为电视", "电视",
+        {"brand": "华为", "model": "电视", "price": "399元", "spec": "WiFi 6+/3200Mbps"},
+        ProductType.HARDWARE
+    ))
+
     print("\n" + "=" * 70)
     passed = sum(results)
     total = len(results)
