@@ -40,9 +40,9 @@ BOCHA_API_KEY = ""
 
 HTTP_PROXY = ""
 
-MAX_ROUNDS = 2
-NEXT_QUERY_COUNT = 2
-RESULTS_PER_QUERY = 8
+MAX_ROUNDS = 3
+NEXT_QUERY_COUNT = 3
+RESULTS_PER_QUERY = 9
 MAX_EVIDENCE_ITEMS = 30
 EVIDENCE_TEXT_CHARS = 0
 NODE_SUMMARY_CHARS = 0
@@ -51,6 +51,7 @@ MAX_TOKENS = 8000
 MAX_PARALLEL_NODES = 4
 LLM_TIMEOUT = 120
 FINAL_LLM_TIMEOUT = 900
+NODE_TIMEOUT = 240
 FILTER_IRRELEVANT_EVIDENCE = True
 COMPARISON_KEYWORD_LIBRARY = ""
 
@@ -145,6 +146,7 @@ def main() -> None:
         max_parallel_nodes=int(os.getenv("MAX_PARALLEL_NODES", str(MAX_PARALLEL_NODES))),
         llm_timeout=int(os.getenv("LLM_TIMEOUT", str(LLM_TIMEOUT))),
         final_llm_timeout=int(os.getenv("FINAL_LLM_TIMEOUT", str(FINAL_LLM_TIMEOUT))),
+        node_timeout=int(os.getenv("NODE_TIMEOUT", str(NODE_TIMEOUT))),
         verbose=True,
         skip_final_summary=True,
         filter_irrelevant_evidence=env_bool(
@@ -155,7 +157,7 @@ def main() -> None:
     )
 
     if comparison_keyword_library:
-        print("\n===== 已知产品参数关键词库 =====\n")
+        print("\n===== 我方产品参数关键词库 =====\n")
         print(comparison_keyword_library)
 
     result = run_tree_search(question, config)

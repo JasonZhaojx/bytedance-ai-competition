@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 import re
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+import time
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from dataclasses import dataclass, field, replace
 from typing import Callable, Dict, List, Optional
 
 from .llm_client import chat_content, stream_chat_content
@@ -32,6 +33,7 @@ class RecursiveSearchConfig:
     max_parallel_nodes: int = 4
     llm_timeout: int = 120
     final_llm_timeout: int = 900
+    node_timeout: int = 240
     verbose: bool = True
     progress_printer: Optional[Callable[[str], None]] = print
     final_stream_printer: Optional[Callable[[str], None]] = None
@@ -477,6 +479,7 @@ def summarize_node(
 请按调研对象选择合适的来源标准：官网和文档很有价值，但不是唯一来源；评测、榜单、教程、GitHub issue、论坛、博客、社区帖子、应用商店页面、电商页面和用户反馈也可以作为有效证据。
 如果是实体产品，请保留参数和规格；如果是互联网产品或 AI/Vibe 工具，请保留能力、价格、限制、集成方式、工作流、版本、可靠性和用户抱怨。
 如果关键结论来自非官方来源，请说明来源类型，并指出不确定性。
+为方便后续报告分析，如果资料中有明确证据，请顺手保留这些信息：目标用户、核心场景、产品形态/入口、商业模式/定价、关键能力、限制或风险、用户反馈。没有证据的项不要补写。
 
 请包含:
 1. 这个节点发现的关键事实。
@@ -523,7 +526,7 @@ def plan_child_queries(
 原始问题或调研对象:
 {question}
 
-本轮注入的已知产品参数关键词:
+本轮注入的我方产品参数关键词（来自用户自己的产品，不是竞品事实）:
 {keyword_hint}
 
 当前节点:
@@ -536,7 +539,7 @@ def plan_child_queries(
 
 只有当这个分支仍然存在值得探索的缺失信息时，才生成子搜索词。
 请启发式、发散但聚焦：扩展到真正不同的角度，而不是重复显而易见的关键词。
-如果“本轮注入的已知产品参数关键词”不是“无”，请优先围绕这些关键词生成本轮子搜索词；尽量让一个关键词对应一个子搜索词，让不同竞品最终可以在相同维度上对比。
+如果“本轮注入的我方产品参数关键词”不是“无”，请优先围绕这些关键词生成本轮子搜索词；这些关键词来自我方产品，只能作为竞品对标维度，不能当作当前竞品事实。尽量让一个关键词对应一个子搜索词，让不同竞品最终可以在相同维度上对比。
 如果本轮注入为“无”，请按当前节点证据自由生成最有价值的后续搜索词。
 
 可用的子搜索方向包括:
@@ -603,12 +606,13 @@ def tree_final_summarize(
 请根据下面的参考点和正文内容，用中文生成一份产品调研总结。
 不要使用参考点之外的信息；如果证据不足或互相矛盾，请直接说明。
 总结中的关键事实后面要标注参考点编号，例如：[参考点1]。
-如果“已知产品参数关键词库”不为空，请优先按这些共同参数点组织总结；缺失的参数点也要说明“未找到明确证据”。
+如果“我方产品参数关键词库”不为空，请优先按这些共同参数点组织总结；这些参数来自用户自己的产品，不是竞品事实。缺失的竞品参数点也要说明“未找到明确证据”。
+为方便后续报告 Agent 使用，请在不改变事实范围的前提下，尽量覆盖这些信息：产品定位、目标用户、核心场景、产品形态/入口、商业模式/定价、关键能力、集成生态、限制或风险、用户反馈、与调研对象的相关性。没有参考点支撑的项请写“未找到明确证据”。
 
 调研对象:
 {question}
 
-已知产品参数关键词库:
+我方产品参数关键词库:
 {comparison_keywords}
 
 搜索树摘要:
@@ -705,6 +709,15 @@ def run_tree_search(
             f"已完成 {done}/{total} 节点；理论上限 {theoretical_nodes}{suffix}",
         )
 
+    def mark_node_completed(node: SearchNode, stage: str) -> None:
+        nonlocal completed_nodes
+        with state_lock:
+            if getattr(node, "_completed", False):
+                return
+            setattr(node, "_completed", True)
+            completed_nodes += 1
+        log_progress(stage)
+
     def next_node_id() -> str:
         nonlocal discovered_nodes, node_counter
         with state_lock:
@@ -765,24 +778,47 @@ def run_tree_search(
     def process_node(node: SearchNode) -> List[str]:
         nonlocal completed_nodes
         child_queries: List[str] = []
+        started_at = time.monotonic()
+        should_count_completion = False
+
+        def remaining_timeout(default: int) -> int:
+            if config.node_timeout <= 0:
+                return default
+            remaining = config.node_timeout - int(time.monotonic() - started_at)
+            return max(1, min(default, remaining))
+
+        def node_timed_out() -> bool:
+            return config.node_timeout > 0 and (
+                time.monotonic() - started_at >= config.node_timeout
+            )
+
         if not claim_query(node):
             _log(config, f"[tree-skip] Already searched or limit reached: {node.query}")
-            with state_lock:
-                completed_nodes += 1
-            log_progress(f"跳过 {node.node_id}")
+            mark_node_completed(node, f"跳过 {node.node_id}")
             return []
 
         log_progress(f"开始 {node.node_id}")
+        should_count_completion = True
         try:
             _log(config, f"[tree-search] node={node.node_id} depth={node.depth} query={node.query}")
             search_runner = config.search_func or search
-            results = search_runner(node.query, config.search_config)
+            node_search_config = replace(
+                config.search_config,
+                timeout=remaining_timeout(config.search_config.timeout),
+            )
+            results = search_runner(node.query, node_search_config)
             _log(config, f"[tree-search] node={node.node_id} results={len(results)}")
-            results = filter_relevant_search_results(question, node.query, results, config)
+            node_config = replace(config, llm_timeout=remaining_timeout(config.llm_timeout))
+            results = filter_relevant_search_results(question, node.query, results, node_config)
             _log(config, f"[tree-search] node={node.node_id} relevant_results={len(results)}")
             add_evidence(node, results)
 
-            node.summary = summarize_node(question, node, config)
+            if node_timed_out():
+                _log(config, f"[tree-timeout] node={node.node_id} timeout before summary")
+                raise TimeoutError("node timed out before summary")
+
+            node_config = replace(config, llm_timeout=remaining_timeout(config.llm_timeout))
+            node.summary = summarize_node(question, node, node_config)
             _log(config, f"[tree-summary] node={node.node_id}\n{node.summary}")
 
             with state_lock:
@@ -799,15 +835,20 @@ def run_tree_search(
                         )
                     else:
                         _log(config, f"[keyword-inject] node={node.node_id} 关键词库已用完，自由搜索")
-                    child_queries = plan_child_queries(question, node, config, injected_keywords)
+                    if node_timed_out():
+                        _log(config, f"[tree-timeout] node={node.node_id} timeout before planning")
+                    else:
+                        node_config = replace(
+                            config,
+                            llm_timeout=remaining_timeout(config.llm_timeout),
+                        )
+                        child_queries = plan_child_queries(question, node, node_config, injected_keywords)
                 except Exception as exc:
                     _log(config, f"[tree-plan] node={node.node_id} failed: {exc}")
         except Exception as exc:
             _log(config, f"[tree-node] node={node.node_id} failed: {exc}")
 
-        with state_lock:
-            completed_nodes += 1
-        log_progress(f"完成 {node.node_id}，生成 {len(child_queries)} 个子节点")
+        mark_node_completed(node, f"done {node.node_id}, children={len(child_queries)}")
         return child_queries
 
     def attach_children(parent: SearchNode, queries: List[str]) -> List[SearchNode]:
@@ -829,21 +870,47 @@ def run_tree_search(
         return children
 
     def process_level(nodes: List[SearchNode]) -> List[SearchNode]:
+        nonlocal completed_nodes
         if not nodes:
             return []
         workers = max(1, min(config.max_parallel_nodes, len(nodes)))
         _log(config, f"[tree-level] depth={nodes[0].depth} nodes={len(nodes)} workers={workers}")
         next_level: List[SearchNode] = []
-        with ThreadPoolExecutor(max_workers=workers) as executor:
+        executor = ThreadPoolExecutor(max_workers=workers)
+        try:
             future_to_node = {executor.submit(process_node, node): node for node in nodes}
-            for future in as_completed(future_to_node):
-                node = future_to_node[future]
-                try:
-                    child_queries = future.result()
-                except Exception as exc:
-                    _log(config, f"[tree-node] node={node.node_id} failed: {exc}")
-                    child_queries = []
-                next_level.extend(attach_children(node, child_queries))
+            pending = set(future_to_node)
+            started_at = {future: time.monotonic() for future in future_to_node}
+            while pending:
+                done, pending = wait(pending, timeout=1, return_when=FIRST_COMPLETED)
+                now = time.monotonic()
+                timed_out = []
+                if config.node_timeout > 0:
+                    timed_out = [
+                        future
+                        for future in pending
+                        if now - started_at.get(future, now) >= config.node_timeout
+                    ]
+                for future in timed_out:
+                    pending.remove(future)
+                    future.cancel()
+                    node = future_to_node[future]
+                    mark_node_completed(node, f"超时 {node.node_id}，已跳过")
+                    _log(
+                        config,
+                        f"[tree-timeout] node={node.node_id} exceeded {config.node_timeout}s, skipped",
+                    )
+
+                for future in done:
+                    node = future_to_node[future]
+                    try:
+                        child_queries = future.result()
+                    except Exception as exc:
+                        _log(config, f"[tree-node] node={node.node_id} failed: {exc}")
+                        child_queries = []
+                    next_level.extend(attach_children(node, child_queries))
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
         return next_level
 
     def expand_tree(root_node: SearchNode) -> None:

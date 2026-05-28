@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable, List, Optional
 import asyncio
+import re
 
 import requests
 from duckduckgo_search import DDGS
@@ -133,9 +134,7 @@ def _fetch_with_playwright(url: str, config: SearchConfig) -> str:
             text = content or ""
             if len(text) < config.crawl_min_chars:
                 text = _extract_visible_text_from_page(page, config.crawl_max_chars)
-            if config.crawl_max_chars and len(text) > config.crawl_max_chars:
-                text = text[: config.crawl_max_chars]
-            return text
+            return _clean_crawled_text(text, config.crawl_max_chars)
         finally:
             context.close()
             browser.close()
@@ -162,6 +161,135 @@ def _extract_visible_text_from_page(page, max_chars: int) -> str:
         if text:
             return text[:max_chars] if max_chars and len(text) > max_chars else text
     return ""
+
+
+def _clean_crawled_text(text: str, max_chars: int = 0) -> str:
+    """Remove navigation/link-heavy boilerplate from crawled page text."""
+
+    text = str(text or "").replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    raw_lines = []
+    for chunk in text.split("\n"):
+        chunk = re.sub(r"[ \t]+", " ", chunk).strip()
+        if not chunk:
+            continue
+        raw_lines.extend(_split_suspect_link_blocks(chunk))
+
+    kept: List[str] = []
+    previous = ""
+    for line in raw_lines:
+        if _is_boilerplate_line(line):
+            continue
+        line = _strip_markdown_link_syntax(line)
+        line = re.sub(r"[ \t]+", " ", line).strip(" -|·•\t")
+        if not line or line == previous:
+            continue
+        previous = line
+        if _is_boilerplate_line(line):
+            continue
+        kept.append(line)
+
+    cleaned = "\n".join(kept)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
+    if max_chars and len(cleaned) > max_chars:
+        cleaned = cleaned[:max_chars].rstrip()
+    return cleaned
+
+
+def _split_suspect_link_blocks(line: str) -> List[str]:
+    if len(line) < 500:
+        return [line]
+    marker_count = line.count("http") + line.count("](http") + line.count(" * [")
+    if marker_count < 6:
+        return [line]
+    parts = re.split(r"\s+\*\s+|\s{2,}|(?<=\))\s+(?=\*)", line)
+    return [part.strip() for part in parts if part.strip()]
+
+
+def _strip_markdown_link_syntax(line: str) -> str:
+    line = re.sub(r"!\[[^\]]*\]\([^)]+\)", " ", line)
+    line = re.sub(r"\[([^\]]{1,80})\]\((https?://[^)]+)\)", r"\1", line)
+    return line
+
+
+def _is_boilerplate_line(line: str) -> bool:
+    compact = re.sub(r"\s+", "", line).lower()
+    if len(compact) <= 1:
+        return True
+
+    url_count = len(re.findall(r"https?://", line))
+    markdown_link_count = len(re.findall(r"\[[^\]]+\]\(https?://", line))
+    if url_count >= 2 or markdown_link_count >= 2:
+        return True
+
+    linkish_tokens = len(re.findall(r"https?://|www\.|\.com|\.cn|\.html|/zh/|/en/", line, flags=re.I))
+    if linkish_tokens >= 4 and len(line) < 1200:
+        return True
+    if "/zh/" in line and "help.aliyun.com" in line and len(line) < 1500:
+        return True
+
+    nav_terms = [
+        "首页",
+        "文档",
+        "产品",
+        "解决方案",
+        "定价",
+        "支持",
+        "帮助中心",
+        "控制台",
+        "登录",
+        "注册",
+        "备案",
+        "联系我们",
+        "新手指南",
+        "从这里开始",
+        "相关产品",
+        "推荐产品",
+        "更多产品",
+        "上一页",
+        "下一页",
+        "目录",
+        "云产品",
+        "大数据计算",
+        "数据库",
+        "计算与分析",
+        "文档停止维护",
+    ]
+    nav_hits = sum(1 for term in nav_terms if term in line or term in compact)
+    bullet_count = line.count("* ") + line.count(" - ") + line.count("·")
+    if nav_hits >= 3 and (bullet_count >= 1 or linkish_tokens >= 2 or len(line) < 1200):
+        return True
+    if nav_hits >= 5:
+        return True
+
+    product_catalog_terms = [
+        "云原生",
+        "数据库",
+        "大数据",
+        "计算服务",
+        "迁移",
+        "网关",
+        "安全指南",
+        "卓越架构",
+        "采用框架",
+        "maxcompute",
+    ]
+    catalog_hits = sum(1 for term in product_catalog_terms if term.lower() in compact)
+    if catalog_hits >= 4:
+        return True
+
+    if line.startswith(("当前位置", "您当前的位置", "面包屑", "breadcrumb")):
+        return True
+    if re.fullmatch(r"[\W_]*(首页|文档|产品|控制台|登录|注册|帮助|目录)[\W_]*", compact):
+        return True
+    if len(line) <= 30 and nav_hits >= 1 and not re.search(r"[。；，,.]", line):
+        return True
+
+    cjk_chars = len(re.findall(r"[\u4e00-\u9fff]", line))
+    if len(line) > 180 and cjk_chars < 12 and linkish_tokens >= 2:
+        return True
+    return False
 
 
 def _fetch_with_crawl4ai(url: str, config: SearchConfig) -> str:
@@ -204,10 +332,7 @@ def _fetch_with_crawl4ai(url: str, config: SearchConfig) -> str:
             text = str(markdown)
         if not text:
             text = getattr(result, "cleaned_html", "") or getattr(result, "html", "") or ""
-        text = " ".join(str(text).split())
-        if config.crawl_max_chars and len(text) > config.crawl_max_chars:
-            text = text[: config.crawl_max_chars]
-        return text
+        return _clean_crawled_text(str(text), config.crawl_max_chars)
 
     try:
         asyncio.get_running_loop()
@@ -222,6 +347,11 @@ def _fetch_with_crawl4ai(url: str, config: SearchConfig) -> str:
 
 
 def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResult:
+    if config.crawl_max_chars <= 0:
+        result.content = result.snippet
+        result.content_source = "搜索摘要"
+        return result
+
     if config.crawl_backend == 1:
         try:
             text = _fetch_with_playwright(result.url, config)
@@ -240,6 +370,7 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
                     max_chars=config.crawl_max_chars,
                     target_language=config.target_language,
                 )
+                text = _clean_crawled_text(text, config.crawl_max_chars)
                 source_name = "网页正文"
             except Exception as exc:
                 print(f"[crawler] fallback failed: {result.url} ({exc})")
@@ -261,6 +392,7 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
                     max_chars=config.crawl_max_chars,
                     target_language=config.target_language,
                 )
+                text = _clean_crawled_text(text, config.crawl_max_chars)
                 source_name = "网页正文"
             except Exception as exc:
                 print(f"[crawler] fallback failed: {result.url} ({exc})")
@@ -272,6 +404,7 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
             max_chars=config.crawl_max_chars,
             target_language=config.target_language,
         )
+        text = _clean_crawled_text(text, config.crawl_max_chars)
         source_name = "网页正文"
 
     if len(text) >= config.crawl_min_chars:

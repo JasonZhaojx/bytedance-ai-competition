@@ -1,0 +1,67 @@
+[2026-05-27 10:30:30] [+    0.0s] ===== Report Agent Search + Report Workflow =====
+[2026-05-27 10:30:30] [+    0.0s] log_file: E:\deep-learning\zhengce\report_agent\logs\20260527_103030_search_report_task.log
+[2026-05-27 10:30:30] [+    0.0s] latest_log_file: E:\deep-learning\zhengce\report_agent\logs\latest_search_report_workflow.log
+[2026-05-27 10:30:30] [+    0.0s] 提示: 如果使用 conda run 且终端不实时输出，请加 `conda run --no-capture-output -n bytedance-ai-competition ...`
+[2026-05-27 10:30:30] [+    0.0s] 也可以另开终端监控: tail -f E:\deep-learning\zhengce\report_agent\logs\latest_search_report_workflow.log
+[2026-05-27 10:30:30] [+    0.0s] 
+[2026-05-27 10:30:30] [+    0.0s] ===== 输入参数 =====
+[2026-05-27 10:30:30] [+    0.0s] product_description: AI IDE 编程助手竞品分析
+[2026-05-27 10:30:30] [+    0.0s] competitors: Trae, Cursor, GitHub Copilot, 通义灵码
+[2026-05-27 10:30:30] [+    0.0s] task_id: search_report_task
+[2026-05-27 10:30:30] [+    0.0s] target_domain: AI IDE 编程助手竞品分析
+[2026-05-27 10:30:30] [+    0.0s] output_dir: report_agent\outputs
+[2026-05-27 10:30:30] [+    0.0s] offline_smoke_test: False
+[2026-05-27 10:30:30] [+    0.0s] no_llm: False
+[2026-05-27 10:30:30] [+    0.0s] 
+[2026-05-27 10:30:30] [+    0.0s] ===== LLM API 提供商 =====
+[2026-05-27 10:30:30] [+    0.0s] provider: 0 (豆包/火山 Ark)
+[2026-05-27 10:30:30] [+    0.0s] base_url: https://ark.cn-beijing.volces.com/api/v3
+[2026-05-27 10:30:30] [+    0.0s] model: ep-20260514111325-xjmj7
+[2026-05-27 10:30:30] [+    0.0s] api_key: 未配置
+[2026-05-27 10:30:30] [+    0.0s] use_llm: False
+[2026-05-27 10:30:30] [+    0.0s] 
+[2026-05-27 10:30:30] [+    0.0s] ===== 搜索后端 =====
+[2026-05-27 10:30:30] [+    0.0s] search_source: bocha
+[2026-05-27 10:30:30] [+    0.0s] bocha_api_key: 未配置
+[2026-05-27 10:30:30] [+    0.0s] google_api_key: 未配置
+[2026-05-27 10:30:30] [+    0.0s] google_cx_id: 未配置
+[2026-05-27 10:30:30] [+    0.0s] proxy: 未配置
+[2026-05-27 10:30:30] [+    0.0s] crawl_backend: 0 (博查搜索 + 传统爬虫抓正文)
+[2026-05-27 10:30:30] [+    0.0s] query_count_per_competitor: 3
+[2026-05-27 10:30:30] [+    0.0s] results_per_query: 3
+[2026-05-27 10:30:30] [+    0.0s] max_search_results: 3
+[2026-05-27 10:30:30] [+    0.0s] crawl_max_chars: 2500
+[2026-05-27 10:30:30] [+    0.0s] crawl_min_chars: 120
+[2026-05-27 10:30:30] [+    0.0s] timeout: 20s
+[2026-05-27 10:30:30] [+    0.0s] 
+[2026-05-27 10:30:30] [+    0.0s] [workflow] task_id=search_report_task
+[2026-05-27 10:30:30] [+    0.0s] [workflow] product_description=AI IDE 编程助手竞品分析
+[2026-05-27 10:30:30] [+    0.0s] [workflow] competitors=Trae, Cursor, GitHub Copilot, 通义灵码
+[2026-05-27 10:30:30] [+    0.0s] [workflow] step 1/2 search started
+[2026-05-27 10:30:30] [+    0.0s] [search] source=bocha queries=12 results_per_query=3 crawl_backend=0 timeout=20s
+[2026-05-27 10:30:30] [+    0.0s] [search] query 1/12 start: Trae AI IDE 编程助手竞品分析 功能 定价 官方 文档
+[2026-05-27 10:30:30] [+    0.0s] [search] query 1/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 2/12 start: Trae AI 编程助手 评测 用户评价 优势 缺点
+[2026-05-27 10:30:30] [+    0.0s] [search] query 2/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 3/12 start: Trae AI IDE 使用场景 企业版 数据安全 集成
+[2026-05-27 10:30:30] [+    0.0s] [search] query 3/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 4/12 start: Cursor AI IDE 编程助手竞品分析 功能 定价 官方 文档
+[2026-05-27 10:30:30] [+    0.0s] [search] query 4/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 5/12 start: Cursor AI 编程助手 评测 用户评价 优势 缺点
+[2026-05-27 10:30:30] [+    0.0s] [search] query 5/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 6/12 start: Cursor AI IDE 使用场景 企业版 数据安全 集成
+[2026-05-27 10:30:30] [+    0.0s] [search] query 6/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 7/12 start: GitHub Copilot AI IDE 编程助手竞品分析 功能 定价 官方 文档
+[2026-05-27 10:30:30] [+    0.0s] [search] query 7/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 8/12 start: GitHub Copilot AI 编程助手 评测 用户评价 优势 缺点
+[2026-05-27 10:30:30] [+    0.0s] [search] query 8/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 9/12 start: GitHub Copilot AI IDE 使用场景 企业版 数据安全 集成
+[2026-05-27 10:30:30] [+    0.0s] [search] query 9/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 10/12 start: 通义灵码 AI IDE 编程助手竞品分析 功能 定价 官方 文档
+[2026-05-27 10:30:30] [+    0.0s] [search] query 10/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 11/12 start: 通义灵码 AI 编程助手 评测 用户评价 优势 缺点
+[2026-05-27 10:30:30] [+    0.0s] [search] query 11/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] query 12/12 start: 通义灵码 AI IDE 使用场景 企业版 数据安全 集成
+[2026-05-27 10:30:30] [+    0.0s] [search] query 12/12 failed: bocha_api_key is required for Bocha search
+[2026-05-27 10:30:30] [+    0.0s] [search] finished: results=0 errors=12
+[2026-05-27 10:30:30] [+    0.0s] [workflow] search ready: results=0 errors=12

@@ -79,6 +79,7 @@ def rewrite_search_queries(product_description: str, config: PositioningProductC
 要求：
 - 返回 {config.query_count} 个搜索关键词。
 - 关键词要短，适合直接放进搜索引擎。
+- 尽量覆盖产品定位、目标用户、使用场景、替代品/竞品这些角度。
 - 不要解释，不要 Markdown。
 - 只返回 JSON 数组，例如：
 ["关键词1", "关键词2", "关键词3"]
@@ -192,6 +193,7 @@ def extract_product_names(
 - 只返回产品名称列表。
 - 不要返回公司名、文章标题、泛泛的类别词。
 - 不要编造搜索结果里没有出现的产品。
+- 优先保留真实产品、工具、平台、插件或服务名称；如果同名产品明显不是同一类，只保留和用户需求相关的那个名称。
 - 去重。
 - 最多返回 20 个。
 - 只返回 JSON 数组，例如：

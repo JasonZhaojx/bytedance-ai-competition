@@ -50,7 +50,7 @@ LLM2_BASE_URL = os.getenv("LLM2_BASE_URL", "https://token-plan-cn.xiaomimimo.com
 LLM2_MODEL = os.getenv("LLM2_MODEL", "mimo-v2.5-pro")
 
 SEARCH_SOURCE = os.getenv("SEARCH_SOURCE", "bocha")
-BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "SK_API_KEY_REDACTED")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
