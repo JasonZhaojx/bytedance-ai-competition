@@ -11,7 +11,33 @@ except ImportError:
     import sys
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from report_agent.models import ReportPackage
+from report_agent.models import ReportPackage
+
+
+def _extract_competitor_name(item: Any) -> str:
+    """Return a stable competitor name from report_agent profile shapes."""
+    if isinstance(item, str):
+        return item.strip()
+    if isinstance(item, dict):
+        for key in ("competitor", "name", "product_name", "title"):
+            value = item.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    return ""
+
+
+def _normalize_competitors(raw_competitors: Any) -> List[str]:
+    if not isinstance(raw_competitors, list):
+        return []
+
+    competitors: List[str] = []
+    seen = set()
+    for item in raw_competitors:
+        name = _extract_competitor_name(item)
+        if name and name not in seen:
+            competitors.append(name)
+            seen.add(name)
+    return competitors
 
 
 @dataclass
@@ -52,9 +78,11 @@ def adapt_report_package(package: ReportPackage) -> ReportAnalysis:
     analysis = package.structured_analysis or {}
     
     # Get competitors
-    competitors = analysis.get('executive_summary', {}).get('competitors', [])
+    competitors = _normalize_competitors(
+        analysis.get('executive_summary', {}).get('competitors', [])
+    )
     if not competitors:
-        competitors = analysis.get('competitor_profiles', [])
+        competitors = _normalize_competitors(analysis.get('competitor_profiles', []))
     
     # Get comparison tables
     comparison_tables = analysis.get('comparison_tables', [])
@@ -118,6 +146,6 @@ def adapt_report_package(package: ReportPackage) -> ReportAnalysis:
         recommendations=recommendations,
         report_markdown=package.report_markdown,
         summary=summary,
-        competitors=competitors if isinstance(competitors, list) else [],
+        competitors=competitors,
         comparison_tables=comparison_tables,
     )
