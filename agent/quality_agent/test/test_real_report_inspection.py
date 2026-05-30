@@ -25,6 +25,7 @@ from report_agent.models import (
 )
 
 from agent.quality_agent import (
+    LLMConfig,
     QualityConfig,
     InspectionMode,
     inspect_report_package,
@@ -347,9 +348,7 @@ def test_real_report_inspection():
     print(f"  LLM Enabled: {bool(llm_key)} (API Key: {'***' + llm_key[-8:] if llm_key else 'NOT SET'})")
 
     # Configure quality inspection
-    config = QualityConfig(
-        llm_api_key=os.getenv("LLM_API_KEY", ""),
-        llm_base_url=os.getenv("LLM_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3"),
+    config = QualityConfig.from_env(),
         llm_model=os.getenv("LLM_MODEL", "ep-20250125"),
         inspection_mode=InspectionMode.HYBRID_VOTING,
         voting_threshold=0.6,
@@ -421,9 +420,7 @@ def test_edge_case_reports():
         sources=[],
     )
     
-    config = QualityConfig(
-        llm_api_key=os.getenv("LLM_API_KEY", ""),
-        llm_base_url=os.getenv("LLM_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3"),
+    config = QualityConfig.from_env(),
         llm_model=os.getenv("LLM_MODEL", "ep-20250125"),
         inspection_mode=InspectionMode.RULE_ONLY,
         llm_enabled=bool(os.getenv("LLM_API_KEY", "")),

@@ -10,6 +10,7 @@ from typing import Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from agent.quality_agent import (
+    LLMConfig,
     QualityConfig,
     DomainConfig,
     inspect_quality,
@@ -72,9 +73,7 @@ def test_product_type(product_name: str, product_type_hint: str, params: Dict[st
     result = create_product(product_name, product_type_hint, params)
 
     config = QualityConfig(
-        llm_api_key="test",
-        llm_base_url="https://test.com",
-        llm_model="test",
+        
         min_score_threshold=0.5,
         min_evidence_count=1,
         verbose=False,
