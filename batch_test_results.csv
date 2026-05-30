@@ -1,0 +1,11 @@
+task_id,passed,score,confidence,issue_count,inspection_time
+report_0,True,0.80,medium,5,0.00
+report_1,True,0.80,medium,4,0.00
+report_2,True,0.80,medium,5,0.00
+report_3,True,0.80,medium,4,0.00
+report_4,True,0.80,medium,5,0.00
+report_5,True,0.80,medium,4,0.00
+report_6,True,0.80,medium,5,0.00
+report_7,True,0.80,medium,4,0.00
+report_8,True,0.80,medium,5,0.00
+report_9,True,0.80,medium,4,0.00

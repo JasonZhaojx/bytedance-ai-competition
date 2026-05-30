@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from agent.quality_agent import (
+    LLMConfig,
     QualityConfig,
     DomainConfig,
     inspect,
@@ -38,9 +39,7 @@ def test_config():
     
     # 测试 QualityConfig
     config = QualityConfig(
-        llm_api_key="test-api-key",
-        llm_base_url="https://api.example.com/v3",
-        llm_model="test-model",
+        
         min_score_threshold=0.7,
         verbose=True
     )

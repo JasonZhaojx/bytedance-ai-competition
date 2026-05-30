@@ -12,6 +12,7 @@ from typing import Dict, List
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from agent.quality_agent import (
+    LLMConfig,
     QualityConfig,
     DomainConfig,
     inspect,
@@ -176,9 +177,7 @@ def test_report(result: ProductWorkflowResult):
     print(f"{'='*60}")
     
     # 创建配置
-    config = QualityConfig(
-        llm_api_key=os.getenv("LLM_API_KEY", "test"),
-        llm_base_url=os.getenv("LLM_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3"),
+    config = QualityConfig.from_env(),
         llm_model=os.getenv("LLM_MODEL", "ep-20260514111325-xjmj7"),
         min_score_threshold=0.6,
         min_evidence_count=3,
