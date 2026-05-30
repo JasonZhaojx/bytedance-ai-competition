@@ -355,6 +355,30 @@ class QualityConfig:
         self.concurrent.max_workers = value
     
     @property
+    def voting_threshold(self) -> float:
+        return self.voting.threshold
+
+    @voting_threshold.setter
+    def voting_threshold(self, value: float):
+        self.voting.threshold = value
+
+    @property
+    def voting_llm_weight(self) -> float:
+        return self.voting.llm_weight
+
+    @voting_llm_weight.setter
+    def voting_llm_weight(self, value: float):
+        self.voting.llm_weight = value
+
+    @property
+    def voting_rule_weight(self) -> float:
+        return self.voting.rule_weight
+
+    @voting_rule_weight.setter
+    def voting_rule_weight(self, value: float):
+        self.voting.rule_weight = value
+
+    @property
     def verbose(self) -> bool:
         return self.output.verbose
     

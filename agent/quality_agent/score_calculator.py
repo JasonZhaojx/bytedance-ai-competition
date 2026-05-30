@@ -1,67 +1,85 @@
 """Score calculation for report quality."""
 
-from typing import List
+from typing import Dict, List
 
 from .adapters.report_adapter import ReportAnalysis
-from .config import ConfidenceLevel, IssueSeverity, QualityIssue
+from .config import ConfidenceLevel, IssueSeverity, IssueType, QualityIssue
+
+
+DIMENSION_WEIGHTS: Dict[str, float] = {
+    "structure": 0.25,
+    "traceability": 0.30,
+    "competitor_coverage": 0.20,
+    "logic_recommendation": 0.15,
+    "language": 0.10,
+}
+
+ISSUE_DIMENSIONS: Dict[IssueType, str] = {
+    IssueType.INCOMPLETE_INFO: "structure",
+    IssueType.MISSING_SOURCE: "traceability",
+    IssueType.INSUFFICIENT_EVIDENCE: "traceability",
+    IssueType.WEAK_EVIDENCE_SUPPORT: "traceability",
+    IssueType.LOW_QUALITY_EVIDENCE: "traceability",
+    IssueType.OUTDATED_EVIDENCE: "traceability",
+    IssueType.CONFLICTING_EVIDENCE: "logic_recommendation",
+    IssueType.LOGICAL_INCONSISTENCY: "logic_recommendation",
+}
+
+SEVERITY_PENALTY: Dict[IssueSeverity, float] = {
+    IssueSeverity.CRITICAL: 1.0,
+    IssueSeverity.MAJOR: 0.55,
+    IssueSeverity.MINOR: 0.20,
+}
 
 
 def calculate_report_score(issues: List[QualityIssue], analysis: ReportAnalysis) -> float:
-    """Calculate report quality score."""
-    score = 1.0
-    
-    # Deduct based on issue severity
+    """Calculate report quality score using business-dimension weights."""
+    if not analysis.report_markdown.strip():
+        return 0.0
+
+    dimension_scores = {name: 1.0 for name in DIMENSION_WEIGHTS}
+
     for issue in issues:
-        if issue.severity == IssueSeverity.CRITICAL:
-            score -= 0.3 * issue.confidence
-        elif issue.severity == IssueSeverity.MAJOR:
-            score -= 0.15 * issue.confidence
-        elif issue.severity == IssueSeverity.MINOR:
-            score -= 0.05 * issue.confidence
-    
-    # Add based on content completeness
-    content_score = 0.0
-    
-    # Insights completeness
-    if analysis.pm_insights:
-        content_score += 0.05
-        if len(analysis.pm_insights) >= 3:
-            content_score += 0.05
-    
-    # SWOT completeness
-    swot_complete = all(analysis.swot.get(s, []) for s in [
-        'strengths', 'weaknesses', 'opportunities', 'threats'
-    ])
-    if swot_complete:
-        content_score += 0.05
-        swot_rich = all(len(analysis.swot.get(s, [])) >= 2 for s in [
-            'strengths', 'weaknesses', 'opportunities', 'threats'
-        ])
-        if swot_rich:
-            content_score += 0.05
-    
-    # Recommendations completeness
-    if analysis.recommendations:
-        content_score += 0.05
-        if 3 <= len(analysis.recommendations) <= 10:
-            content_score += 0.05
-    
-    # Claims completeness
-    if analysis.claims:
-        content_score += 0.05
-    
-    # Report structure completeness
+        dimension = _dimension_for_issue(issue)
+        penalty = SEVERITY_PENALTY.get(issue.severity, 0.2) * max(issue.confidence, 0.1)
+        dimension_scores[dimension] = max(0.0, dimension_scores[dimension] - penalty)
+
+    _apply_positive_signals(dimension_scores, analysis)
+
+    score = sum(
+        DIMENSION_WEIGHTS[dimension] * dimension_scores[dimension]
+        for dimension in DIMENSION_WEIGHTS
+    )
+    return max(0.0, min(1.0, score))
+
+
+def _dimension_for_issue(issue: QualityIssue) -> str:
+    if issue.type == IssueType.INCOMPLETE_INFO:
+        description = issue.description
+        if "竞品" in description or "对比表" in description:
+            return "competitor_coverage"
+        if "建议" in description:
+            return "logic_recommendation"
+        return "structure"
+    return ISSUE_DIMENSIONS.get(issue.type, "language")
+
+
+def _apply_positive_signals(dimension_scores: Dict[str, float], analysis: ReportAnalysis) -> None:
     if len(analysis.report_markdown) >= 1000:
-        content_score += 0.05
-    
-    # Evidence diversity bonus
+        dimension_scores["structure"] = min(1.0, dimension_scores["structure"] + 0.05)
+
+    if analysis.evidence_list and analysis.claims:
+        dimension_scores["traceability"] = min(1.0, dimension_scores["traceability"] + 0.05)
+
     source_types = len(set(e.source_type for e in analysis.evidence_list if e.source_type))
     if source_types >= 3:
-        content_score += 0.05
-    
-    score += content_score
-    
-    return max(0.0, min(1.0, score))
+        dimension_scores["traceability"] = min(1.0, dimension_scores["traceability"] + 0.05)
+
+    if analysis.competitors and len(analysis.competitors) >= 2:
+        dimension_scores["competitor_coverage"] = min(1.0, dimension_scores["competitor_coverage"] + 0.05)
+
+    if analysis.pm_insights or analysis.recommendations:
+        dimension_scores["logic_recommendation"] = min(1.0, dimension_scores["logic_recommendation"] + 0.05)
 
 
 def calculate_confidence_level(score: float, issues: List[QualityIssue]) -> ConfidenceLevel:

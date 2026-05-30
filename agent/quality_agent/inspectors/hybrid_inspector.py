@@ -7,7 +7,8 @@ This module implements a hybrid quality inspection system that:
 4. Configurable via QualityConfig hyperparameters
 """
 
-from typing import List, Optional
+import re
+from typing import Dict, List, Optional
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import InspectionMode, IssueSeverity, IssueType, QualityConfig, QualityIssue
@@ -104,16 +105,84 @@ class HybridInspector:
     
     def _hybrid_voting_inspect(self, analysis: ReportAnalysis) -> List[QualityIssue]:
         """混合投票模式：LLM和规则都检测，通过投票决定最终结果"""
+        if not self.llm_inspector.enabled:
+            return self._rule_only_inspect(analysis)
+
+        # 先运行规则检查，再用LLM裁判复核规则报告的可疑结构缺项。
+        rule_issues = self._rule_only_inspect(analysis)
+        rule_issues = self._adjudicate_structure_issues(analysis, rule_issues)
+
         # 获取LLM检查结果
         llm_issues = self._llm_only_inspect(analysis)
-        
-        # 获取规则检查结果
-        rule_issues = self._rule_only_inspect(analysis)
-        
-        # 执行投票融合
+
+        # 执行投票融合，同时保留LLM未明确否决的规则问题。
         final_issues = self._vote_on_issues(llm_issues, rule_issues)
-        
+        final_issues = self._merge_issues(final_issues, rule_issues)
+
         return final_issues
+
+    def _adjudicate_structure_issues(
+        self,
+        analysis: ReportAnalysis,
+        rule_issues: List[QualityIssue],
+    ) -> List[QualityIssue]:
+        corrected_issues: List[QualityIssue] = []
+
+        for issue in rule_issues:
+            missing_sections = self._extract_missing_sections(issue)
+            if not missing_sections:
+                corrected_issues.append(issue)
+                continue
+
+            adjudication = self.llm_inspector.adjudicate_missing_sections(
+                analysis,
+                missing_sections,
+            )
+            if not adjudication:
+                corrected_issues.append(issue)
+                continue
+
+            remaining_sections = [
+                section for section in missing_sections
+                if not self._section_confirmed_present(adjudication, section)
+            ]
+            if not remaining_sections:
+                continue
+
+            issue.description = f"报告缺少必要章节: {', '.join(remaining_sections)}"
+            issue.suggestion = f"补充缺失的章节内容: {', '.join(remaining_sections)}"
+            issue.explanation = (
+                issue.explanation
+                + "；LLM结构裁判已复核并移除语义等价章节的误报"
+            )
+            corrected_issues.append(issue)
+
+        return corrected_issues
+
+    def _extract_missing_sections(self, issue: QualityIssue) -> List[str]:
+        if issue.type != IssueType.INCOMPLETE_INFO:
+            return []
+        if "缺少必要章节" not in issue.description:
+            return []
+
+        match = re.search(r"[:：]\s*(.+)$", issue.description)
+        if not match:
+            return []
+        return [
+            section.strip()
+            for section in re.split(r"[,，、]", match.group(1))
+            if section.strip()
+        ]
+
+    def _section_confirmed_present(
+        self,
+        adjudication: Dict[str, Dict[str, object]],
+        section: str,
+    ) -> bool:
+        result = adjudication.get(section)
+        if not result:
+            return False
+        return bool(result.get("present"))
     
     def _llm_fallback_inspect(self, analysis: ReportAnalysis) -> List[QualityIssue]:
         """LLM为主，规则兜底模式"""

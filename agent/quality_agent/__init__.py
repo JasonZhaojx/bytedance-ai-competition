@@ -30,8 +30,13 @@ from .config import (
     create_high_performance_config,
     generate_config_template,
 )
-from .core import inspect, inspect_quality, llm_enhanced_inspect
-from .feedback import QualityFeedback, QualityFeedbackRecorder
+from .feedback import (
+    AgentFeedbackMessage,
+    QualityFeedback,
+    QualityFeedbackRecorder,
+    build_agent_feedback_messages,
+    build_feedback_payload,
+)
 from .report_quality_agent import inspect_report_package, inspect, inspect_with_llm
 from .concurrent_inspection import (
     inspect_batch,
@@ -68,11 +73,8 @@ __all__ = [
     "create_hybrid_voting_config",
     "create_high_performance_config",
     "generate_config_template",
-    # Core functions (for ProductWorkflowResult)
+    # Report inspection
     "inspect",
-    "inspect_quality",
-    "llm_enhanced_inspect",
-    # Report inspection (for ReportPackage)
     "inspect_report_package",
     "inspect_with_llm",
     # Batch inspection
@@ -84,6 +86,9 @@ __all__ = [
     "print_batch_summary",
     "save_batch_results",
     # Feedback recording
+    "AgentFeedbackMessage",
     "QualityFeedback",
     "QualityFeedbackRecorder",
+    "build_agent_feedback_messages",
+    "build_feedback_payload",
 ]

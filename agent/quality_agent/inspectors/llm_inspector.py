@@ -5,10 +5,13 @@ rule-based inspectors. It handles semantic-level analysis that
 is difficult to implement with pure rules.
 """
 
-from typing import List, Optional
+import json
+import re
+from typing import Dict, List, Optional
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import IssueSeverity, IssueType, QualityIssue
+from ..observability import ObservableLogger
 
 
 class LLMInspector:
@@ -110,6 +113,103 @@ class LLMInspector:
             pass
         
         return issues
+
+    def adjudicate_missing_sections(
+        self,
+        analysis: ReportAnalysis,
+        missing_sections: List[str],
+    ) -> Dict[str, Dict[str, object]]:
+        """Use LLM to decide whether reported missing sections exist semantically."""
+        if not missing_sections or not self.enabled or not self.client:
+            return {}
+
+        logger = ObservableLogger()
+        trace = logger.start_trace(
+            "llm_structure_adjudication",
+            missing_sections=missing_sections,
+            task_id=analysis.task_id,
+        )
+        try:
+            prompt = self._build_structure_adjudication_prompt(analysis, missing_sections)
+            logger.log_prompt(prompt, "llm_structure_adjudication")
+            response = self.client.invoke(prompt)
+            content = response.content if hasattr(response, "content") else str(response)
+            logger.log_response(content, "llm_structure_adjudication")
+            result = self._parse_json_object(content)
+            sections = result.get("sections", result)
+            if not isinstance(sections, dict):
+                logger.finish_trace(trace, success=False, error="LLM response missing sections object")
+                return {}
+            adjudication = {
+                str(name): value
+                for name, value in sections.items()
+                if isinstance(value, dict)
+            }
+            trace.metadata["adjudication"] = adjudication
+            logger.finish_trace(trace)
+            return adjudication
+        except Exception as exc:
+            logger.finish_trace(trace, success=False, error=str(exc))
+            return {}
+
+    def _extract_headings(self, markdown: str, limit: int = 80) -> str:
+        headings = []
+        for line in markdown.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#") or stripped.startswith("====="):
+                headings.append(stripped)
+            if len(headings) >= limit:
+                break
+        return "\n".join(headings)
+
+    def _build_structure_adjudication_prompt(
+        self,
+        analysis: ReportAnalysis,
+        missing_sections: List[str],
+    ) -> str:
+        headings = self._extract_headings(analysis.report_markdown)
+        snippet = analysis.report_markdown[:2500]
+        missing = ", ".join(missing_sections)
+
+        return f"""
+你是竞品分析报告质检裁判。规则检查认为报告缺少这些章节：{missing}
+
+请只根据报告目录和正文片段判断这些章节是否以同义标题或等价内容存在。
+常见等价关系：
+- 执行摘要 等价于 核心结论、FINAL COMPARISON SUMMARY
+- 竞品分析 等价于 单产品深度拆解、重点竞品拆解、竞品分类与选择理由
+- 策略建议 等价于 选型建议、产品策略建议、落地建议
+- 结论 等价于 核心结论、最终建议、选型建议中的总结性结论
+- SWOT分析 必须明确包含 SWOT 或优势/劣势/机会/威胁四类分析，不要把普通优缺点列表误判为 SWOT
+
+报告目录：
+{headings}
+
+正文片段：
+{snippet}
+
+只返回 JSON 对象，不要输出解释。格式：
+{{
+  "sections": {{
+    "竞品分析": {{"present": true, "matched_heading": "一、单产品深度拆解", "reason": "该章节逐个拆解竞品"}},
+    "SWOT分析": {{"present": false, "matched_heading": null, "reason": "未发现SWOT四象限"}}
+  }}
+}}
+"""
+
+    def _parse_json_object(self, content: str) -> dict:
+        content = content.strip()
+        fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", content)
+        if fence_match:
+            content = fence_match.group(1).strip()
+
+        try:
+            return json.loads(content)
+        except Exception:
+            object_match = re.search(r"\{[\s\S]*\}", content)
+            if object_match:
+                return json.loads(object_match.group(0))
+            raise
     
     def _build_semantic_consistency_prompt(self, analysis: ReportAnalysis) -> str:
         """构建语义一致性检查prompt"""
@@ -232,8 +332,6 @@ class LLMInspector:
         issues: List[QualityIssue] = []
         
         try:
-            import json
-            
             content = response.content if hasattr(response, 'content') else str(response)
             
             # 尝试解析JSON
