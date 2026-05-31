@@ -16,6 +16,13 @@ ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(ROOT / ".env")
+except ImportError:
+    pass
+
 sys.path.insert(0, str(ROOT))
 
 from extracted_core.llm_client import chat_content, stream_chat_content  # noqa: E402

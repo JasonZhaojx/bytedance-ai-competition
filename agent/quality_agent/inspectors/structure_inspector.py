@@ -20,6 +20,9 @@ def _has_source_reference(markdown: str, analysis: ReportAnalysis) -> bool:
     if evidence_ids and any(evidence_id in markdown for evidence_id in evidence_ids):
         return True
 
+    if re.search(r"参考点\s*\d+", markdown):
+        return True
+
     return bool(re.search(r"(?:证据|evidence)\s*[:：]\s*(?:ev_|src_)\w+", markdown, re.IGNORECASE))
 
 
@@ -31,9 +34,9 @@ def check_report_structure(analysis: ReportAnalysis) -> List[QualityIssue]:
     required_sections = [
         ("执行摘要", ("## 执行摘要", "## 核心结论", "===== FINAL COMPARISON SUMMARY")),
         ("竞品分析", ("## 竞品分析", "单产品深度拆解", "重点竞品拆解", "核心维度横向对比")),
-        ("SWOT分析", ("## SWOT分析", "## SWOT 分析")),
-        ("策略建议", ("## 策略建议", "选型建议", "产品策略建议")),
-        ("结论", ("## 结论", "## 核心结论", "选型建议")),
+        ("SWOT分析", ("## SWOT分析", "## SWOT 分析", "优劣势", "优势", "短板")),
+        ("策略建议", ("## 策略建议", "选型建议", "选购建议", "产品策略建议")),
+        ("结论", ("## 结论", "## 核心结论", "选型建议", "选购建议", "===== FINAL COMPARISON SUMMARY")),
     ]
 
     missing_sections = []

@@ -10,7 +10,7 @@ from ..config import IssueSeverity, IssueType, QualityIssue
 def _extract_markdown_recommendations(markdown: str) -> List[Dict[str, Any]]:
     """Extract simple numbered or bulleted recommendations from markdown reports."""
     section_match = re.search(
-        r"^##\s*(?:[一二三四五六七八九十]+[、.]\s*)?(?:策略建议|选型建议|产品策略建议).*$"
+        r"^##\s*(?:[一二三四五六七八九十]+[、.]\s*)?(?:策略建议|选型建议|选购建议|产品策略建议).*$"
         r"([\s\S]*?)(?=^##\s+|\Z)",
         markdown,
         flags=re.MULTILINE,
