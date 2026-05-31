@@ -14,6 +14,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+
+def configure_console_output() -> None:
+    """Keep Windows consoles from crashing on non-GBK search/model text."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+configure_console_output()
+
 ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
@@ -35,6 +45,24 @@ def load_local_env(path: Path) -> None:
 
 
 load_local_env(ROOT / ".env")
+
+
+def clear_proxy_env_if_disabled() -> None:
+    """Avoid dead local proxies breaking direct API calls by default."""
+    if os.getenv("USE_NETWORK_PROXY", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        os.environ.pop(name, None)
+
+
+clear_proxy_env_if_disabled()
 
 sys.path.insert(0, str(ROOT))
 
@@ -604,12 +632,16 @@ def select_product_names(product_names: list[str]) -> list[str]:
 
 
 def report_path_for(product_name: str, index: int, timestamp: str) -> Path:
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    return REPORT_DIR / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
+    task_report_dir(timestamp).mkdir(parents=True, exist_ok=True)
+    return task_report_dir(timestamp) / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
 
 
 def done_path_for(product_name: str, index: int, timestamp: str) -> Path:
     return report_path_for(product_name, index, timestamp).with_suffix(".done")
+
+
+def task_report_dir(timestamp: str) -> Path:
+    return REPORT_DIR / timestamp
 
 
 def analyze_product(
@@ -1140,7 +1172,7 @@ def write_quality_round_artifacts(
     feedback_payload: dict,
     retry_target: str,
 ) -> dict[str, str]:
-    output_dir = Path(REPORT_AGENT_QUALITY_OUTPUT_DIR) / f"{timestamp}_report_agent_analysis"
+    output_dir = task_report_dir(timestamp) / "quality_workflow" / "report_agent_analysis"
     round_dir = output_dir / f"round_{round_index:02d}"
     round_dir.mkdir(parents=True, exist_ok=True)
     paths = {
@@ -1283,8 +1315,10 @@ def generate_report_agent_analysis(
             print("[quality-loop] 已达到最大轮数，保留最后一轮报告和质检反馈。")
             break
 
-    md_path = REPORT_DIR / f"{timestamp}_REPORT_AGENT_ANALYSIS.md"
-    json_path = REPORT_DIR / f"{timestamp}_REPORT_AGENT_PACKAGE.json"
+    output_dir = task_report_dir(timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    md_path = output_dir / f"{timestamp}_REPORT_AGENT_ANALYSIS.md"
+    json_path = output_dir / f"{timestamp}_REPORT_AGENT_PACKAGE.json"
     if package is None:
         raise RuntimeError("Report Agent 未生成有效输出。")
     final_workflow_passed = bool(
@@ -1487,7 +1521,9 @@ def summarize_all_reports(
             timeout=FINAL_SUMMARY_TIMEOUT,
         )
 
-    output_path = REPORT_DIR / f"{timestamp}_FINAL_COMPARISON.md"
+    output_dir = task_report_dir(timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{timestamp}_FINAL_COMPARISON.md"
     output = "\n\n".join(
         [
             "# 所选产品横向对比报告",

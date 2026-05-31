@@ -13,9 +13,54 @@ from datetime import datetime
 from pathlib import Path
 
 
+def configure_console_output() -> None:
+    """Keep Windows consoles from crashing on non-GBK search/model text."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+configure_console_output()
+
 ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
+
+
+def load_local_env(path: Path) -> None:
+    """Load simple KEY=VALUE entries from .env without overriding shell env."""
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+load_local_env(ROOT / ".env")
+
+
+def clear_proxy_env_if_disabled() -> None:
+    """Avoid dead local proxies breaking direct API calls by default."""
+    if os.getenv("USE_NETWORK_PROXY", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        os.environ.pop(name, None)
+
+
+clear_proxy_env_if_disabled()
 
 sys.path.insert(0, str(ROOT))
 
@@ -50,7 +95,7 @@ LLM2_BASE_URL = os.getenv("LLM2_BASE_URL", "https://token-plan-cn.xiaomimimo.com
 LLM2_MODEL = os.getenv("LLM2_MODEL", "mimo-v2.5-pro")
 
 SEARCH_SOURCE = os.getenv("SEARCH_SOURCE", "bocha")
-BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "SK_API_KEY_REDACTED")
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
@@ -375,12 +420,16 @@ def select_product_names(product_names: list[str]) -> list[str]:
 
 
 def report_path_for(product_name: str, index: int, timestamp: str) -> Path:
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    return REPORT_DIR / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
+    task_report_dir(timestamp).mkdir(parents=True, exist_ok=True)
+    return task_report_dir(timestamp) / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
 
 
 def done_path_for(product_name: str, index: int, timestamp: str) -> Path:
     return report_path_for(product_name, index, timestamp).with_suffix(".done")
+
+
+def task_report_dir(timestamp: str) -> Path:
+    return REPORT_DIR / timestamp
 
 
 def analyze_product(
@@ -592,7 +641,9 @@ def summarize_all_reports(
             timeout=FINAL_SUMMARY_TIMEOUT,
         )
 
-    output_path = REPORT_DIR / f"{timestamp}_FINAL_COMPARISON.md"
+    output_dir = task_report_dir(timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{timestamp}_FINAL_COMPARISON.md"
     output = "\n\n".join(
         [
             "# 所选产品横向对比报告",

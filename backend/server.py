@@ -46,7 +46,9 @@ class Job:
             "stage": self.stage,
             "return_code": self.return_code,
             "report_path": self.report_path,
-            "report_name": Path(self.report_path).name if self.report_path else "",
+            "report_name": report_display_name(Path(self.report_path))
+            if self.report_path
+            else "",
             "error": self.error,
             "logs": self.logs[-500:],
         }
@@ -153,8 +155,10 @@ class AppHandler(BaseHTTPRequestHandler):
             return
         self._send_json(
             {
-                "name": report_path.name,
+                "name": report_display_name(report_path),
                 "path": str(report_path),
+                "modified_at": report_path.stat().st_mtime,
+                "size": report_path.stat().st_size,
                 "content": report_path.read_text(encoding="utf-8", errors="replace"),
                 "summary": summarize_report(report_path),
             }
@@ -379,7 +383,11 @@ def _jobs_sorted() -> list[Job]:
 
 def list_reports() -> list[dict[str, Any]]:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    reports = [*REPORT_DIR.glob("*.md"), *REPORT_DIR.glob("quality_workflow/**/*.md")]
+    reports = [
+        path
+        for path in REPORT_DIR.rglob("*.md")
+        if "web_inputs" not in path.relative_to(REPORT_DIR).parts
+    ]
     reports = sorted(reports, key=lambda path: path.stat().st_mtime, reverse=True)
     return [
         {
@@ -389,7 +397,7 @@ def list_reports() -> list[dict[str, Any]]:
             "size": path.stat().st_size,
             "summary": summarize_report(path),
         }
-        for path in reports[:80]
+        for path in reports[:200]
     ]
 
 
@@ -400,15 +408,23 @@ def summarize_report(path: Path) -> dict[str, Any]:
         if line.startswith("# "):
             title = line[2:].strip()
             break
+    relative_name = report_display_name(path)
+    report_type = report_type_for(path)
     return {
         "title": title,
-        "is_final": "FINAL_COMPARISON" in path.name,
+        "task_id": task_id_for_report(path),
+        "round": quality_round_for(path),
+        "type": report_type,
+        "is_final": report_type == "final",
+        "is_report_agent": report_type == "report_agent",
+        "is_single": report_type == "single",
         "is_quality": is_quality_report(path),
         "quality_feedback_applied": (
             "===== QUALITY AGENT SUMMARY =====" in text
             or "===== QUALITY AGENT REPORT =====" in text
             or "===== QUALITY FEEDBACK APPLIED =====" in text
         ),
+        "relative_name": relative_name,
         "sections": len(re.findall(r"^#{1,3}\s+", text, flags=re.MULTILINE)),
         "chars": len(text),
     }
@@ -426,7 +442,44 @@ def is_quality_report(path: Path) -> bool:
         relative = path.resolve().relative_to(REPORT_DIR.resolve())
     except ValueError:
         return False
-    return relative.parts[:1] == ("quality_workflow",)
+    return "quality_workflow" in relative.parts
+
+
+def task_id_for_report(path: Path) -> str:
+    try:
+        relative = path.resolve().relative_to(REPORT_DIR.resolve())
+    except ValueError:
+        return path.stem
+    if relative.parts[:1] == ("quality_workflow",) and len(relative.parts) >= 2:
+        match = re.match(r"^(\d{8}_\d{6})", relative.parts[1])
+        return match.group(1) if match else relative.parts[1]
+    first = relative.parts[0]
+    if len(relative.parts) > 1 and re.match(r"^\d{8}_\d{6}$", first):
+        return first
+    match = re.match(r"^(\d{8}_\d{6})", path.name)
+    return match.group(1) if match else path.stem
+
+
+def quality_round_for(path: Path) -> str:
+    try:
+        relative = path.resolve().relative_to(REPORT_DIR.resolve())
+    except ValueError:
+        return ""
+    for part in relative.parts:
+        if re.match(r"^round_\d+$", part):
+            return part
+    return ""
+
+
+def report_type_for(path: Path) -> str:
+    if is_quality_report(path):
+        return "quality"
+    name = path.name.upper()
+    if "FINAL_COMPARISON" in name:
+        return "final"
+    if "REPORT_AGENT_ANALYSIS" in name:
+        return "report_agent"
+    return "single"
 
 
 def safe_report_path(name: str) -> Path | None:
