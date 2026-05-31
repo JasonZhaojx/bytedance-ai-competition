@@ -7,9 +7,89 @@ import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 
-from .config import QualityConfig, QualityReport
+from .config import IssueSeverity, IssueType, QualityConfig, QualityIssue, QualityReport
+
+
+AGENT_TARGETS: Dict[IssueType, str] = {
+    IssueType.MISSING_SOURCE: "collector_agent",
+    IssueType.INSUFFICIENT_EVIDENCE: "collector_agent",
+    IssueType.LOW_QUALITY_EVIDENCE: "collector_agent",
+    IssueType.OUTDATED_EVIDENCE: "collector_agent",
+    IssueType.CONFLICTING_EVIDENCE: "analyst_agent",
+    IssueType.LOGICAL_INCONSISTENCY: "analyst_agent",
+    IssueType.INCOMPLETE_INFO: "writer_agent",
+    IssueType.WEAK_EVIDENCE_SUPPORT: "writer_agent",
+}
+
+
+@dataclass
+class AgentFeedbackMessage:
+    """Structured feedback message for upstream agent retry loops."""
+
+    target_agent: str
+    action: str
+    priority: str
+    issue_type: str
+    description: str
+    suggested_fix: str
+    affected_fields: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "target_agent": self.target_agent,
+            "action": self.action,
+            "priority": self.priority,
+            "issue_type": self.issue_type,
+            "description": self.description,
+            "suggested_fix": self.suggested_fix,
+            "affected_fields": self.affected_fields,
+        }
+
+
+def _priority_from_severity(severity: IssueSeverity) -> str:
+    if severity == IssueSeverity.CRITICAL:
+        return "high"
+    if severity == IssueSeverity.MAJOR:
+        return "medium"
+    return "low"
+
+
+def build_agent_feedback_messages(report: QualityReport) -> List[AgentFeedbackMessage]:
+    """Convert quality issues into retry messages for collector/analyst/writer agents."""
+    messages: List[AgentFeedbackMessage] = []
+    for issue in report.issues:
+        target_agent = AGENT_TARGETS.get(issue.type, "writer_agent")
+        messages.append(AgentFeedbackMessage(
+            target_agent=target_agent,
+            action="revise_report" if target_agent == "writer_agent" else "补充或重做上游产物",
+            priority=_priority_from_severity(issue.severity),
+            issue_type=issue.type.value,
+            description=issue.description,
+            suggested_fix=issue.suggestion,
+            affected_fields=issue.affected_fields,
+        ))
+    return messages
+
+
+def build_feedback_payload(report: QualityReport, task_id: str = "") -> Dict[str, object]:
+    """Create a structured feedback-loop payload consumable by workflow/DAG code."""
+    messages = build_agent_feedback_messages(report)
+    grouped: Dict[str, List[Dict[str, object]]] = {}
+    for message in messages:
+        grouped.setdefault(message.target_agent, []).append(message.to_dict())
+
+    return {
+        "task_id": task_id,
+        "passed": report.passed,
+        "score": report.score,
+        "confidence_level": report.confidence_level.value,
+        "needs_human_review": report.needs_human_review,
+        "retry_required": not report.passed or bool(report.issues),
+        "feedback_messages": [message.to_dict() for message in messages],
+        "grouped_by_agent": grouped,
+    }
 
 
 @dataclass
@@ -66,6 +146,7 @@ class QualityFeedbackRecorder:
             "human_approved": feedback.human_approved,
             "human_comment": feedback.human_comment,
             "timestamp": feedback.timestamp,
+            "agent_feedback": build_feedback_payload(report, product_name),
             "report": {
                 "passed": report.passed,
                 "score": report.score,

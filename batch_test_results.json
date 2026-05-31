@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-05-31T12:32:16.737857",
+  "total": 10,
+  "results": [
+    {
+      "task_id": "report_0",
+      "passed": true,
+      "score": 0.7750000000000001,
+      "confidence_level": "medium",
+      "issue_count": 5,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_1",
+      "passed": true,
+      "score": 0.8200000000000001,
+      "confidence_level": "medium",
+      "issue_count": 4,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_2",
+      "passed": true,
+      "score": 0.7750000000000001,
+      "confidence_level": "medium",
+      "issue_count": 5,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_3",
+      "passed": true,
+      "score": 0.8200000000000001,
+      "confidence_level": "medium",
+      "issue_count": 4,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_4",
+      "passed": true,
+      "score": 0.7750000000000001,
+      "confidence_level": "medium",
+      "issue_count": 5,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_5",
+      "passed": true,
+      "score": 0.8200000000000001,
+      "confidence_level": "medium",
+      "issue_count": 4,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_6",
+      "passed": true,
+      "score": 0.7750000000000001,
+      "confidence_level": "medium",
+      "issue_count": 5,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_7",
+      "passed": true,
+      "score": 0.8200000000000001,
+      "confidence_level": "medium",
+      "issue_count": 4,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_8",
+      "passed": true,
+      "score": 0.7750000000000001,
+      "confidence_level": "medium",
+      "issue_count": 5,
+      "inspection_time": 0.0
+    },
+    {
+      "task_id": "report_9",
+      "passed": true,
+      "score": 0.8200000000000001,
+      "confidence_level": "medium",
+      "issue_count": 4,
+      "inspection_time": 0.0
+    }
+  ]
+}
