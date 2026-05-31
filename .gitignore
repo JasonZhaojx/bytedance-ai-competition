@@ -38,6 +38,7 @@ logs/
 # Cache
 .cache/
 .pytest_cache/
+pytest-cache-files-*/
 .tox/
 .coverage
 htmlcov/

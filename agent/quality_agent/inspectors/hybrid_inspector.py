@@ -111,13 +111,16 @@ class HybridInspector:
         # 先运行规则检查，再用LLM裁判复核规则报告的可疑结构缺项。
         rule_issues = self._rule_only_inspect(analysis)
         rule_issues = self._adjudicate_structure_issues(analysis, rule_issues)
+        semantic_issues = self.llm_inspector.adjudicate_quality_dimensions(analysis)
 
         # 获取LLM检查结果
         llm_issues = self._llm_only_inspect(analysis)
+        llm_issues = self._merge_issues(llm_issues, semantic_issues)
 
         # 执行投票融合，同时保留LLM未明确否决的规则问题。
         final_issues = self._vote_on_issues(llm_issues, rule_issues)
         final_issues = self._merge_issues(final_issues, rule_issues)
+        final_issues = self._merge_issues(final_issues, semantic_issues)
 
         return final_issues
 

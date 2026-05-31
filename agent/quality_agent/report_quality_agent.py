@@ -14,6 +14,7 @@ from .adapters import adapt_report_package
 from .config import (
     ConfidenceLevel,
     InspectionMode,
+    OutputFormat,
     ProductType,
     QualityConfig,
     QualityReport,
@@ -132,7 +133,7 @@ def inspect_report_package(
     if analysis.evidence_list:
         evidence_quality_avg = sum(e.confidence for e in analysis.evidence_list) / len(analysis.evidence_list)
     
-    return QualityReport(
+    report = QualityReport(
         passed=score >= 0.6,
         score=score,
         issues=issues,
@@ -146,6 +147,27 @@ def inspect_report_package(
         inspection_time_sec=0.0,
         inspection_rounds=1
     )
+
+    if active_config.output.save_results:
+        formats = ("json",)
+        if active_config.output.format == OutputFormat.MARKDOWN:
+            formats = ("md",)
+        elif active_config.output.format == OutputFormat.TEXT:
+            formats = ("md",)
+        elif active_config.output.format == OutputFormat.JSON:
+            formats = ("json", "md")
+
+        from .exporter import export_quality_report
+
+        export_quality_report(
+            report,
+            task_id=package.task_id,
+            source_report=package.task_id,
+            output_dir=active_config.output.output_dir,
+            formats=formats,
+        )
+
+    return report
 
 
 def _execute_rule_inspections(analysis) -> list:

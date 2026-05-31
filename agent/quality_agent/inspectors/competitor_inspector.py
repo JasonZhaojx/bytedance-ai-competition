@@ -1,8 +1,28 @@
 """Competitor coverage inspection functions."""
-from typing import Dict, List
+from typing import Any, Dict, List, Set
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import IssueSeverity, IssueType, QualityIssue
+
+
+COMPETITOR_KEYS = ("competitor", "竞品", "name", "product_name", "产品", "产品名称")
+
+
+def _extract_table_competitor_names(rows: List[Any]) -> Set[str]:
+    names: Set[str] = set()
+    for row in rows:
+        if isinstance(row, str) and row.strip():
+            names.add(row.strip())
+            continue
+        if not isinstance(row, dict):
+            continue
+
+        for key in COMPETITOR_KEYS:
+            value = row.get(key)
+            if isinstance(value, str) and value.strip():
+                names.add(value.strip())
+                break
+    return names
 
 
 # 检查竞品分析覆盖完整性
@@ -46,12 +66,7 @@ def check_competitor_coverage(analysis: ReportAnalysis) -> List[QualityIssue]:
         for table in analysis.comparison_tables:
             table_competitors = table.get("competitors", []) or table.get("rows", [])
             if isinstance(table_competitors, list) and len(table_competitors) > 0:
-                table_comp_names = set()
-                for row in table_competitors:
-                    if isinstance(row, dict):
-                        table_comp_names.add(row.get("competitor", ""))
-                    elif isinstance(row, str):
-                        table_comp_names.add(row)
+                table_comp_names = _extract_table_competitor_names(table_competitors)
                 
                 missing_in_table = [c for c in competitors if c not in table_comp_names]
                 if missing_in_table:

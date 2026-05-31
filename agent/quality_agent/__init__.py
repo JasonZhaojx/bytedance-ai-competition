@@ -37,6 +37,11 @@ from .feedback import (
     build_agent_feedback_messages,
     build_feedback_payload,
 )
+from .exporter import (
+    export_quality_report,
+    quality_report_to_dict,
+    quality_report_to_markdown,
+)
 from .report_quality_agent import inspect_report_package, inspect, inspect_with_llm
 from .concurrent_inspection import (
     inspect_batch,
@@ -91,4 +96,8 @@ __all__ = [
     "QualityFeedbackRecorder",
     "build_agent_feedback_messages",
     "build_feedback_payload",
+    # Export helpers
+    "export_quality_report",
+    "quality_report_to_dict",
+    "quality_report_to_markdown",
 ]
