@@ -83,6 +83,7 @@ def search_for_report(
     product_description: str,
     *,
     competitors: Optional[Sequence[str]] = None,
+    extra_queries: Optional[Sequence[str]] = None,
     config: Optional[ReportSearchConfig] = None,
 ) -> SearchBundle:
     """Run upstream search and return deduplicated results for report_agent."""
@@ -93,6 +94,8 @@ def search_for_report(
         competitors=competitors,
         query_count=runtime_config.query_count,
     )
+    if extra_queries:
+        queries = _dedupe([*queries, *extra_queries])
     search_config = to_upstream_search_config(runtime_config)
     _log(
         runtime_config,

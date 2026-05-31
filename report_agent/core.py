@@ -52,6 +52,28 @@ def run_writing_agent(
         ReportPackage: Markdown 报告、结构化分析、证据映射和生成轨迹。
     """
 
+    state = run_analysis_agent(
+        search_results,
+        config=config,
+        task_id=task_id,
+        analysis_goal=analysis_goal,
+        target_domain=target_domain,
+        competitors=competitors,
+    )
+    return run_report_writer_agent(state, config=config)
+
+
+def run_analysis_agent(
+    search_results: Iterable[Any],
+    config: Optional[WritingAgentConfig] = None,
+    *,
+    task_id: str = "task_001",
+    analysis_goal: str = "生成面向产品经理的竞品分析报告",
+    target_domain: str = "AI Agent",
+    competitors: Optional[Sequence[str]] = None,
+) -> ReportState:
+    """运行结构化分析链路，返回尚未写成 Markdown 的 ReportState。"""
+
     runtime_config = config or WritingAgentConfig()
     competitor_list = list(competitors or [])
 
@@ -142,6 +164,17 @@ def run_writing_agent(
 
     # claim_evidence_map 是给下游质检 Agent 的关键协议字段。
     state.claim_evidence_map = _build_claim_evidence_map(state)
+
+    return state
+
+
+def run_report_writer_agent(
+    state: ReportState,
+    config: Optional[WritingAgentConfig] = None,
+) -> ReportPackage:
+    """运行报告撰写链路，消费 ReportState 并返回 ReportPackage。"""
+
+    runtime_config = config or WritingAgentConfig()
 
     _log(runtime_config, "[writing-agent] compose report")
     state.report_markdown = compose_report(state, runtime_config)

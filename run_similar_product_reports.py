@@ -1,4 +1,4 @@
-﻿"""Find similar products, analyze selected products in parallel, and save reports."""
+"""Find similar products, analyze selected products in parallel, and save reports."""
 
 from __future__ import annotations
 
@@ -31,6 +31,14 @@ from extracted_core.positioning_product_workflow import (  # noqa: E402
     run_positioning_product_search,
 )
 from extracted_core.search import SearchConfig, SearchSource  # noqa: E402
+from agent.quality_agent.config import (  # noqa: E402
+    InspectionMode,
+    LLMConfig,
+    QualityConfig,
+)
+from agent.quality_agent.feedback import build_feedback_payload  # noqa: E402
+from agent.quality_agent.report_quality_agent import inspect_report_package  # noqa: E402
+from report_agent.models import ReportPackage  # noqa: E402
 
 try:
     from tqdm import tqdm
@@ -86,6 +94,14 @@ QUESTIONNAIRE_ANALYSIS_MAX_CHARS = int(
     os.getenv("QUESTIONNAIRE_ANALYSIS_MAX_CHARS", "16000")
 )
 QUESTIONNAIRE_CODE_SUMMARY_MARKER = "===== CODE SUMMARY JSON ====="
+ENABLE_FINAL_QUALITY_LOOP = os.getenv("ENABLE_FINAL_QUALITY_LOOP", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+FINAL_QUALITY_MAX_ITERATIONS = int(os.getenv("FINAL_QUALITY_MAX_ITERATIONS", "3"))
+FINAL_QUALITY_MODE = os.getenv("FINAL_QUALITY_MODE", "rule").lower()
 
 
 @dataclass
@@ -558,6 +574,7 @@ def summarize_all_reports(
     comparison_keyword_library: str = "",
     questionnaire_analysis_text: str = "",
     questionnaire_analysis_path: str = "",
+    quality_feedback_text: str = "",
 ) -> Path:
     items = [read_report_for_summary(path) for path in report_paths]
     summaries = "\n\n".join(
@@ -582,6 +599,9 @@ def summarize_all_reports(
 问卷分析补充背景:
 {questionnaire_analysis_text.strip() or "无"}
 
+质检反馈修复要求:
+{quality_feedback_text.strip() or "无"}
+
 单品 FINAL SUMMARY:
 {summaries}
 
@@ -594,6 +614,7 @@ def summarize_all_reports(
 - 单品事实和引用必须来自单品 FINAL SUMMARY；问卷分析只能作为需求侧、用户侧、决策侧补充，不要把问卷结论当成某个产品的官方事实。
 - 保留原文里已有的引用标记，例如 [产品名][参考点15]。
 - 不要编造单品 FINAL SUMMARY 里没有的信息。
+- 如果“质检反馈修复要求”不为空，必须优先修复这些问题；无法修复时要明确说明缺失原因，不要编造。
 """.strip()
 
     print("\n===== 生成所选产品大总结 =====")
@@ -648,6 +669,9 @@ def summarize_all_reports(
             else "来源: 无",
             questionnaire_analysis_text.strip() or "无",
             "",
+            "===== QUALITY FEEDBACK APPLIED =====",
+            quality_feedback_text.strip() or "无",
+            "",
             "===== FINAL COMPARISON SUMMARY =====",
             final_summary,
             "",
@@ -661,6 +685,111 @@ def summarize_all_reports(
     )
     output_path.write_text(output, encoding="utf-8")
     return output_path
+
+
+def run_final_quality_loop(
+    final_path: Path,
+    report_paths: list[Path],
+    product_description: str,
+    timestamp: str,
+    comparison_keyword_library: str,
+    questionnaire_analysis_text: str,
+    questionnaire_analysis_path: str,
+) -> Path:
+    """Inspect and regenerate the final comparison report when quality fails."""
+
+    if not ENABLE_FINAL_QUALITY_LOOP:
+        print("\n===== 最终报告质检闭环已关闭 =====")
+        return final_path
+
+    print("\n===== 最终报告质检闭环 =====")
+    current_path = final_path
+    quality_config = build_final_quality_config()
+    max_iterations = max(1, FINAL_QUALITY_MAX_ITERATIONS)
+
+    for round_index in range(1, max_iterations + 1):
+        package = package_from_markdown_report(current_path)
+        quality_report = inspect_report_package(package, config=quality_config)
+        print(
+            f"[quality-loop] round={round_index} "
+            f"score={quality_report.score:.4f} "
+            f"passed={quality_report.passed} "
+            f"issues={len(quality_report.issues)}"
+        )
+        if quality_report.passed:
+            print("[quality-loop] 最终报告通过质检。")
+            return current_path
+        if round_index >= max_iterations:
+            print("[quality-loop] 达到最大迭代次数，保留最后一版最终报告。")
+            return current_path
+
+        feedback_payload = build_feedback_payload(
+            quality_report,
+            task_id=current_path.stem,
+        )
+        feedback_text = feedback_payload_to_prompt(feedback_payload)
+        print("[quality-loop] 最终报告未通过，带质检反馈重新生成大总结。")
+        current_path = summarize_all_reports(
+            report_paths,
+            product_description,
+            timestamp,
+            comparison_keyword_library,
+            questionnaire_analysis_text,
+            questionnaire_analysis_path,
+            feedback_text,
+        )
+
+    return current_path
+
+
+def package_from_markdown_report(path: Path) -> ReportPackage:
+    text = path.read_text(encoding="utf-8")
+    return ReportPackage(
+        task_id=path.stem,
+        report_markdown=text,
+        structured_analysis={},
+        claim_evidence_map=[],
+        generation_trace=[],
+        sources=[],
+    )
+
+
+def build_final_quality_config() -> QualityConfig:
+    if FINAL_QUALITY_MODE == "rule":
+        return QualityConfig(
+            inspection_mode=InspectionMode.RULE_ONLY,
+            llm=LLMConfig(enabled=False),
+        )
+    config = QualityConfig.from_env()
+    if FINAL_QUALITY_MODE == "llm":
+        config.inspection_mode = InspectionMode.LLM_ONLY
+    else:
+        config.inspection_mode = InspectionMode.HYBRID_VOTING
+    config.llm_enabled = True
+    return config
+
+
+def feedback_payload_to_prompt(payload: dict[str, object]) -> str:
+    messages = payload.get("feedback_messages") or []
+    if not isinstance(messages, list):
+        return ""
+    lines = [
+        f"质检分数: {payload.get('score')}",
+        f"是否通过: {payload.get('passed')}",
+    ]
+    for index, item in enumerate(messages, 1):
+        if not isinstance(item, dict):
+            continue
+        lines.append(
+            "{index}. [{target}] {issue}: {description} 修复要求: {fix}".format(
+                index=index,
+                target=item.get("target_agent", "unknown"),
+                issue=item.get("issue_type", "unknown"),
+                description=item.get("description", ""),
+                fix=item.get("suggested_fix", ""),
+            )
+        )
+    return "\n".join(lines)
 
 
 def main() -> None:
@@ -759,6 +888,15 @@ def main() -> None:
         print("[warn] 报告数量不足，跳过总总结。")
         return
     final_path = summarize_all_reports(
+        report_paths,
+        product_description,
+        timestamp,
+        comparison_keyword_library,
+        questionnaire_analysis_text,
+        questionnaire_analysis_path,
+    )
+    final_path = run_final_quality_loop(
+        final_path,
         report_paths,
         product_description,
         timestamp,

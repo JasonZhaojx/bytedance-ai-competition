@@ -154,6 +154,13 @@ def _fallback_report_markdown(state: ReportState) -> str:
     if not state.recommendations:
         lines.append("- 当前资料不足以生成策略建议。")
 
+    if state.missing_info or state.low_confidence_claims:
+        lines.extend(["", "## 质检修复记录"])
+        for item in state.missing_info:
+            lines.append(f"- 修复约束: {item}")
+        for item in state.low_confidence_claims:
+            lines.append(f"- 低置信问题: {item}")
+
     lines.extend(
         [
             "",
@@ -289,6 +296,11 @@ def _structured_payload(state: ReportState) -> Dict[str, Any]:
         "swot": state.swot.to_dict(),
         "recommendations": [rec.to_dict() for rec in state.recommendations],
         "product_recommendations": [rec.to_dict() for rec in state.recommendations],
+        "writer_constraints": {
+            "missing_info": state.missing_info,
+            "low_confidence_claims": state.low_confidence_claims,
+        },
+        "generation_trace": state.generation_trace,
     }
 
 

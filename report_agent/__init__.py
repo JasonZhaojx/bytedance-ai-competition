@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .core import run_writing_agent
+from .core import run_analysis_agent, run_report_writer_agent, run_writing_agent
 from .models import (
     EvidenceCard,
     PMInsight,
@@ -33,6 +33,8 @@ def __getattr__(name: str):
 
 __all__ = [
     "run_writing_agent",
+    "run_analysis_agent",
+    "run_report_writer_agent",
     "run_search_and_report",
     "WritingAgentConfig",
     "SourceRecord",
