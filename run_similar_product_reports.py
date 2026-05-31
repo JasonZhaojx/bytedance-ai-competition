@@ -25,6 +25,11 @@ except ImportError:
 
 sys.path.insert(0, str(ROOT))
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from extracted_core.llm_client import chat_content, stream_chat_content  # noqa: E402
 from extracted_core.positioning_product_workflow import (  # noqa: E402
     PositioningProductConfig,
@@ -74,6 +79,12 @@ BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
+USE_NETWORK_PROXY = os.getenv("USE_NETWORK_PROXY", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 # 搜索 API 固定用博查；0 = 传统爬虫, 1 = Playwright, 2 = Crawl4AI
 # 使用Crawl4AI请确保设备有足够的内存
@@ -158,6 +169,24 @@ def print_active_provider() -> None:
     print(f"base_url: {base_url or '未配置'}")
     print(f"model: {model or '未配置'}")
     print(f"api_key: {mask_key(api_key) if api_key else '未配置'}")
+
+
+def disable_network_proxy_unless_enabled() -> None:
+    """Ignore stale shell proxy settings unless explicitly enabled."""
+
+    global HTTP_PROXY
+    if USE_NETWORK_PROXY:
+        return
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        os.environ.pop(name, None)
+    HTTP_PROXY = ""
 
 
 def search_backend_name() -> str:
@@ -438,6 +467,16 @@ def analyze_product(
     if done_path.exists():
         done_path.unlink()
     env = os.environ.copy()
+    if not USE_NETWORK_PROXY:
+        for name in (
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "http_proxy",
+            "https_proxy",
+            "all_proxy",
+        ):
+            env.pop(name, None)
     provider = active_provider()
     env.update(
         {
@@ -455,6 +494,8 @@ def analyze_product(
             "SEARCH_BACKEND": str(SEARCH_BACKEND),
             "HTTP_PROXY": env.get("HTTP_PROXY") or HTTP_PROXY,
             "PYTHONUNBUFFERED": "1",
+            "PYTHONUTF8": "1",
+            "PYTHONIOENCODING": "utf-8",
         }
     )
     if comparison_keyword_library:
@@ -463,8 +504,27 @@ def analyze_product(
         env["LLM1_API_KEY"] = llm_key
         env["LLM_API_KEY"] = llm_key
 
-    creationflags = subprocess.CREATE_NEW_CONSOLE if os.name == "nt" else 0
-    subprocess.Popen(
+    creationflags = 0
+    if os.name == "nt" and os.getenv("DISABLE_ANALYZE_CONSOLES", "").lower() not in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        creationflags = subprocess.CREATE_NEW_CONSOLE
+    stdout_target = None
+    if os.getenv("DISABLE_ANALYZE_CONSOLES", "").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        worker_log_dir = ROOT / "logs" / "analyze_workers"
+        worker_log_dir.mkdir(parents=True, exist_ok=True)
+        worker_log_path = worker_log_dir / f"{timestamp}_{index}_{safe_filename(product_name)}.log"
+        stdout_target = worker_log_path.open("w", encoding="utf-8", errors="replace")
+        print(f"[worker-log] {product_name}: {worker_log_path}")
+    process = subprocess.Popen(
         [
             sys.executable,
             "-u",
@@ -479,7 +539,11 @@ def analyze_product(
         cwd=str(ROOT),
         env=env,
         creationflags=creationflags,
+        stdout=stdout_target or None,
+        stderr=subprocess.STDOUT if stdout_target else None,
     )
+    if stdout_target:
+        stdout_target.close()
     return report_path
 
 
@@ -793,6 +857,7 @@ def feedback_payload_to_prompt(payload: dict[str, object]) -> str:
 
 
 def main() -> None:
+    disable_network_proxy_unless_enabled()
     print_active_provider()
     print_search_backend()
     provider = active_provider()
