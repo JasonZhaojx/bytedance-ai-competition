@@ -7,11 +7,46 @@ is difficult to implement with pure rules.
 
 import json
 import re
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import IssueSeverity, IssueType, QualityIssue
 from ..observability import ObservableLogger
+
+
+@dataclass
+class _OpenAICompatResponse:
+    content: str
+
+
+class _OpenAICompatChatClient:
+    """Small adapter exposing the invoke() shape used by LLMInspector."""
+
+    def __init__(
+        self,
+        api_key: Optional[str],
+        base_url: Optional[str],
+        model: Optional[str],
+        temperature: float = 0.1,
+        max_tokens: int = 2000,
+    ):
+        from openai import OpenAI
+
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        self.model = model
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+
+    def invoke(self, prompt: str) -> _OpenAICompatResponse:
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+        )
+        content = response.choices[0].message.content or ""
+        return _OpenAICompatResponse(content=content)
 
 
 class LLMInspector:
@@ -39,6 +74,17 @@ class LLMInspector:
     
     def _create_client(self):
         """创建LLM客户端"""
+        try:
+            return _OpenAICompatChatClient(
+                api_key=self.llm_api_key,
+                base_url=self.llm_base_url,
+                model=self.llm_model,
+                temperature=0.1,
+                max_tokens=2000,
+            )
+        except ImportError:
+            pass
+
         try:
             from langchain_openai import ChatOpenAI
             
@@ -152,6 +198,37 @@ class LLMInspector:
             logger.finish_trace(trace, success=False, error=str(exc))
             return {}
 
+    def adjudicate_quality_dimensions(self, analysis: ReportAnalysis) -> List[QualityIssue]:
+        """Use LLM to adjudicate business-level semantic quality dimensions."""
+        if not self.enabled or not self.client:
+            return []
+
+        logger = ObservableLogger()
+        trace = logger.start_trace(
+            "llm_quality_dimension_adjudication",
+            task_id=analysis.task_id,
+            dimensions=[
+                "claim_evidence_support",
+                "competitor_fairness",
+                "swot_evidence_consistency",
+                "recommendation_derivation",
+            ],
+        )
+        try:
+            prompt = self._build_quality_dimension_adjudication_prompt(analysis)
+            logger.log_prompt(prompt, "llm_quality_dimension_adjudication")
+            response = self.client.invoke(prompt)
+            content = response.content if hasattr(response, "content") else str(response)
+            logger.log_response(content, "llm_quality_dimension_adjudication")
+
+            issues = self._parse_quality_dimension_response(content)
+            trace.metadata["issue_count"] = len(issues)
+            logger.finish_trace(trace)
+            return issues
+        except Exception as exc:
+            logger.finish_trace(trace, success=False, error=str(exc))
+            return []
+
     def _extract_headings(self, markdown: str, limit: int = 80) -> str:
         headings = []
         for line in markdown.splitlines():
@@ -197,7 +274,163 @@ class LLMInspector:
 }}
 """
 
+    def _build_quality_dimension_adjudication_prompt(self, analysis: ReportAnalysis) -> str:
+        claims = self._compact_claims(analysis.claims[:8])
+        evidence = self._compact_evidence(analysis.evidence_list[:8])
+        swot = self._compact_json(analysis.swot)
+        recommendations = self._compact_json(analysis.recommendations[:8])
+        comparison_tables = self._compact_json(analysis.comparison_tables[:4])
+        competitors = ", ".join(analysis.competitors[:8]) or "None detected"
+        snippet = analysis.report_markdown[:3000]
+
+        return f"""
+你是竞品分析报告的质量裁判。请只基于下面给出的报告内容和结构化数据，复核四个业务质量维度：
+
+1. claim_evidence_support: 证据是否真的支持报告里的 claim，不要只看是否有 evidence_id。
+2. competitor_fairness: 竞品对比是否公平，是否存在只强调某一方优点/缺点、比较维度不一致、遗漏关键竞品事实。
+3. swot_evidence_consistency: SWOT 是否能从证据、竞品对比和正文分析推出，是否存在凭空 SWOT。
+4. recommendation_derivation: 建议是否由证据、竞品分析和 SWOT 自然推出，是否存在跳跃建议。
+
+只有当问题会影响业务判断时才输出 issue。轻微表述问题不要输出。
+
+Claims:
+{claims}
+
+Evidence:
+{evidence}
+
+Competitors:
+{competitors}
+
+Comparison tables:
+{comparison_tables}
+
+SWOT:
+{swot}
+
+Recommendations:
+{recommendations}
+
+Report snippet:
+{snippet}
+
+只返回 JSON，不要解释。格式：
+{{
+  "issues": [
+    {{
+      "dimension": "claim_evidence_support",
+      "issue_type": "weak_evidence_support",
+      "severity": "MAJOR",
+      "description": "具体问题",
+      "suggestion": "可执行修改建议",
+      "evidence_ids": ["ev_001"],
+      "confidence": 0.82
+    }}
+  ]
+}}
+如果没有问题，返回 {{"issues": []}}。
+"""
+
+    def _compact_claims(self, claims: List[Dict[str, Any]]) -> str:
+        if not claims:
+            return "[]"
+        compact = []
+        for claim in claims:
+            compact.append({
+                "claim": claim.get("claim", ""),
+                "evidence_ids": claim.get("evidence_ids", []),
+            })
+        return self._compact_json(compact)
+
+    def _compact_evidence(self, evidence_list) -> str:
+        if not evidence_list:
+            return "[]"
+        compact = []
+        for evidence in evidence_list:
+            compact.append({
+                "id": evidence.source_id,
+                "title": evidence.title,
+                "snippet": (evidence.snippet or evidence.page_text or evidence.claim)[:300],
+                "confidence": evidence.confidence,
+                "source_type": evidence.source_type,
+            })
+        return self._compact_json(compact)
+
+    def _compact_json(self, value: Any, limit: int = 3500) -> str:
+        text = json.dumps(value, ensure_ascii=False, default=str, indent=2)
+        if len(text) > limit:
+            return text[:limit] + "\n...[truncated]"
+        return text
+
+    def _parse_quality_dimension_response(self, content: str) -> List[QualityIssue]:
+        parsed = self._parse_json_value(content)
+        if isinstance(parsed, dict):
+            raw_issues = parsed.get("issues", [])
+        elif isinstance(parsed, list):
+            raw_issues = parsed
+        else:
+            return []
+
+        if not isinstance(raw_issues, list):
+            return []
+
+        dimension_defaults = {
+            "claim_evidence_support": IssueType.WEAK_EVIDENCE_SUPPORT,
+            "competitor_fairness": IssueType.LOGICAL_INCONSISTENCY,
+            "swot_evidence_consistency": IssueType.LOGICAL_INCONSISTENCY,
+            "recommendation_derivation": IssueType.LOGICAL_INCONSISTENCY,
+        }
+        issues: List[QualityIssue] = []
+        for item in raw_issues:
+            if not isinstance(item, dict):
+                continue
+            description = str(item.get("description", "")).strip()
+            if not description:
+                continue
+
+            dimension = str(item.get("dimension", "")).strip()
+            issue_type_raw = str(item.get("issue_type", "")).strip().lower()
+            try:
+                issue_type = IssueType(issue_type_raw)
+            except ValueError:
+                issue_type = dimension_defaults.get(dimension, IssueType.LOGICAL_INCONSISTENCY)
+
+            severity_raw = str(item.get("severity", "MINOR")).strip().upper()
+            severity = IssueSeverity.MAJOR if severity_raw == "MAJOR" else IssueSeverity.MINOR
+            if severity_raw == "CRITICAL":
+                severity = IssueSeverity.CRITICAL
+
+            evidence_ids = item.get("evidence_ids", [])
+            affected_fields = [dimension] if dimension else []
+            if isinstance(evidence_ids, list):
+                affected_fields.extend(str(eid) for eid in evidence_ids if eid)
+
+            confidence = item.get("confidence", 0.75)
+            try:
+                confidence = float(confidence)
+            except (TypeError, ValueError):
+                confidence = 0.75
+
+            issues.append(QualityIssue(
+                type=issue_type,
+                severity=severity,
+                description=description,
+                suggestion=str(item.get("suggestion", "")).strip(),
+                explanation="LLM semantic adjudicator found a business-quality issue.",
+                impact="May cause unsupported conclusions, unfair comparison, or weak strategy decisions.",
+                confidence=max(0.0, min(1.0, confidence)),
+                affected_fields=affected_fields,
+            ))
+
+        return issues
+
     def _parse_json_object(self, content: str) -> dict:
+        parsed = self._parse_json_value(content)
+        if not isinstance(parsed, dict):
+            raise ValueError("Expected JSON object")
+        return parsed
+
+    def _parse_json_value(self, content: str):
         content = content.strip()
         fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", content)
         if fence_match:
@@ -209,6 +442,9 @@ class LLMInspector:
             object_match = re.search(r"\{[\s\S]*\}", content)
             if object_match:
                 return json.loads(object_match.group(0))
+            list_match = re.search(r"\[[\s\S]*\]", content)
+            if list_match:
+                return json.loads(list_match.group(0))
             raise
     
     def _build_semantic_consistency_prompt(self, analysis: ReportAnalysis) -> str:

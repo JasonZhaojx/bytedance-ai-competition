@@ -1,10 +1,18 @@
 """Evidence inspection functions for diversity and timeliness."""
 
 import re
+from urllib.parse import urlparse
 from typing import Dict, List, Set
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import IssueSeverity, IssueType, QualityIssue
+
+
+def _http_domain(url: str) -> str:
+    parsed = urlparse(url or "")
+    if parsed.scheme not in ("http", "https"):
+        return ""
+    return parsed.netloc
 
 # 要确保检查证据来源多样性多样性
 def check_evidence_diversity(analysis: ReportAnalysis) -> List[QualityIssue]:
@@ -19,17 +27,17 @@ def check_evidence_diversity(analysis: ReportAnalysis) -> List[QualityIssue]:
     source_types: Dict[str, int] = {}
     # 检查每个证据是否包含任何域名
     domains: Set[str] = set()
+    http_url_count = 0
     
     # 检查每个证据是否包含任何来源类型
     for evidence in analysis.evidence_list:
         source_type = evidence.source_type or "unknown"
         source_types[source_type] = source_types.get(source_type, 0) + 1
         # 检查每个证据是否包含任何域名
-        url = evidence.url
-        if url:
-            domain = re.search(r"https?://([^/]+)", url)
-            if domain:
-                domains.add(domain.group(1))
+        domain = _http_domain(evidence.url)
+        if domain:
+            http_url_count += 1
+            domains.add(domain)
     
     # 检查每个证据是否包含任何来源类型和域名
     if len(source_types) <= 1:
@@ -42,7 +50,7 @@ def check_evidence_diversity(analysis: ReportAnalysis) -> List[QualityIssue]:
             impact="单一来源可能存在偏见，影响分析结论"
         ))
     
-    if len(domains) <= 2:
+    if http_url_count >= 3 and len(domains) <= 2:
         issues.append(QualityIssue(
             type=IssueType.LOW_QUALITY_EVIDENCE,
             severity=IssueSeverity.MINOR,

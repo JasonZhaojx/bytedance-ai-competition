@@ -1,5 +1,6 @@
 """Report structure inspection functions."""
 
+import re
 from typing import List, Sequence
 
 from ..adapters.report_adapter import ReportAnalysis
@@ -8,6 +9,18 @@ from ..config import IssueSeverity, IssueType, QualityIssue
 
 def _has_any_section(markdown: str, aliases: Sequence[str]) -> bool:
     return any(alias in markdown for alias in aliases)
+
+
+def _has_source_reference(markdown: str, analysis: ReportAnalysis) -> bool:
+    """Accept both markdown links and report_agent evidence-id citations."""
+    if "[" in markdown and "](" in markdown:
+        return True
+
+    evidence_ids = {e.source_id for e in analysis.evidence_list if e.source_id}
+    if evidence_ids and any(evidence_id in markdown for evidence_id in evidence_ids):
+        return True
+
+    return bool(re.search(r"(?:证据|evidence)\s*[:：]\s*(?:ev_|src_)\w+", markdown, re.IGNORECASE))
 
 
 def check_report_structure(analysis: ReportAnalysis) -> List[QualityIssue]:
@@ -48,7 +61,7 @@ def check_report_structure(analysis: ReportAnalysis) -> List[QualityIssue]:
             impact="内容过短可能导致分析不够深入"
         ))
 
-    if "[" not in markdown or "](" not in markdown:
+    if not _has_source_reference(markdown, analysis):
         issues.append(QualityIssue(
             type=IssueType.MISSING_SOURCE,
             severity=IssueSeverity.MINOR,
