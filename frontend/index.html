@@ -138,7 +138,7 @@
                 </div>
                 <div class="option-group">
                   <label class="form-label">最大迭代</label>
-                  <input id="maxIterations" type="number" min="1" max="5" value="3" title="最大迭代次数" placeholder="输入1-5之间的数字" />
+                  <input id="maxIterations" type="number" min="1" max="5" value="2" title="最大迭代次数" placeholder="输入1-5之间的数字" />
                 </div>
                 <label class="option-switch">
                   <input id="enableQualityLoop" type="checkbox" checked />
@@ -322,7 +322,7 @@
           <div class="quality-board">
             <div class="quality-item">
               <span>闭环状态</span>
-              <strong id="qualityLoopStatus">等待任务</strong>
+              <strong id="qualityCenterStatus">等待任务</strong>
             </div>
             <div class="quality-item">
               <span>质检模式</span>
@@ -330,7 +330,7 @@
             </div>
             <div class="quality-item">
               <span>最大迭代</span>
-              <strong id="maxIterationPreview">3</strong>
+              <strong id="maxIterationPreview">2</strong>
             </div>
           </div>
         </section>
@@ -411,7 +411,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label" for="settingsMaxIterations">最大迭代</label>
-                <input id="settingsMaxIterations" type="number" min="1" max="5" value="3" />
+                <input id="settingsMaxIterations" type="number" min="1" max="5" value="2" />
               </div>
               <label class="switch-wrapper" style="margin-top: 8px;">
                 <input id="settingsEnableQualityLoop" type="checkbox" checked />

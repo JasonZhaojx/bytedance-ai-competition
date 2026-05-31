@@ -38,6 +38,7 @@ const pagePanels = Array.from(document.querySelectorAll("[data-page-panel]"));
 const reportLibrary = document.querySelector("#reportLibrary");
 const reloadReportsBtn = document.querySelector("#reloadReportsBtn");
 const qualityLoopStatus = document.querySelector("#qualityLoopStatus");
+const qualityCenterStatus = document.querySelector("#qualityCenterStatus");
 const qualityModePreview = document.querySelector("#qualityModePreview");
 const maxIterationPreview = document.querySelector("#maxIterationPreview");
 
@@ -211,7 +212,7 @@ async function startJob() {
     llm_provider: llmProvider.value,
     top_n: Number(topN.value || 5),
     quality_mode: qualityMode.value,
-    max_iterations: Number(maxIterations.value || 3),
+    max_iterations: Number(maxIterations.value || 2),
     enable_quality_loop: enableQualityLoop.checked,
     ark_api_key: arkApiKey.value.trim(),
     bocha_api_key: bochaApiKey.value.trim(),
@@ -373,7 +374,7 @@ function renderJob(job) {
   logBox.textContent = (job.logs || []).join("\n") || "等待任务日志...";
   logBox.scrollTop = logBox.scrollHeight;
   renderNodeFlow(job);
-  qualityLoopStatus.textContent = job.stage || job.status;
+  updateQualityStatus(job.stage || job.status);
 }
 
 function renderNodeFlow(job) {
@@ -402,7 +403,7 @@ function inferStage(job) {
   if (job.status === "completed") return "done";
   const logs = (job.logs || []).join("\n");
   if (/总总结已保存|最终报告通过质检|达到最大迭代次数/.test(logs)) return "done";
-  if (/最终报告质检闭环|\[quality-loop\]/.test(logs)) return "quality";
+  if (/Quality Agent 质检|\[quality-loop\]/.test(logs)) return "quality";
   if (/生成所选产品大总结|FINAL COMPARISON|横向对比/.test(logs)) return "summarize";
   if (/等待所选产品分析报告完成|启动独立命令行窗口分析|将要分析的产品|分析窗口已经启动/.test(logs)) {
     return "analyze";
@@ -442,7 +443,7 @@ async function loadReports(options = {}) {
     sorted.forEach((report) => {
       const option = document.createElement("option");
       option.value = report.name;
-      const typeLabel = report.summary?.is_final ? "最终报告" : "单品报告";
+      const typeLabel = reportTypeLabel(report);
       const title = report.summary?.title || report.name;
       option.textContent = `${typeLabel} · ${title}`;
       reportSelect.appendChild(option);
@@ -483,7 +484,7 @@ function renderReportLibrary(reports) {
 
   reportLibrary.innerHTML = reports
     .map((report, index) => {
-      const type = report.summary?.is_final ? "最终报告" : "单品报告";
+      const type = reportTypeLabel(report);
       const title = escapeHtml(report.summary?.title || report.name);
       const size = formatSize(report.size || 0);
       const date = new Date(report.modified_at * 1000).toLocaleDateString("zh-CN");
@@ -640,7 +641,7 @@ document.head.appendChild(skeletonStyle);
 function renderSummary(summary) {
   const values = summary
     ? [
-        summary.is_final ? "最终报告" : "单品报告",
+        summary.is_quality ? "质检报告" : summary.is_final ? "最终报告" : "单品报告",
         summary.quality_feedback_applied ? "已应用" : "无",
         String(summary.sections || 0),
         formatCharCount(summary.chars || 0),
@@ -651,6 +652,12 @@ function renderSummary(summary) {
   cards.forEach((card, index) => {
     card.textContent = values[index];
   });
+}
+
+function reportTypeLabel(report) {
+  if (report.summary?.is_quality) return "质检报告";
+  if (report.summary?.is_final) return "最终报告";
+  return "单品报告";
 }
 
 function formatCharCount(chars) {
@@ -689,8 +696,8 @@ function showPage(page) {
 
 function updateQualityPreview() {
   qualityModePreview.textContent = qualityMode.value;
-  maxIterationPreview.textContent = maxIterations.value || "3";
-  qualityLoopStatus.textContent = enableQualityLoop.checked ? "已启用" : "已关闭";
+  maxIterationPreview.textContent = maxIterations.value || "2";
+  updateQualityStatus(enableQualityLoop.checked ? "已启用" : "已关闭");
 }
 
 function loadSettings() {
@@ -703,7 +710,7 @@ function loadSettings() {
 
   settingsTopN.value = settings.top_n || "5";
   settingsQualityMode.value = settings.quality_mode || "rule";
-  settingsMaxIterations.value = settings.max_iterations || "3";
+  settingsMaxIterations.value = settings.max_iterations || "2";
   settingsEnableQualityLoop.checked = settings.enable_quality_loop !== false;
 
   syncSettingsToWorkspace();
@@ -744,9 +751,14 @@ function saveSettings() {
 function syncSettingsToWorkspace() {
   topN.value = settingsTopN.value || "5";
   qualityMode.value = settingsQualityMode.value || "rule";
-  maxIterations.value = settingsMaxIterations.value || "3";
+  maxIterations.value = settingsMaxIterations.value || "2";
   enableQualityLoop.checked = settingsEnableQualityLoop.checked;
   updateQualityPreview();
+}
+
+function updateQualityStatus(value) {
+  if (qualityLoopStatus) qualityLoopStatus.textContent = value;
+  if (qualityCenterStatus) qualityCenterStatus.textContent = value;
 }
 
 function formatSize(value) {

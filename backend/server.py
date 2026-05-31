@@ -21,7 +21,7 @@ from urllib.parse import unquote, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND_DIR = ROOT / "frontend"
 REPORT_DIR = ROOT / "reports"
-RUNNER = ROOT / "run_similar_product_reports.py"
+RUNNER = ROOT / "run_similar_product_reports_with_new_analyze_quality.py"
 DEFAULT_PORT = int(os.getenv("WEB_PORT", "8000"))
 
 
@@ -54,7 +54,9 @@ class Job:
 
 JOBS: dict[str, Job] = {}
 JOBS_LOCK = threading.Lock()
-FINAL_REPORT_RE = re.compile(r"总总结已保存:\s*(.+)")
+FINAL_REPORT_RE = re.compile(
+    r"(?:总总结已保存|Markdown 已保存|Report Agent Markdown 已保存):\s*(.+\.md)"
+)
 
 
 class AppHandler(BaseHTTPRequestHandler):
@@ -230,11 +232,16 @@ def run_job(job: Job, options: dict[str, Any]) -> None:
             "PYTHONIOENCODING": "utf-8",
             "DISABLE_ANALYZE_CONSOLES": "1",
             "TOP_N": str(options["top_n"]),
-            "ENABLE_FINAL_QUALITY_LOOP": "true"
+            "REPORT_AGENT_QUALITY_ENABLED": "1"
             if options["enable_quality_loop"]
-            else "false",
-            "FINAL_QUALITY_MODE": options["quality_mode"],
-            "FINAL_QUALITY_MAX_ITERATIONS": str(options["max_iterations"]),
+            else "0",
+            "REPORT_AGENT_QUALITY_MAX_ROUNDS": str(options["max_iterations"]),
+            "INSPECTION_MODE": quality_mode_to_env(options["quality_mode"]),
+            "REPORT_AGENT_QUALITY_RETRY_ON_MINOR": "0",
+            "REPORT_AGENT_QUALITY_MAX_FEEDBACK_QUERIES": "2",
+            "QUALITY_FEEDBACK_SEARCH_BACKEND": os.getenv(
+                "QUALITY_FEEDBACK_SEARCH_BACKEND", "0"
+            ),
         }
     )
     apply_user_env(job, env, options)
@@ -305,6 +312,15 @@ def apply_user_env(job: Job, env: dict[str, str], options: dict[str, Any]) -> No
         env["QUESTIONNAIRE_ANALYSIS_MD"] = str(path)
 
 
+def quality_mode_to_env(value: str) -> str:
+    mapping = {
+        "rule": "rule_only",
+        "hybrid": "hybrid_voting",
+        "llm": "llm_fallback",
+    }
+    return mapping.get(str(value or "").strip().lower(), "hybrid_voting")
+
+
 STAGE_ORDER = ["prepare", "discover", "analyze", "summarize", "quality", "done"]
 
 
@@ -315,7 +331,14 @@ def set_stage(job: Job, stage: str) -> None:
 
 
 def update_stage_from_log(job: Job, line: str) -> None:
-    if any(token in line for token in ("LLM 改写后的搜索词", "搜索到的产品", "rewrite search queries")):
+    if any(
+        token in line
+        for token in (
+            "LLM 改写后的搜索词",
+            "搜索到的产品",
+            "rewrite search queries",
+        )
+    ):
         set_stage(job, "discover")
     elif any(
         token in line
@@ -327,11 +350,18 @@ def update_stage_from_log(job: Job, line: str) -> None:
         )
     ):
         set_stage(job, "analyze")
-    elif any(token in line for token in ("生成所选产品大总结", "FINAL COMPARISON")):
+    elif any(
+        token in line
+        for token in (
+            "生成所选产品大总结",
+            "Report Agent 标准分析链路",
+            "FINAL COMPARISON",
+        )
+    ):
         set_stage(job, "summarize")
-    elif any(token in line for token in ("最终报告质检闭环", "[quality-loop]")):
+    elif any(token in line for token in ("Quality Agent 质检", "[quality-loop]")):
         set_stage(job, "quality")
-    elif "总总结已保存" in line:
+    elif "总总结已保存" in line or "Markdown 已保存" in line:
         set_stage(job, "done")
 
 
@@ -349,10 +379,11 @@ def _jobs_sorted() -> list[Job]:
 
 def list_reports() -> list[dict[str, Any]]:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    reports = sorted(REPORT_DIR.glob("*.md"), key=lambda path: path.stat().st_mtime, reverse=True)
+    reports = [*REPORT_DIR.glob("*.md"), *REPORT_DIR.glob("quality_workflow/**/*.md")]
+    reports = sorted(reports, key=lambda path: path.stat().st_mtime, reverse=True)
     return [
         {
-            "name": path.name,
+            "name": report_display_name(path),
             "path": str(path),
             "modified_at": path.stat().st_mtime,
             "size": path.stat().st_size,
@@ -372,10 +403,30 @@ def summarize_report(path: Path) -> dict[str, Any]:
     return {
         "title": title,
         "is_final": "FINAL_COMPARISON" in path.name,
-        "quality_feedback_applied": "===== QUALITY FEEDBACK APPLIED =====" in text,
+        "is_quality": is_quality_report(path),
+        "quality_feedback_applied": (
+            "===== QUALITY AGENT SUMMARY =====" in text
+            or "===== QUALITY AGENT REPORT =====" in text
+            or "===== QUALITY FEEDBACK APPLIED =====" in text
+        ),
         "sections": len(re.findall(r"^#{1,3}\s+", text, flags=re.MULTILINE)),
         "chars": len(text),
     }
+
+
+def report_display_name(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(REPORT_DIR.resolve()).as_posix()
+    except ValueError:
+        return path.name
+
+
+def is_quality_report(path: Path) -> bool:
+    try:
+        relative = path.resolve().relative_to(REPORT_DIR.resolve())
+    except ValueError:
+        return False
+    return relative.parts[:1] == ("quality_workflow",)
 
 
 def safe_report_path(name: str) -> Path | None:

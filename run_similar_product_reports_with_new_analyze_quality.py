@@ -1287,17 +1287,27 @@ def generate_report_agent_analysis(
     json_path = REPORT_DIR / f"{timestamp}_REPORT_AGENT_PACKAGE.json"
     if package is None:
         raise RuntimeError("Report Agent 未生成有效输出。")
-    quality_markdown = (
-        quality_report_to_markdown(
-            quality_report,
-            task_id=package.task_id,
-            source_report=package.task_id,
-        )
-        if quality_report is not None
-        else "Quality Agent 已禁用。设置 REPORT_AGENT_QUALITY_ENABLED=1 可启用。"
-    )
     final_workflow_passed = bool(
         quality_report is not None and not feedback_payload.get("retry_required")
+    )
+    quality_summary = (
+        {
+            "quality_enabled": REPORT_AGENT_QUALITY_ENABLED,
+            "workflow_passed": final_workflow_passed,
+            "score_passed": quality_report.passed if quality_report else None,
+            "score": quality_report.score if quality_report else None,
+            "issue_count": len(quality_report.issues) if quality_report else None,
+            "retry_required": feedback_payload.get("retry_required"),
+            "retry_target": retry_target,
+            "quality_report_md": quality_paths.get("quality_report_md"),
+            "quality_report_json": quality_paths.get("quality_report"),
+            "feedback_payload": quality_paths.get("feedback_payload"),
+        }
+        if quality_report is not None
+        else {
+            "quality_enabled": False,
+            "message": "Quality Agent 已禁用。设置 REPORT_AGENT_QUALITY_ENABLED=1 可启用。",
+        }
     )
     md_output = "\n\n".join(
         [
@@ -1313,11 +1323,8 @@ def generate_report_agent_analysis(
             "",
             package.report_markdown,
             "",
-            "===== QUALITY AGENT REPORT =====",
-            quality_markdown,
-            "",
-            "===== QUALITY WORKFLOW ARTIFACTS =====",
-            json.dumps(quality_paths, ensure_ascii=False, indent=2) if quality_paths else "无",
+            "===== QUALITY AGENT SUMMARY =====",
+            json.dumps(quality_summary, ensure_ascii=False, indent=2),
             "",
             "===== STRUCTURED ANALYSIS JSON =====",
             package.to_json(),
