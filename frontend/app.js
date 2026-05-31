@@ -1009,7 +1009,7 @@ function renderQualityReportLibrary(reports) {
 }
 
 function reportTypeLabel(report) {
-  const type = report.summary?.type;
+  const type = reportType(report);
   if (type === "quality" || report.summary?.is_quality) return "质检报告";
   if (type === "final" || report.summary?.is_final) return "最终报告";
   if (type === "report_agent" || report.summary?.is_report_agent) return "分析总报告";
@@ -1250,6 +1250,10 @@ function reportType(report) {
   if (report.summary?.is_quality) return "quality";
   if (report.summary?.is_final) return "final";
   if (report.summary?.is_report_agent) return "report_agent";
+  const name = String(report.name || report.summary?.relative_name || "").toUpperCase();
+  if (name.includes("QUALITY_WORKFLOW") || name.endsWith("QUALITY_REPORT.MD")) return "quality";
+  if (name.includes("FINAL_COMPARISON")) return "final";
+  if (name.includes("REPORT_AGENT_ANALYSIS")) return "report_agent";
   return "single";
 }
 
