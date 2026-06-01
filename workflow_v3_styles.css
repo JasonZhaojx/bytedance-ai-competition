@@ -339,9 +339,9 @@ body {
 
 /* ==================== Page Header ==================== */
 .page-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 24px;
   position: relative;
   z-index: 1;
@@ -383,7 +383,7 @@ body {
   margin-top: 8px;
   color: var(--text-tertiary);
   font-size: 15px;
-  max-width: 720px;
+  max-width: 480px;
 }
 
 /* ==================== Buttons ==================== */
@@ -501,13 +501,6 @@ body {
   animation: fadeInUp 0.5s ease-out;
 }
 
-.config-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-}
-
 .config-header h2 {
   font-size: 18px;
   font-weight: 700;
@@ -519,100 +512,38 @@ body {
   font-size: 14px;
 }
 
-.workflow-input-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+.config-form {
   margin-top: 20px;
 }
 
-.wizard-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.wizard-tabs button {
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 12px;
-  transition: all var(--transition-in);
-}
-
-.wizard-tabs button.active {
-  color: var(--text-primary);
-  border-color: var(--accent-primary);
-  background: var(--accent-primary-soft);
-}
-
-.wizard-actions {
+.input-row {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 16px;
+}
+
+.input-main {
+  flex: 1;
+}
+
+.input-main textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.btn-tall {
+  height: 100px;
+  padding: 0 28px;
+  white-space: normal;
+  flex-direction: column;
+}
+
+.config-options {
+  display: flex;
+  gap: 16px;
   margin-top: 16px;
-}
-
-.wizard-actions span {
-  color: var(--text-tertiary);
-  font-size: 12px;
-}
-
-.input-card {
-  padding: 18px;
-  background: rgba(39, 39, 42, 0.55);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-}
-
-.input-card[data-wizard-step] {
-  display: none;
-}
-
-.input-card[data-wizard-step].active {
-  display: block;
-}
-
-.input-card-wide {
-  grid-column: 1 / -1;
-}
-
-.step-label {
-  display: inline-flex;
-  margin-bottom: 10px;
-  padding: 4px 9px;
-  border-radius: var(--radius-sm);
-  background: var(--accent-primary-soft);
-  color: var(--accent-primary);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.field-hint {
-  margin-top: 8px;
-  color: var(--text-tertiary);
-  font-size: 12px;
-}
-
-.form-row-five {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  align-items: end;
-}
-
-.form-row-six {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  align-items: end;
-}
-
-.quality-extra-row {
-  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
 }
 
 .option-group {
@@ -620,17 +551,6 @@ body {
   flex-direction: column;
   gap: 6px;
   min-width: 120px;
-}
-
-.compact-switch {
-  min-height: 44px;
-  margin: 0;
-  padding: 9px 12px;
-}
-
-.compact-switch span {
-  font-size: 13px;
-  color: var(--text-secondary);
 }
 
 .option-group label {
@@ -749,10 +669,9 @@ body {
 /* ==================== Workspace Content ==================== */
 .workspace-content {
   display: grid;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  grid-template-columns: 1fr 2fr;
   gap: 20px;
   animation: fadeInUp 0.5s ease-out 0.05s both;
-  align-items: start;
 }
 
 .progress-section {
@@ -760,7 +679,6 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: 20px;
-  min-width: 0;
 }
 
 .section-header {
@@ -789,8 +707,8 @@ body {
 
 /* ==================== Progress Flow ==================== */
 .progress-flow {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -855,13 +773,12 @@ body {
 
 /* ==================== Status Bar ==================== */
 .status-bar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   gap: 12px;
 }
 
 .status-item {
-  min-width: 0;
+  flex: 1;
   text-align: center;
   padding: 10px;
   background: var(--bg-tertiary);
@@ -876,37 +793,8 @@ body {
 }
 
 .status-item strong {
-  display: block;
   font-size: 13px;
   font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.main-thread-card {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.main-thread-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.main-thread-grid span {
-  display: block;
-  color: var(--text-tertiary);
-  font-size: 11px;
-  margin-bottom: 4px;
-}
-
-.main-thread-grid strong {
-  display: block;
-  font-size: 13px;
-  overflow-wrap: anywhere;
 }
 
 /* ==================== Result Section ==================== */
@@ -915,14 +803,11 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: 20px;
-  min-width: 0;
 }
 
 .result-actions {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .report-dropdown {
@@ -930,14 +815,12 @@ body {
   padding: 0 36px 0 12px;
   font-size: 12px;
   min-width: 180px;
-  max-width: min(360px, 100%);
 }
 
 /* ==================== Report Preview ==================== */
 .report-preview {
-  min-height: 420px;
-  max-height: 70vh;
-  overflow: auto;
+  height: 320px;
+  overflow-y: auto;
   padding: 20px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
@@ -947,7 +830,6 @@ body {
   line-height: 1.7;
   color: var(--text-secondary);
   transition: all var(--transition-in);
-  overflow-wrap: anywhere;
 }
 
 .report-preview:hover {
@@ -980,14 +862,13 @@ body {
 
 /* ==================== Report Summary ==================== */
 .report-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
   gap: 12px;
   margin-top: 16px;
 }
 
 .summary-item {
-  min-width: 0;
+  flex: 1;
   text-align: center;
   padding: 12px;
   background: var(--bg-tertiary);
@@ -1008,72 +889,8 @@ body {
 }
 
 .summary-item strong {
-  display: block;
   font-size: 14px;
   font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.issue-panel {
-  margin-top: 14px;
-}
-
-.issue-panel-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.issue-panel-header span,
-.issue-empty {
-  color: var(--text-tertiary);
-  font-size: 12px;
-}
-
-.issue-empty {
-  padding: 14px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.issue-item,
-.issue-list-row {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  margin-top: 10px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.issue-item span {
-  align-self: flex-start;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--accent-warning-soft);
-  color: var(--accent-warning);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.issue-item.high span {
-  background: var(--accent-danger-soft);
-  color: var(--accent-danger);
-}
-
-.issue-item.low span {
-  background: var(--accent-success-soft);
-  color: var(--accent-success);
-}
-
-.issue-item p,
-.issue-list-row p {
-  color: var(--text-secondary);
-  font-size: 13px;
 }
 
 /* ==================== Log Toggle ==================== */
@@ -1116,60 +933,144 @@ body {
 /* ==================== Report Viewer Styles ==================== */
 .report-preview h1,
 .report-preview h2,
-.report-preview h3 {
+.report-preview h3,
+.report-preview h4 {
   color: var(--text-primary);
-  margin: 16px 0 8px;
+  margin: 20px 0 10px;
   font-weight: 600;
 }
 
-.report-preview h1 { font-size: 18px; }
-.report-preview h2 { font-size: 15px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px; }
-.report-preview h3 { font-size: 14px; }
+.report-preview h1 { 
+  font-size: 22px; 
+  border-bottom: 2px solid var(--accent-primary);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+.report-preview h2 { 
+  font-size: 18px; 
+  border-bottom: 1px solid var(--border-subtle); 
+  padding-bottom: 8px; 
+  margin-top: 32px;
+}
+.report-preview h3 { 
+  font-size: 15px; 
+  margin-top: 24px;
+}
+.report-preview h4 { 
+  font-size: 14px; 
+  color: var(--text-secondary);
+}
 
-.report-preview p { margin: 10px 0; }
+.report-preview p { 
+  margin: 14px 0; 
+  line-height: 1.8;
+}
 
 .report-preview table {
   width: 100%;
   border-collapse: collapse;
-  margin: 12px 0;
-  font-size: 12px;
+  margin: 16px 0;
+  font-size: 13px;
+  overflow-x: auto;
+  display: block;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
 }
 
 .report-preview th,
 .report-preview td {
-  padding: 8px 10px;
-  border: 1px solid var(--border-default);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
+  white-space: nowrap;
+}
+
+.report-preview th:last-child,
+.report-preview td:last-child {
+  border-right: none;
 }
 
 .report-preview th {
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
   font-weight: 600;
+  color: var(--text-primary);
+  position: sticky;
+  top: 0;
+}
+
+.report-preview tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.report-preview tr:hover {
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .report-preview code {
   background: var(--bg-elevated);
-  padding: 2px 5px;
-  border-radius: var(--radius-xs);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.report-preview pre {
+  background: var(--bg-secondary);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--border-default);
+}
+
+.report-preview pre code {
+  background: none;
+  padding: 0;
   font-size: 12px;
+  line-height: 1.6;
 }
 
 .report-preview blockquote {
-  border-left: 3px solid var(--accent-primary);
-  padding-left: 12px;
-  margin: 10px 0;
-  color: var(--text-tertiary);
-  font-style: italic;
+  border-left: 4px solid var(--accent-primary);
+  padding: 12px 16px;
+  margin: 16px 0;
+  color: var(--text-secondary);
+  background: var(--accent-primary-soft);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-style: normal;
 }
 
 .report-preview ul,
 .report-preview ol {
-  margin: 10px 0;
-  padding-left: 20px;
+  margin: 14px 0;
+  padding-left: 24px;
 }
 
 .report-preview li {
-  margin: 4px 0;
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.report-preview strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.report-preview em {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.report-preview a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all var(--transition-in);
+}
+
+.report-preview a:hover {
+  border-bottom-color: var(--accent-primary);
+  color: var(--accent-primary-hover);
 }
 
 /* ==================== Form Elements ==================== */
@@ -1517,12 +1418,6 @@ select:focus {
   margin-bottom: 20px;
 }
 
-.metric-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
 .metric-card {
   padding: 16px 18px;
   background: var(--bg-tertiary);
@@ -1545,16 +1440,8 @@ select:focus {
 }
 
 .metric-card strong {
-  display: block;
   font-size: 16px;
   font-weight: 700;
-}
-
-.metric-card small {
-  display: block;
-  margin-top: 4px;
-  color: var(--text-muted);
-  font-size: 11px;
 }
 
 /* ==================== Log Box ==================== */
@@ -1599,89 +1486,6 @@ select:focus {
   color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-all;
-}
-
-.runtime-log-content {
-  max-height: 180px;
-  color: var(--accent-secondary);
-}
-
-.subtask-panel {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.subtask-panel-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.subtask-panel-header span,
-.subtask-empty {
-  color: var(--text-tertiary);
-  font-size: 12px;
-}
-
-.subtask-list {
-  display: grid;
-  gap: 10px;
-}
-
-.subtask-group {
-  display: grid;
-  gap: 6px;
-}
-
-.subtask-group > span {
-  color: var(--accent-secondary);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.subtask-group p,
-.subtask-item {
-  padding: 8px 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.subtask-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.subtask-item strong {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.subtask-item em {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-  font-style: normal;
-}
-
-.subtask-item.running em {
-  color: var(--accent-primary);
-}
-
-.subtask-item.done em {
-  color: var(--accent-success);
-}
-
-.subtask-item.failed em {
-  color: var(--accent-danger);
 }
 
 /* ==================== Report Panel ==================== */
@@ -1874,190 +1678,9 @@ select:focus {
 
 .report-library {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
   animation: fadeInUp 0.5s ease-out 0.05s both;
-}
-
-.report-folder {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  padding: 18px;
-}
-
-.report-folder-card {
-  cursor: default;
-}
-
-.report-folder-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.report-folder-header h3 {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.report-folder-header time {
-  color: var(--text-tertiary);
-  font-size: 12px;
-}
-
-.report-file-list {
-  display: grid;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.report-file-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-}
-
-.report-file-main {
-  min-width: 0;
-}
-
-.report-file-type,
-.report-file-main strong,
-.report-file-main small {
-  display: block;
-}
-
-.report-file-type {
-  color: var(--accent-primary);
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 3px;
-}
-
-.report-file-main strong,
-.report-file-main small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.report-file-main small {
-  color: var(--text-tertiary);
-  font-size: 12px;
-  margin-top: 3px;
-}
-
-.report-file-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.report-file-page {
-  grid-column: 1 / -1;
-}
-
-.report-file-page-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
-  padding: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-}
-
-.report-file-page-header h3 {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.report-file-page-header p {
-  margin-top: 4px;
-  color: var(--text-tertiary);
-  font-size: 13px;
-}
-
-.report-side-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(2, 6, 23, 0.48);
-  z-index: 80;
-}
-
-.report-side-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: min(760px, 92vw);
-  height: 100vh;
-  background: var(--bg-primary);
-  border-left: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-xl);
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  transform: translateX(100%);
-  transition: transform var(--transition-smooth);
-}
-
-.report-side-panel.open {
-  transform: translateX(0);
-}
-
-.report-side-header,
-.report-side-footer {
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.report-side-footer {
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 0;
-  justify-content: flex-end;
-}
-
-.report-side-header h3 {
-  margin-top: 8px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.report-side-header p {
-  margin-top: 4px;
-  color: var(--text-tertiary);
-  font-size: 12px;
-  word-break: break-all;
-}
-
-.side-report-summary {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-top: 0;
-}
-
-.side-report-viewer {
-  flex: 1;
-  min-height: 0;
-  max-height: none;
-  overflow: auto;
-  border: 0;
-  border-radius: 0;
-  margin-top: 0;
 }
 
 .report-card {
@@ -2145,7 +1768,6 @@ select:focus {
 
 .report-meta {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -2190,22 +1812,6 @@ select:focus {
 .quality-item strong {
   font-size: 20px;
   font-weight: 700;
-}
-
-.issue-list {
-  display: grid;
-  gap: 12px;
-}
-
-.issue-list-row {
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0;
-}
-
-.issue-list-row strong {
-  display: block;
-  margin: 8px 0 4px;
 }
 
 /* ==================== Settings Page ==================== */
@@ -2401,22 +2007,6 @@ select:focus {
   .settings-grid {
     grid-template-columns: 1fr;
   }
-
-  .page-header,
-  .workspace-content,
-  .workflow-input-grid,
-  .wizard-tabs {
-    grid-template-columns: 1fr;
-  }
-
-  .input-card-wide {
-    grid-column: auto;
-  }
-
-  .form-row-five,
-  .form-row-six {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 768px) {
@@ -2430,33 +2020,6 @@ select:focus {
 
   .result-summary {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .metric-row,
-  .status-bar,
-  .main-thread-grid,
-  .report-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .form-row-five,
-  .form-row-six,
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .config-header,
-  .section-header,
-  .report-file-row,
-  .issue-list-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .report-file-actions,
-  .result-actions {
-    justify-content: flex-start;
-    flex-wrap: wrap;
   }
 
   .report-toolbar {
@@ -2477,6 +2040,9 @@ select:focus {
     grid-template-columns: 1fr;
   }
 
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {

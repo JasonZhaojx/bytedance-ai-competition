@@ -1,49 +1,96 @@
 let currentJobId = "";
 let pollTimer = null;
 let isSubmitting = false;
+let lastReportName = "";
+let currentReportName = "";
+let allReportsCache = [];
+let currentWizardStep = 1;
 
-const productDescription = document.querySelector("#productDescription");
-const llmProvider = document.querySelector("#llmProvider");
-const topN = document.querySelector("#topN");
-const qualityMode = document.querySelector("#qualityMode");
-const maxIterations = document.querySelector("#maxIterations");
-const enableQualityLoop = document.querySelector("#enableQualityLoop");
-const arkApiKey = document.querySelector("#arkApiKey");
-const bochaApiKey = document.querySelector("#bochaApiKey");
-const llmBaseUrl = document.querySelector("#llmBaseUrl");
-const llmModel = document.querySelector("#llmModel");
-const settingsTopN = document.querySelector("#settingsTopN");
-const settingsQualityMode = document.querySelector("#settingsQualityMode");
-const settingsMaxIterations = document.querySelector("#settingsMaxIterations");
-const settingsEnableQualityLoop = document.querySelector("#settingsEnableQualityLoop");
-const saveSettingsBtn = document.querySelector("#saveSettingsBtn");
-const knownParamFile = document.querySelector("#knownParamFile");
-const knownParamText = document.querySelector("#knownParamText");
-const questionnaireFile = document.querySelector("#questionnaireFile");
-const questionnaireText = document.querySelector("#questionnaireText");
-const startBtn = document.querySelector("#startBtn");
-const refreshBtn = document.querySelector("#refreshBtn");
-const serverStatus = document.querySelector("#serverStatus");
-const jobMeta = document.querySelector("#jobMeta");
-const jobStatus = document.querySelector("#jobStatus");
-const reportName = document.querySelector("#reportName");
-const logBox = document.querySelector("#logBox");
-const reportSelect = document.querySelector("#reportSelect");
-const reportViewer = document.querySelector("#reportViewer");
-const resultSummary = document.querySelector("#resultSummary");
-const downloadBtn = document.querySelector("#downloadBtn");
-const nodeCards = Array.from(document.querySelectorAll(".node-card"));
+const $ = (selector) => document.querySelector(selector);
+
+const productDescription = $("#productDescription");
+const manualProductSelection = $("#manualProductSelection");
+const llmProvider = $("#llmProvider");
+const topN = $("#topN");
+const queryCount = $("#queryCount");
+const searchCount = $("#searchCount");
+const searchBackend = $("#searchBackend");
+const qualityMode = $("#qualityMode");
+const maxIterations = $("#maxIterations");
+const analyzeTimeout = $("#analyzeTimeout");
+const finalSummaryTimeout = $("#finalSummaryTimeout");
+const evidenceMode = $("#evidenceMode");
+const feedbackQueries = $("#feedbackQueries");
+const feedbackBackend = $("#feedbackBackend");
+const knownParamMaxChars = $("#knownParamMaxChars");
+const questionnaireMaxChars = $("#questionnaireMaxChars");
+const retryOnMinor = $("#retryOnMinor");
+const enableQualityLoop = $("#enableQualityLoop");
+const arkApiKey = $("#arkApiKey");
+const bochaApiKey = $("#bochaApiKey");
+const googleApiKey = $("#googleApiKey");
+const googleCxId = $("#googleCxId");
+const llmBaseUrl = $("#llmBaseUrl");
+const llmModel = $("#llmModel");
+const settingsTopN = $("#settingsTopN");
+const settingsQualityMode = $("#settingsQualityMode");
+const settingsMaxIterations = $("#settingsMaxIterations");
+const settingsEnableQualityLoop = $("#settingsEnableQualityLoop");
+const saveSettingsBtn = $("#saveSettingsBtn");
+const knownParamFile = $("#knownParamFile");
+const knownParamText = $("#knownParamText");
+const questionnaireFile = $("#questionnaireFile");
+const questionnaireText = $("#questionnaireText");
+const startBtn = $("#startBtn");
+const refreshBtn = $("#refreshBtn");
+const serverStatus = $("#serverStatus");
+const jobMeta = $("#jobMeta");
+const jobStatus = $("#jobStatus");
+const reportName = $("#reportName");
+const logBox = $("#logBox");
+const runtimeLogBox = $("#runtimeLogBox");
+const threadName = $("#threadName");
+const processPid = $("#processPid");
+const idleSeconds = $("#idleSeconds");
+const reportSelect = $("#reportSelect");
+const reportViewer = $("#reportViewer");
+const resultSummary = $("#resultSummary");
+const issuePanel = $("#issuePanel");
+const downloadBtn = $("#downloadBtn");
 const navButtons = Array.from(document.querySelectorAll(".nav-list button"));
 const pagePanels = Array.from(document.querySelectorAll("[data-page-panel]"));
-const reportLibrary = document.querySelector("#reportLibrary");
-const reloadReportsBtn = document.querySelector("#reloadReportsBtn");
-const qualityLoopStatus = document.querySelector("#qualityLoopStatus");
-const qualityModePreview = document.querySelector("#qualityModePreview");
-const maxIterationPreview = document.querySelector("#maxIterationPreview");
+const reportLibrary = $("#reportLibrary");
+const reloadReportsBtn = $("#reloadReportsBtn");
+const reportSidePanel = $("#reportSidePanel");
+const reportSideBackdrop = $("#reportSideBackdrop");
+const closeSideReportBtn = $("#closeSideReportBtn");
+const sideReportType = $("#sideReportType");
+const sideReportTitle = $("#sideReportTitle");
+const sideReportName = $("#sideReportName");
+const sideReportSummary = $("#sideReportSummary");
+const sideReportViewer = $("#sideReportViewer");
+const sideDownloadBtn = $("#sideDownloadBtn");
+const qualityLoopStatus = $("#qualityLoopStatus");
+const qualityCenterStatus = $("#qualityCenterStatus");
+const qualityModePreview = $("#qualityModePreview");
+const maxIterationPreview = $("#maxIterationPreview");
+const timeMetric = $("#timeMetric");
+const coverageMetric = $("#coverageMetric");
+const consistencyMetric = $("#consistencyMetric");
+const qualityIssueList = $("#qualityIssueList");
+const wizardTabs = Array.from(document.querySelectorAll("[data-step-target]"));
+const wizardPanels = Array.from(document.querySelectorAll("[data-wizard-step]"));
+const prevStepBtn = $("#prevStepBtn");
+const nextStepBtn = $("#nextStepBtn");
+const wizardStepMeta = $("#wizardStepMeta");
+const subtaskList = $("#subtaskList");
+const subtaskMeta = $("#subtaskMeta");
 
 startBtn.addEventListener("click", startJob);
 refreshBtn.addEventListener("click", handleRefresh);
 reloadReportsBtn?.addEventListener("click", () => loadReports({ preserveSelection: true }));
+closeSideReportBtn?.addEventListener("click", closeReportSidePanel);
+reportSideBackdrop?.addEventListener("click", closeReportSidePanel);
 reportSelect.addEventListener("change", () => {
   if (reportSelect.value) loadReport(reportSelect.value);
 });
@@ -53,6 +100,11 @@ qualityMode.addEventListener("change", updateQualityPreview);
 maxIterations.addEventListener("input", updateQualityPreview);
 enableQualityLoop.addEventListener("change", updateQualityPreview);
 saveSettingsBtn?.addEventListener("click", saveSettings);
+prevStepBtn?.addEventListener("click", () => showWizardStep(currentWizardStep - 1));
+nextStepBtn?.addEventListener("click", () => showWizardStep(currentWizardStep + 1));
+wizardTabs.forEach((button) => {
+  button.addEventListener("click", () => showWizardStep(Number(button.dataset.stepTarget)));
+});
 for (const button of navButtons) {
   button.addEventListener("click", () => showPage(button.dataset.page));
 }
@@ -61,160 +113,58 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSettings();
   refresh();
   updateQualityPreview();
-  initMicroInteractions();
+  showWizardStep(1);
   initKeyboardShortcuts();
 });
 
-function initMicroInteractions() {
-  const inputs = document.querySelectorAll("input, textarea, select");
-  inputs.forEach((input) => {
-    input.addEventListener("focus", () => {
-      input.parentElement?.classList.add("focused");
-    });
-    input.addEventListener("blur", () => {
-      input.parentElement?.classList.remove("focused");
-    });
-  });
-
-  document.querySelectorAll(".btn").forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      if (this.classList.contains("loading")) return;
-      createRipple(this, e);
-    });
-  });
-}
-
-function createRipple(button, event) {
-  const ripple = document.createElement("span");
-  ripple.className = "ripple";
-  const rect = button.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  ripple.style.width = ripple.style.height = `${size}px`;
-  ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
-  ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
-  button.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
-}
-
 function initKeyboardShortcuts() {
-  document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      if (e.key === "Enter" && !isSubmitting) {
-        e.preventDefault();
-        startJob();
-      }
-    }
-    if (e.key === "Escape") {
-      const toast = document.querySelector(".toast");
-      if (toast) {
-        toast.style.animation = "toastOut 0.2s ease-out forwards";
-        setTimeout(() => toast.remove(), 200);
-      }
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter" && !isSubmitting) {
+      event.preventDefault();
+      startJob();
     }
   });
 }
-
-function showToast(message, type = "info") {
-  const existing = document.querySelector(".toast");
-  if (existing) {
-    existing.style.animation = "toastOut 0.2s ease-out forwards";
-    setTimeout(() => existing.remove(), 200);
-  }
-
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-
-  const icons = {
-    success: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>',
-    error: '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>',
-    warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>',
-    info: '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>',
-  };
-
-  toast.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      ${icons[type] || icons.info}
-    </svg>
-    <span>${message}</span>
-  `;
-  document.body.appendChild(toast);
-
-  requestAnimationFrame(() => {
-    toast.style.animation = "toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
-  });
-
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.style.animation = "toastOut 0.3s ease-out forwards";
-      setTimeout(() => {
-        if (toast.parentNode) toast.remove();
-      }, 300);
-    }
-  }, 4000);
-}
-
-const toastStyles = document.createElement("style");
-toastStyles.textContent = `
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateY(24px) scale(0.92); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes toastOut {
-    to { opacity: 0; transform: translateY(12px) scale(0.96); }
-  }
-  .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(0);
-    animation: rippleEffect 0.6s ease-out;
-    pointer-events: none;
-  }
-  @keyframes rippleEffect {
-    to { transform: scale(4); opacity: 0; }
-  }
-  .btn { position: relative; overflow: hidden; }
-`;
-document.head.appendChild(toastStyles);
 
 async function startJob() {
   const description = productDescription.value.trim();
-
   if (!description) {
     productDescription.focus();
-    animateValidationError(productDescription);
     showToast("请输入产品需求", "error");
     return;
   }
-
   if (isSubmitting) return;
+
   isSubmitting = true;
   currentReportName = "";
   lastReportName = "";
   clearTimeout(pollTimer);
-
-  startBtn.disabled = true;
-  startBtn.classList.add("loading");
-  startBtn.innerHTML = `
-    <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
-      <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
-    </svg>
-    <span>分析中...</span>
-  `;
-
+  setStartButtonLoading(true);
   serverStatus.textContent = "Starting";
-  serverStatus.style.opacity = "0.6";
 
   const payload = {
     product_description: description,
+    manual_product_selection: manualProductSelection.value.trim(),
     llm_provider: llmProvider.value,
     top_n: Number(topN.value || 5),
+    query_count: Number(queryCount.value || 3),
+    search_count: Number(searchCount.value || 3),
+    search_backend: Number(searchBackend.value || 2),
     quality_mode: qualityMode.value,
     max_iterations: Number(maxIterations.value || 3),
+    analyze_timeout: Number(analyzeTimeout.value || 1200),
+    final_summary_timeout: Number(finalSummaryTimeout.value || 900),
+    evidence_mode: Number(evidenceMode.value || 2),
+    feedback_queries: Number(feedbackQueries.value || 2),
+    quality_feedback_search_backend: Number(feedbackBackend.value || 0),
+    known_param_max_chars: Number(knownParamMaxChars.value || 0),
+    questionnaire_max_chars: Number(questionnaireMaxChars.value || 0),
+    retry_on_minor: retryOnMinor.checked,
     enable_quality_loop: enableQualityLoop.checked,
     ark_api_key: arkApiKey.value.trim(),
     bocha_api_key: bochaApiKey.value.trim(),
+    google_api_key: googleApiKey.value.trim(),
+    google_cx_id: googleCxId.value.trim(),
     llm_base_url: llmBaseUrl.value.trim(),
     llm_model: llmModel.value.trim(),
     known_param_text: knownParamText.value,
@@ -228,82 +178,35 @@ async function startJob() {
     });
     currentJobId = job.job_id;
     renderJob(job);
-    showToast("任务已启动，正在分析...", "success");
+    showToast("任务已启动，正在执行主流程", "success");
     pollJob();
   } catch (error) {
     serverStatus.textContent = "Error";
     logBox.textContent = String(error);
     showToast("启动失败: " + error.message, "error");
-    resetStartButton();
+    setStartButtonLoading(false);
   }
 }
 
-function resetStartButton() {
-  isSubmitting = false;
-  startBtn.disabled = false;
-  startBtn.classList.remove("loading");
-  startBtn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-    </svg>
-    开始分析
-  `;
+function setStartButtonLoading(loading) {
+  isSubmitting = loading;
+  startBtn.disabled = loading;
+  startBtn.classList.toggle("loading", loading);
+  startBtn.innerHTML = loading ? "<span>分析中...</span>" : "<span>开始分析</span>";
 }
-
-function animateValidationError(element) {
-  element.style.borderColor = "var(--accent-danger)";
-  element.style.animation = "shake 0.4s ease-out";
-  setTimeout(() => {
-    element.style.borderColor = "";
-    element.style.animation = "";
-  }, 600);
-}
-
-const shakeStyle = document.createElement("style");
-shakeStyle.textContent = `
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-  }
-`;
-document.head.appendChild(shakeStyle);
 
 async function handleRefresh() {
   refreshBtn.disabled = true;
-  refreshBtn.innerHTML = `
-    <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M23 4v6h-6M1 20v-6h6"></path>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-    </svg>
-    刷新中...
-  `;
   await refresh();
   setTimeout(() => {
     refreshBtn.disabled = false;
-    refreshBtn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <polyline points="1 20 1 14 7 14"></polyline>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-      </svg>
-      刷新
-    `;
-  }, 500);
+  }, 300);
 }
 
 async function refresh() {
   await loadReports();
-  if (currentJobId) {
-    await pollJob();
-  }
+  if (currentJobId) await pollJob();
 }
-
-let lastReportName = "";
-let currentReportName = "";
-let lastJobStatus = "";
 
 async function pollJob() {
   if (!currentJobId) return;
@@ -319,76 +222,137 @@ async function pollJob() {
       }
       clearTimeout(pollTimer);
       pollTimer = setTimeout(pollJob, 2500);
-    } else {
-      clearTimeout(pollTimer);
-      lastReportName = "";
-      if (job.report_name) {
-        loadReport(job.report_name);
-      } else {
-        loadReports();
-      }
-      resetStartButton();
+      return;
+    }
 
-      if (job.status === "completed") {
-        showToast("任务完成！报告已生成", "success");
-        celebrateCompletion();
-      } else if (job.status === "failed") {
-        showToast("任务失败，请查看日志了解详情", "error");
-      }
+    clearTimeout(pollTimer);
+    lastReportName = "";
+    if (job.report_name) {
+      await loadReport(job.report_name);
+    } else {
+      await loadReports();
+    }
+    setStartButtonLoading(false);
+
+    if (job.status === "completed") {
+      showToast("任务完成，报告已生成", "success");
+    } else if (job.status === "failed") {
+      showToast("任务失败，请查看 Agent 决策回放", "error");
     }
   } catch (error) {
     clearTimeout(pollTimer);
-    resetStartButton();
+    setStartButtonLoading(false);
     showToast("获取任务状态失败: " + error.message, "error");
   }
 }
 
-function celebrateCompletion() {
-  const header = document.querySelector(".page-header");
-  if (header) {
-    header.style.animation = "celebrate 0.6s ease-out";
-    setTimeout(() => {
-      header.style.animation = "";
-    }, 600);
-  }
-}
-
-const celebrateStyle = document.createElement("style");
-celebrateStyle.textContent = `
-  @keyframes celebrate {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-    100% { transform: scale(1); }
-  }
-`;
-document.head.appendChild(celebrateStyle);
-
 function renderJob(job) {
   serverStatus.textContent = job.status;
-  serverStatus.style.opacity = job.status === "running" ? "0.8" : "1";
   jobStatus.textContent = job.status;
   const desc = job.product_description || "";
-  jobMeta.textContent = desc.length > 40 ? desc.slice(0, 40) + "..." : desc;
+  jobMeta.textContent = desc.length > 46 ? desc.slice(0, 46) + "..." : desc || "尚未启动任务";
   reportName.textContent = job.report_name || "生成中";
   logBox.textContent = (job.logs || []).join("\n") || "等待任务日志...";
   logBox.scrollTop = logBox.scrollHeight;
+  renderRuntimeState(job);
+  renderSubtasks(job);
   renderNodeFlow(job);
-  qualityLoopStatus.textContent = job.stage || job.status;
+  setQualityStatus(stageLabel(job.stage || job.status));
+  updateBusinessMetrics(job);
+}
+
+function showWizardStep(step) {
+  currentWizardStep = Math.max(1, Math.min(4, step));
+  wizardPanels.forEach((panel) => {
+    panel.classList.toggle("active", Number(panel.dataset.wizardStep) === currentWizardStep);
+  });
+  wizardTabs.forEach((button) => {
+    button.classList.toggle("active", Number(button.dataset.stepTarget) === currentWizardStep);
+  });
+  if (prevStepBtn) prevStepBtn.disabled = currentWizardStep === 1;
+  if (nextStepBtn) nextStepBtn.disabled = currentWizardStep === 4;
+  if (wizardStepMeta) wizardStepMeta.textContent = `步骤 ${currentWizardStep} / 4`;
+}
+
+function renderRuntimeState(job) {
+  threadName.textContent = job.thread_name || (job.thread_alive ? "queued" : "未启动");
+  processPid.textContent = job.process_pid || "-";
+  idleSeconds.textContent =
+    typeof job.idle_seconds === "number" ? `${job.idle_seconds}s` : "-";
+  const runtimeLines = [
+    `status=${job.status} stage=${job.stage} thread_alive=${job.thread_alive}`,
+    `pid=${job.process_pid || "-"} started=${formatTimestamp(job.started_at)} finished=${formatTimestamp(job.finished_at)}`,
+    ...(job.runtime_logs || []),
+  ];
+  runtimeLogBox.textContent = runtimeLines.join("\n") || "等待主线程事件...";
+  runtimeLogBox.scrollTop = runtimeLogBox.scrollHeight;
+}
+
+function renderSubtasks(job) {
+  const queries = job.search_queries || [];
+  const candidates = job.candidate_products || [];
+  const subtasks = job.subtasks || [];
+  const chunks = [];
+
+  if (queries.length) {
+    chunks.push(`
+      <div class="subtask-group">
+        <span>搜索词 ${queries.length}</span>
+        ${queries.map((query) => `<p>${escapeHtml(query)}</p>`).join("")}
+      </div>
+    `);
+  }
+  if (candidates.length) {
+    chunks.push(`
+      <div class="subtask-group">
+        <span>候选产品 ${candidates.length}</span>
+        ${candidates.map((name) => `<p>${escapeHtml(name)}</p>`).join("")}
+      </div>
+    `);
+  }
+  if (subtasks.length) {
+    chunks.push(`
+      <div class="subtask-group">
+        <span>分析子任务 ${subtasks.length}</span>
+        ${subtasks
+          .map(
+            (task) => `
+              <div class="subtask-item ${escapeHtml(task.status || "queued")}">
+                <strong>${escapeHtml(task.name)}</strong>
+                <em>${escapeHtml(subtaskStatusLabel(task.status))}</em>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    `);
+  }
+
+  subtaskMeta.textContent =
+    queries.length || candidates.length || subtasks.length
+      ? `${queries.length} 搜索词 · ${candidates.length} 候选 · ${subtasks.length} 子任务`
+      : "等待搜索";
+  subtaskList.innerHTML = chunks.join("") || `<div class="subtask-empty">等待主流程输出搜索词和候选产品。</div>`;
+}
+
+function subtaskStatusLabel(status) {
+  return {
+    queued: "排队",
+    running: "运行中",
+    done: "完成",
+    failed: "失败",
+  }[status] || status || "排队";
 }
 
 function renderNodeFlow(job) {
   const stage = job.stage || inferStage(job);
-  const order = ["prepare", "discover", "analyze", "summarize", "quality", "done"];
-  const currentIndex = order.indexOf(stage);
+  const order = ["prepare", "discover", "select", "analyze", "summarize", "quality", "done"];
+  const currentIndex = Math.max(order.indexOf(stage), 0);
 
-  const flowNodes = document.querySelectorAll(".flow-node");
-  flowNodes.forEach((node) => {
-    const nodeStage = node.dataset.stage;
-    const index = order.indexOf(nodeStage);
-
+  document.querySelectorAll(".flow-node").forEach((node) => {
+    const index = order.indexOf(node.dataset.stage);
     node.classList.remove("active", "done", "failed");
-
-    if (job.status === "failed" && index === Math.max(currentIndex, 0)) {
+    if (job.status === "failed" && index === currentIndex) {
       node.classList.add("failed");
     } else if (stage === "done" || index < currentIndex) {
       node.classList.add("done");
@@ -401,263 +365,386 @@ function renderNodeFlow(job) {
 function inferStage(job) {
   if (job.status === "completed") return "done";
   const logs = (job.logs || []).join("\n");
-  if (/总总结已保存|最终报告通过质检|达到最大迭代次数/.test(logs)) return "done";
-  if (/最终报告质检闭环|\[quality-loop\]/.test(logs)) return "quality";
+  if (/总总结已保存|Markdown 已保存|最终报告通过质检|达到最大迭代次数/.test(logs)) return "done";
+  if (/Quality Agent 质检|最终报告质检闭环|\[quality-loop\]/.test(logs)) return "quality";
   if (/生成所选产品大总结|FINAL COMPARISON|横向对比/.test(logs)) return "summarize";
-  if (/等待所选产品分析报告完成|启动独立命令行窗口分析|将要分析的产品|分析窗口已经启动/.test(logs)) {
-    return "analyze";
-  }
-  if (/LLM 改写后的搜索词|搜索到的产品|rewrite search queries|find_product_names/.test(logs)) {
-    return "discover";
-  }
+  if (/等待所选产品分析报告完成|启动独立命令行窗口分析|将要分析的产品|分析窗口已经启动/.test(logs)) return "analyze";
+  if (/请选择|\[web-input\] 产品选择/.test(logs)) return "select";
+  if (/LLM 改写后的搜索词|搜索到的产品|rewrite search queries|find_product_names/.test(logs)) return "discover";
   return "prepare";
+}
+
+function stageLabel(value) {
+  return {
+    prepare: "准备输入",
+    discover: "搜索发现",
+    select: "等待/应用人工选择",
+    analyze: "分块阅读与分析",
+    summarize: "横向总结",
+    quality: "质检闭环",
+    done: "完成",
+    running: "运行中",
+    completed: "完成",
+    failed: "失败",
+  }[value] || value;
 }
 
 async function loadReports(options = {}) {
   const selected = reportSelect.value;
-
   try {
     const data = await api("/api/reports");
+    allReportsCache = [...data.reports].sort(compareReports);
     reportSelect.innerHTML = "";
 
-    if (!data.reports.length) {
-      const option = document.createElement("option");
-      option.textContent = "暂无报告";
-      option.value = "";
-      reportSelect.appendChild(option);
+    if (!allReportsCache.length) {
+      reportSelect.appendChild(new Option("暂无报告", ""));
       renderSummary(null);
+      renderIssues([]);
       setDownload("");
       renderReportLibrary([]);
+      renderQualityIssues([]);
       return;
     }
 
-    const sorted = [...data.reports].sort((a, b) => {
-      const finalDelta = Number(b.summary?.is_final || false) - Number(a.summary?.is_final || false);
-      if (finalDelta) return finalDelta;
-      return b.modified_at - a.modified_at;
-    });
-
-    renderReportLibrary(sorted);
-
-    sorted.forEach((report) => {
-      const option = document.createElement("option");
-      option.value = report.name;
-      const typeLabel = report.summary?.is_final ? "最终报告" : "单品报告";
-      const title = report.summary?.title || report.name;
-      option.textContent = `${typeLabel} · ${title}`;
-      reportSelect.appendChild(option);
-    });
-
-    if (options.preserveSelection && selected) {
-      reportSelect.value = selected;
+    renderReportLibrary(allReportsCache);
+    renderQualityIssues(collectIssues(allReportsCache));
+    for (const report of allReportsCache) {
+      const label = `${reportTypeLabel(report)} · ${report.summary?.title || report.name}`;
+      reportSelect.appendChild(new Option(label, report.name));
     }
-    if (!reportSelect.value && sorted[0]) {
-      reportSelect.value = sorted[0].name;
-    }
-    if (reportSelect.value) {
-      loadReport(reportSelect.value);
-    }
+    if (options.preserveSelection && selected) reportSelect.value = selected;
+    if (!reportSelect.value && allReportsCache[0]) reportSelect.value = allReportsCache[0].name;
+    if (reportSelect.value) await loadReport(reportSelect.value);
   } catch (error) {
-    showToast("加载报告列表失败", "error");
+    showToast("加载报告列表失败: " + error.message, "error");
   }
+}
+
+function compareReports(a, b) {
+  const order = { final: 0, report_agent: 1, single: 2, quality: 3 };
+  const typeDelta = (order[reportType(a)] ?? 9) - (order[reportType(b)] ?? 9);
+  if (typeDelta) return typeDelta;
+  return (b.modified_at || 0) - (a.modified_at || 0);
 }
 
 function renderReportLibrary(reports) {
   if (!reportLibrary) return;
-
   if (!reports.length) {
-    reportLibrary.innerHTML = `
-      <div class="report-empty">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="12" y1="18" x2="12" y2="12"></line>
-          <line x1="9" y1="15" x2="15" y2="15"></line>
-        </svg>
-        <p>暂无报告</p>
-        <span>开始分析后将在此显示</span>
-      </div>
-    `;
+    reportLibrary.innerHTML = `<div class="report-empty"><p>暂无报告</p><span>开始分析后会在这里展示。</span></div>`;
     return;
   }
 
-  reportLibrary.innerHTML = reports
-    .map((report, index) => {
-      const type = report.summary?.is_final ? "最终报告" : "单品报告";
-      const title = escapeHtml(report.summary?.title || report.name);
-      const size = formatSize(report.size || 0);
-      const date = new Date(report.modified_at * 1000).toLocaleDateString("zh-CN");
-
+  const groups = groupReportsByTask(reports);
+  reportLibrary.innerHTML = groups
+    .map((group) => {
+      const tags = summarizeTaskTags(group.reports);
+      const date = new Date(group.modifiedAt * 1000).toLocaleString("zh-CN");
       return `
-        <div class="report-card slide-in" style="animation-delay: ${index * 50}ms">
-          <div class="report-card-header">
-            <div class="report-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-            </div>
+        <section class="report-folder report-folder-card">
+          <div class="report-folder-header">
             <div>
-              <h3>${title}</h3>
+              <h3>${escapeHtml(group.taskId)}</h3>
               <time>${date}</time>
             </div>
+            <span class="report-tag">${group.reports.length} 个文件</span>
           </div>
-          <p class="report-card-preview">${escapeHtml(report.name)}</p>
+          <div class="report-meta">${tags.map((tag) => `<span class="report-tag">${escapeHtml(tag)}</span>`).join("")}</div>
           <div class="report-card-footer">
-            <div class="report-meta">
-              <span class="report-tag">${type}</span>
-              <span class="report-tag">${size}</span>
-            </div>
-            <button class="btn btn-ghost" data-report="${escapeHtml(report.name)}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              查看
-            </button>
+            <span class="report-tag">任务文件夹</span>
+            <button class="btn btn-ghost btn-sm" data-task="${escapeHtml(group.taskId)}">打开文件夹</button>
           </div>
-        </div>
+        </section>
       `;
     })
     .join("");
 
-  reportLibrary.querySelectorAll("button[data-report]").forEach((button) => {
+  reportLibrary.querySelectorAll("button[data-task]").forEach((button) => {
     button.addEventListener("click", () => {
-      const name = button.dataset.report;
-      showPage("workspace");
-      reportSelect.value = name;
-      loadReport(name);
+      renderReportFolderFiles(button.dataset.task);
     });
   });
 }
 
-const slideInStyle = document.createElement("style");
-slideInStyle.textContent = `
-  .slide-in {
-    animation: slideIn 0.4s ease-out both;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .report-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-  .report-empty svg {
-    margin-bottom: 16px;
-    opacity: 0.4;
-  }
-  .report-empty p {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .report-empty span {
-    font-size: 13px;
-  }
-`;
-document.head.appendChild(slideInStyle);
+function renderReportFolderFiles(taskId) {
+  const group = groupReportsByTask(allReportsCache).find((item) => item.taskId === taskId);
+  if (!group || !reportLibrary) return;
+  const reports = [...group.reports].sort(compareReports);
+  reportLibrary.innerHTML = `
+    <section class="report-file-page">
+      <div class="report-file-page-header">
+        <button class="btn btn-ghost btn-sm" data-back-folders type="button">返回文件夹</button>
+        <div>
+          <h3>${escapeHtml(group.taskId)}</h3>
+          <p>${reports.length} 个报告文件，点击文件在右侧预览。</p>
+        </div>
+      </div>
+      <div class="report-file-list">
+        ${reports.map(renderReportRow).join("")}
+      </div>
+    </section>
+  `;
+  reportLibrary.querySelector("[data-back-folders]")?.addEventListener("click", () => {
+    renderReportLibrary(allReportsCache);
+  });
+  reportLibrary.querySelectorAll("button[data-report]").forEach((button) => {
+    button.addEventListener("click", () => openReportSidePanel(button.dataset.report));
+  });
+}
+
+function renderReportRow(report) {
+  const summary = report.summary || {};
+  return `
+    <div class="report-file-row">
+      <div class="report-file-main">
+        <span class="report-file-type">${escapeHtml(reportTypeLabel(report))}${summary.round ? " · " + escapeHtml(summary.round) : ""}</span>
+        <strong>${escapeHtml(summary.title || report.name)}</strong>
+        <small>${escapeHtml(report.name)}</small>
+      </div>
+      <div class="report-file-actions">
+        <span class="report-tag">参考点 ${summary.reference_count || 0}</span>
+        <span class="report-tag">Issue ${summary.issue_count || 0}</span>
+        <button class="btn btn-ghost btn-sm" data-report="${escapeHtml(report.name)}">查看</button>
+      </div>
+    </div>
+  `;
+}
 
 async function loadReport(name) {
   if (name === currentReportName && reportViewer.children.length > 0) return;
   currentReportName = name;
-  
   showLoadingSkeleton();
-
   try {
     const data = await api(`/api/reports/${encodeURIComponent(name)}`);
     renderSummary(data.summary);
+    renderIssues(data.summary?.issues || []);
     setDownload(data.name);
-
-    setTimeout(() => {
-      reportViewer.innerHTML = markdownToHtml(data.content);
-      reportViewer.style.opacity = "1";
-    }, 300);
+    reportViewer.innerHTML = markdownToHtml(data.content);
+    reportViewer.style.opacity = "1";
+    updateMetricsFromSummary(data.summary);
   } catch (error) {
     currentReportName = "";
-    reportViewer.innerHTML = `
-      <div style="text-align: center; padding: 60px 20px; color: var(--accent-danger);">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-        <p>加载报告失败</p>
-        <p style="font-size: 12px; margin-top: 8px; color: var(--text-tertiary);">${escapeHtml(error.message)}</p>
-      </div>
-    `;
-    showToast("加载报告失败", "error");
+    reportViewer.innerHTML = `<div class="empty-state error"><p>加载报告失败</p><span>${escapeHtml(error.message)}</span></div>`;
+    showToast("加载报告失败: " + error.message, "error");
   }
 }
 
+async function openReportSidePanel(name) {
+  if (!reportSidePanel || !sideReportViewer) return;
+  reportSidePanel.classList.add("open");
+  reportSidePanel.setAttribute("aria-hidden", "false");
+  if (reportSideBackdrop) reportSideBackdrop.hidden = false;
+  sideReportViewer.innerHTML = `
+    <div class="skeleton-container">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text short"></div>
+    </div>
+  `;
+  if (sideReportTitle) sideReportTitle.textContent = "加载中...";
+  if (sideReportName) sideReportName.textContent = name;
+
+  try {
+    const data = await api(`/api/reports/${encodeURIComponent(name)}`);
+    const summary = data.summary || {};
+    if (sideReportType) sideReportType.textContent = reportTypeLabel({ summary });
+    if (sideReportTitle) sideReportTitle.textContent = summary.title || data.name || name;
+    if (sideReportName) sideReportName.textContent = data.name || name;
+    if (sideReportSummary) sideReportSummary.innerHTML = renderSideSummaryHtml(data);
+    if (sideDownloadBtn) {
+      sideDownloadBtn.href = `/download/reports/${encodeURIComponent(data.name || name)}`;
+      sideDownloadBtn.style.pointerEvents = "auto";
+      sideDownloadBtn.style.opacity = "1";
+    }
+    sideReportViewer.innerHTML = markdownToHtml(data.content || "");
+  } catch (error) {
+    sideReportViewer.innerHTML = `<div class="empty-state error"><p>加载报告失败</p><span>${escapeHtml(error.message)}</span></div>`;
+    showToast("加载报告失败: " + error.message, "error");
+  }
+}
+
+function closeReportSidePanel() {
+  reportSidePanel?.classList.remove("open");
+  reportSidePanel?.setAttribute("aria-hidden", "true");
+  if (reportSideBackdrop) reportSideBackdrop.hidden = true;
+}
+
+function renderSideSummaryHtml(data) {
+  const summary = data.summary || {};
+  const values = [
+    reportTypeLabel({ summary }),
+    summary.task_id || inferTaskId(data.name),
+    summary.reference_count || 0,
+    summary.issue_count || 0,
+  ];
+  const labels = ["类型", "任务", "参考点", "Issue"];
+  return values
+    .map(
+      (value, index) => `
+        <div class="summary-item">
+          <span>${labels[index]}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+        </div>
+      `
+    )
+    .join("");
+}
+
 function showLoadingSkeleton() {
-  reportViewer.style.opacity = "0.4";
+  reportViewer.style.opacity = "0.5";
   reportViewer.innerHTML = `
     <div class="skeleton-container">
       <div class="skeleton skeleton-title"></div>
       <div class="skeleton skeleton-text"></div>
       <div class="skeleton skeleton-text"></div>
-      <div class="skeleton skeleton-text" style="width: 70%"></div>
-      <div style="height: 24px"></div>
-      <div class="skeleton skeleton-title"></div>
-      <div class="skeleton skeleton-text"></div>
-      <div class="skeleton skeleton-text"></div>
-      <div class="skeleton skeleton-text" style="width: 60%"></div>
+      <div class="skeleton skeleton-text short"></div>
     </div>
   `;
 }
 
-const skeletonStyle = document.createElement("style");
-skeletonStyle.textContent = `
-  .skeleton-container {
-    padding: 24px;
-  }
-  .skeleton {
-    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-elevated) 50%, var(--bg-tertiary) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: var(--radius-md);
-  }
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-  .skeleton-text {
-    height: 14px;
-    margin-bottom: 12px;
-  }
-  .skeleton-title {
-    height: 20px;
-    width: 50%;
-    margin-bottom: 20px;
-  }
-`;
-document.head.appendChild(skeletonStyle);
-
 function renderSummary(summary) {
   const values = summary
     ? [
-        summary.is_final ? "最终报告" : "单品报告",
-        summary.quality_feedback_applied ? "已应用" : "无",
-        String(summary.sections || 0),
+        reportTypeLabel({ summary }),
+        String(summary.reference_count || 0),
+        String(summary.issue_count || 0),
         formatCharCount(summary.chars || 0),
       ]
-    : ["暂无", "暂无", "0", "0"];
-
-  const cards = resultSummary.querySelectorAll("strong");
-  cards.forEach((card, index) => {
+    : ["暂无", "0", "0", "0"];
+  resultSummary.querySelectorAll("strong").forEach((card, index) => {
     card.textContent = values[index];
   });
 }
 
-function formatCharCount(chars) {
-  if (chars > 10000) {
-    return `${(chars / 10000).toFixed(1)}万`;
+function renderIssues(issues) {
+  if (!issuePanel) return;
+  if (!issues.length) {
+    issuePanel.innerHTML = `<div class="issue-empty">当前报告暂无结构化 Issue。可在质检报告或含“问题/风险/缺口”的章节中查看。</div>`;
+    return;
   }
-  return String(chars);
+  issuePanel.innerHTML = `
+    <div class="issue-panel-header">
+      <strong>详细 Issue</strong>
+      <span>来自分块阅读、报告正文或质检输出的结构化问题</span>
+    </div>
+    ${issues
+      .map(
+        (issue) => `
+          <article class="issue-item ${escapeHtml(issue.severity || "medium")}">
+            <span>${escapeHtml(issue.severity || "medium")}</span>
+            <p>${escapeHtml(issue.detail || issue.title || "")}</p>
+          </article>
+        `
+      )
+      .join("")}
+  `;
+}
+
+function renderQualityIssues(issues) {
+  if (!qualityIssueList) return;
+  if (!issues.length) {
+    qualityIssueList.innerHTML = `<div class="issue-empty">暂无 Issue。运行质检闭环后会展示每轮问题、影响范围和修复方向。</div>`;
+    return;
+  }
+  qualityIssueList.innerHTML = issues
+    .slice(0, 24)
+    .map(
+      (item) => `
+        <article class="issue-list-row">
+          <div>
+            <span class="report-tag">${escapeHtml(item.reportType)}</span>
+            <strong>${escapeHtml(item.title)}</strong>
+            <p>${escapeHtml(item.detail)}</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" data-report="${escapeHtml(item.report)}">查看来源</button>
+        </article>
+      `
+    )
+    .join("");
+  qualityIssueList.querySelectorAll("button[data-report]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openReportSidePanel(button.dataset.report);
+    });
+  });
+}
+
+function collectIssues(reports) {
+  return reports.flatMap((report) =>
+    (report.summary?.issues || []).map((issue) => ({
+      report: report.name,
+      reportType: reportTypeLabel(report),
+      title: issue.title || report.summary?.title || report.name,
+      detail: issue.detail || issue.title || "",
+    }))
+  );
+}
+
+function updateBusinessMetrics(job) {
+  if (!job) return;
+  const elapsed = job.created_at ? Math.max(0, Math.round(Date.now() / 1000 - job.created_at)) : 0;
+  if (job.status === "running") timeMetric.textContent = `${elapsed}s 运行中`;
+  if (job.status === "completed") timeMetric.textContent = `${elapsed}s 完成`;
+  if (job.status === "failed") timeMetric.textContent = "需人工介入";
+}
+
+function updateMetricsFromSummary(summary) {
+  if (!summary) return;
+  coverageMetric.textContent = `${summary.reference_count || 0} 参考点`;
+  consistencyMetric.textContent = summary.issue_count ? `${summary.issue_count} Issue` : "结构通过";
+}
+
+function setQualityStatus(value) {
+  if (qualityLoopStatus) qualityLoopStatus.textContent = value;
+  if (qualityCenterStatus) qualityCenterStatus.textContent = value;
+}
+
+function updateQualityPreview() {
+  qualityModePreview.textContent = qualityMode.value;
+  maxIterationPreview.textContent = maxIterations.value || "3";
+  setQualityStatus(enableQualityLoop.checked ? "已启用" : "已关闭");
+}
+
+function loadSettings() {
+  const settings = JSON.parse(localStorage.getItem("competitor_ai_settings") || "{}");
+  llmProvider.value = settings.llm_provider || "0";
+  arkApiKey.value = settings.ark_api_key || "";
+  bochaApiKey.value = settings.bocha_api_key || "";
+  googleApiKey.value = settings.google_api_key || "";
+  googleCxId.value = settings.google_cx_id || "";
+  llmBaseUrl.value = settings.llm_base_url || "";
+  llmModel.value = settings.llm_model || "";
+  settingsTopN.value = settings.top_n || "5";
+  settingsQualityMode.value = settings.quality_mode || "rule";
+  settingsMaxIterations.value = settings.max_iterations || "3";
+  settingsEnableQualityLoop.checked = settings.enable_quality_loop !== false;
+  syncSettingsToWorkspace();
+}
+
+function saveSettings() {
+  const settings = {
+    llm_provider: llmProvider.value,
+    ark_api_key: arkApiKey.value.trim(),
+    bocha_api_key: bochaApiKey.value.trim(),
+    google_api_key: googleApiKey.value.trim(),
+    google_cx_id: googleCxId.value.trim(),
+    llm_base_url: llmBaseUrl.value.trim(),
+    llm_model: llmModel.value.trim(),
+    top_n: settingsTopN.value,
+    quality_mode: settingsQualityMode.value,
+    max_iterations: settingsMaxIterations.value,
+    enable_quality_loop: settingsEnableQualityLoop.checked,
+  };
+  localStorage.setItem("competitor_ai_settings", JSON.stringify(settings));
+  syncSettingsToWorkspace();
+  showToast("配置已保存", "success");
+}
+
+function syncSettingsToWorkspace() {
+  topN.value = settingsTopN.value || "5";
+  qualityMode.value = settingsQualityMode.value || "rule";
+  maxIterations.value = settingsMaxIterations.value || "3";
+  enableQualityLoop.checked = settingsEnableQualityLoop.checked;
+  updateQualityPreview();
 }
 
 function setDownload(name) {
@@ -673,80 +760,59 @@ function setDownload(name) {
 }
 
 function showPage(page) {
-  navButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.page === page);
-  });
-
-  pagePanels.forEach((panel) => {
-    if (panel.dataset.pagePanel === page) {
-      panel.classList.add("active");
-      panel.style.animation = "fadeInUp 0.4s ease-out";
-    } else {
-      panel.classList.remove("active");
-    }
-  });
+  navButtons.forEach((button) => button.classList.toggle("active", button.dataset.page === page));
+  pagePanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.pagePanel === page));
 }
 
-function updateQualityPreview() {
-  qualityModePreview.textContent = qualityMode.value;
-  maxIterationPreview.textContent = maxIterations.value || "3";
-  qualityLoopStatus.textContent = enableQualityLoop.checked ? "已启用" : "已关闭";
+function groupReportsByTask(reports) {
+  const groups = new Map();
+  for (const report of reports) {
+    const taskId = report.summary?.task_id || inferTaskId(report.name);
+    if (!groups.has(taskId)) groups.set(taskId, { taskId, modifiedAt: 0, reports: [] });
+    const group = groups.get(taskId);
+    group.reports.push(report);
+    group.modifiedAt = Math.max(group.modifiedAt, report.modified_at || 0);
+  }
+  return [...groups.values()].sort((a, b) => b.modifiedAt - a.modifiedAt);
 }
 
-function loadSettings() {
-  const settings = JSON.parse(localStorage.getItem("competitor_ai_settings") || "{}");
-  llmProvider.value = settings.llm_provider || "0";
-  arkApiKey.value = settings.ark_api_key || "";
-  bochaApiKey.value = settings.bocha_api_key || "";
-  llmBaseUrl.value = settings.llm_base_url || "";
-  llmModel.value = settings.llm_model || "";
-
-  settingsTopN.value = settings.top_n || "5";
-  settingsQualityMode.value = settings.quality_mode || "rule";
-  settingsMaxIterations.value = settings.max_iterations || "3";
-  settingsEnableQualityLoop.checked = settings.enable_quality_loop !== false;
-
-  syncSettingsToWorkspace();
+function reportType(report) {
+  if (report.summary?.type) return report.summary.type;
+  if (report.summary?.is_quality) return "quality";
+  if (report.summary?.is_final) return "final";
+  if (report.summary?.is_report_agent) return "report_agent";
+  const name = String(report.name || "").toUpperCase();
+  if (name.includes("QUALITY_WORKFLOW") || name.endsWith("QUALITY_REPORT.MD")) return "quality";
+  if (name.includes("FINAL_COMPARISON")) return "final";
+  if (name.includes("REPORT_AGENT_ANALYSIS")) return "report_agent";
+  return "single";
 }
 
-function saveSettings() {
-  const settings = {
-    llm_provider: llmProvider.value,
-    ark_api_key: arkApiKey.value.trim(),
-    bocha_api_key: bochaApiKey.value.trim(),
-    llm_base_url: llmBaseUrl.value.trim(),
-    llm_model: llmModel.value.trim(),
-    top_n: settingsTopN.value,
-    quality_mode: settingsQualityMode.value,
-    max_iterations: settingsMaxIterations.value,
-    enable_quality_loop: settingsEnableQualityLoop.checked,
-  };
-
-  localStorage.setItem("competitor_ai_settings", JSON.stringify(settings));
-  syncSettingsToWorkspace();
-
-  const originalHTML = saveSettingsBtn.innerHTML;
-  saveSettingsBtn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="20 6 9 17 4 12"></polyline>
-    </svg>
-    已保存
-  `;
-  saveSettingsBtn.style.background = "var(--accent-success)";
-  showToast("设置已保存", "success");
-
-  setTimeout(() => {
-    saveSettingsBtn.innerHTML = originalHTML;
-    saveSettingsBtn.style.background = "";
-  }, 2000);
+function reportTypeLabel(report) {
+  const type = reportType(report);
+  if (type === "quality") return "质检报告";
+  if (type === "final") return "最终报告";
+  if (type === "report_agent") return "分析总报告";
+  return "单品报告";
 }
 
-function syncSettingsToWorkspace() {
-  topN.value = settingsTopN.value || "5";
-  qualityMode.value = settingsQualityMode.value || "rule";
-  maxIterations.value = settingsMaxIterations.value || "3";
-  enableQualityLoop.checked = settingsEnableQualityLoop.checked;
-  updateQualityPreview();
+function summarizeTaskTags(reports) {
+  const counts = {};
+  for (const report of reports) {
+    const label = reportTypeLabel(report);
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  return Object.entries(counts).map(([label, count]) => `${label} ${count}`);
+}
+
+function inferTaskId(name) {
+  const match = String(name || "").match(/(\d{8}_\d{6})/);
+  return match ? match[1] : "未分组";
+}
+
+function formatCharCount(chars) {
+  if (chars > 10000) return `${(chars / 10000).toFixed(1)}万`;
+  return String(chars);
 }
 
 function formatSize(value) {
@@ -755,15 +821,18 @@ function formatSize(value) {
   return `${value} B`;
 }
 
+function formatTimestamp(value) {
+  if (!value) return "-";
+  return new Date(value * 1000).toLocaleTimeString("zh-CN");
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
   const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || response.statusText);
-  }
+  if (!response.ok) throw new Error(data.error || response.statusText);
   return data;
 }
 
@@ -772,19 +841,30 @@ function markdownToHtml(markdown) {
   const html = [];
   let inList = false;
   let inTable = false;
+  let inCode = false;
+  const codeLines = [];
 
   for (const line of lines) {
+    if (line.startsWith("```")) {
+      closeTable();
+      closeList();
+      if (inCode) {
+        html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+        codeLines.length = 0;
+        inCode = false;
+      } else {
+        inCode = true;
+      }
+      continue;
+    }
+    if (inCode) {
+      codeLines.push(line);
+      continue;
+    }
     if (isTableLine(line)) {
       closeList();
       if (/^\s*\|?\s*:?-{3,}:?\s*\|/.test(line)) continue;
-
-      const cells = line
-        .trim()
-        .replace(/^\|/, "")
-        .replace(/\|$/, "")
-        .split("|")
-        .map((cell) => escapeHtml(cell.trim()));
-
+      const cells = line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => escapeHtml(cell.trim()));
       if (!inTable) {
         html.push("<table><tbody>");
         inTable = true;
@@ -802,13 +882,13 @@ function markdownToHtml(markdown) {
       closeTable();
       closeList();
       html.push(`<h3>${inlineMarkdown(escapeHtml(line.slice(4)))}</h3>`);
-    } else if (line.startsWith("- ")) {
+    } else if (/^\s*[-*]\s+/.test(line)) {
       closeTable();
       if (!inList) {
         html.push("<ul>");
         inList = true;
       }
-      html.push(`<li>${inlineMarkdown(escapeHtml(line.slice(2)))}</li>`);
+      html.push(`<li>${inlineMarkdown(escapeHtml(line.replace(/^\s*[-*]\s+/, "")))}</li>`);
     } else if (line.startsWith("> ")) {
       closeTable();
       closeList();
@@ -822,7 +902,6 @@ function markdownToHtml(markdown) {
       html.push(`<p>${inlineMarkdown(escapeHtml(line))}</p>`);
     }
   }
-
   closeTable();
   closeList();
   return html.join("");
@@ -833,7 +912,6 @@ function markdownToHtml(markdown) {
       inTable = false;
     }
   }
-
   function closeList() {
     if (inList) {
       html.push("</ul>");
@@ -853,7 +931,7 @@ function inlineMarkdown(value) {
 }
 
 function escapeHtml(value) {
-  return value
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -864,16 +942,23 @@ function escapeHtml(value) {
 function readFileInto(input, textarea) {
   const file = input.files && input.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = () => {
     textarea.value = String(reader.result || "");
-    showToast(`已加载文件: ${file.name}`, "success");
+    showToast(`已加载文件 ${file.name}`, "success");
   };
-  reader.onerror = () => {
-    showToast("文件读取失败", "error");
-  };
+  reader.onerror = () => showToast("文件读取失败", "error");
   reader.readAsText(file, "utf-8");
+}
+
+function showToast(message, type = "info") {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3600);
 }
 
 reportViewer.style.transition = "opacity 0.3s ease-out";

@@ -4,69 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>竞品分析工作台 - Competitor AI</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="app-container">
       <aside class="sidebar">
         <div class="brand">
-          <div class="brand-mark">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
-          </div>
+          <div class="brand-mark">AI</div>
           <div class="brand-info">
             <strong>Competitor AI</strong>
-            <span>智能竞品分析平台</span>
+            <span>真实竞品分析工作流</span>
           </div>
         </div>
 
         <nav class="nav-list">
-          <button class="nav-item active" data-page="workspace">
-            <span class="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
-            </span>
-            工作台
-          </button>
-          <button class="nav-item" data-page="reports">
-            <span class="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-              </svg>
-            </span>
-            报告库
-          </button>
-          <button class="nav-item" data-page="quality">
-            <span class="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </span>
-            质检中心
-          </button>
-          <button class="nav-item" data-page="settings">
-            <span class="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-            </span>
-            设置
-          </button>
+          <button class="nav-item active" data-page="workspace">工作台</button>
+          <button class="nav-item" data-page="reports">报告库</button>
+          <button class="nav-item" data-page="quality">质检与 Issue</button>
+          <button class="nav-item" data-page="settings">配置</button>
         </nav>
 
         <div class="sidebar-footer">
@@ -85,14 +43,26 @@
       <main class="main-content">
         <header class="page-header">
           <div class="header-left">
-            <span class="eyebrow">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-              Multi-Agent System
-            </span>
+            <span class="eyebrow">Multi-Agent Research Workflow</span>
             <h1>竞品分析工作台</h1>
-            <p>从需求到报告，一次完成调研、分析、撰写和质检闭环</p>
+            <p>围绕主流程输入完成搜索、分块阅读、竞品分析、人工修正、报告生成和质检闭环。</p>
+          </div>
+          <div class="metric-row">
+            <div class="metric-card">
+              <span>效率提升</span>
+              <strong id="timeMetric">待运行</strong>
+              <small>以自动化节点数和耗时估算</small>
+            </div>
+            <div class="metric-card">
+              <span>覆盖度</span>
+              <strong id="coverageMetric">0 来源</strong>
+              <small>按参考点与章节估算</small>
+            </div>
+            <div class="metric-card">
+              <span>一致性</span>
+              <strong id="consistencyMetric">待质检</strong>
+              <small>结构化报告 + Issue 回放</small>
+            </div>
           </div>
         </header>
 
@@ -100,74 +70,146 @@
           <div class="quick-config">
             <div class="config-header">
               <div>
-                <h2>竞品分析</h2>
-                <p>输入产品需求，一键生成分析报告</p>
+                <h2>主流程输入</h2>
+                <p>这些参数会直接映射到后端脚本的环境变量和交互输入，不再隐藏关键配置。</p>
               </div>
+              <button id="startBtn" class="btn btn-primary">
+                <span>开始分析</span>
+              </button>
             </div>
-            
-            <div class="config-form">
-              <div class="input-row">
-                <div class="input-main">
-                  <label class="form-label" for="productDescription">产品需求</label>
-                  <textarea
-                    id="productDescription"
-                    rows="3"
-                    placeholder="例如：预算 15 万左右，适合家庭代步的合资轿车竞品分析"
-                  ></textarea>
-                </div>
-                <button id="startBtn" class="btn btn-primary btn-tall">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                  开始分析
-                </button>
-              </div>
-              
-              <div class="config-options">
-                <div class="option-group">
-                  <label class="form-label">产品数</label>
-                  <input id="topN" type="number" min="1" max="10" value="5" title="产品数量" placeholder="输入1-10之间的数字" />
-                </div>
-                <div class="option-group">
-                  <label class="form-label">质检模式</label>
-                  <select id="qualityMode" title="选择质检模式">
-                    <option value="rule">Rule</option>
-                    <option value="hybrid">Hybrid</option>
-                    <option value="llm">LLM</option>
-                  </select>
-                </div>
-                <div class="option-group">
-                  <label class="form-label">最大迭代</label>
-                  <input id="maxIterations" type="number" min="1" max="5" value="3" title="最大迭代次数" placeholder="输入1-5之间的数字" />
-                </div>
-                <label class="option-switch">
-                  <input id="enableQualityLoop" type="checkbox" checked />
-                  <span>质检闭环</span>
-                </label>
-              </div>
-              
-              <details class="config-advanced">
-                <summary>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                  </svg>
-                  高级选项
-                </summary>
-                <div class="advanced-content">
+
+            <div class="wizard-tabs" id="wizardTabs">
+              <button class="active" type="button" data-step-target="1">1 需求</button>
+              <button type="button" data-step-target="2">2 搜索与产品</button>
+              <button type="button" data-step-target="3">3 已有材料</button>
+              <button type="button" data-step-target="4">4 质检配置</button>
+            </div>
+
+            <div class="workflow-input-grid">
+              <section class="input-card input-card-wide" data-wizard-step="1">
+                <div class="step-label">01 需求</div>
+                <label class="form-label" for="productDescription">产品需求 / 竞品方向</label>
+                <textarea id="productDescription" rows="4" placeholder="例如：预算 15 万左右，适合家庭代步的合资轿车竞品分析；或 AI IDE 面向企业研发团队的竞品对比。"></textarea>
+              </section>
+
+              <section class="input-card" data-wizard-step="2">
+                <div class="step-label">02 搜索配置</div>
+                <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">已知产品参数</label>
+                    <label class="form-label" for="topN">默认产品数 TOP_N</label>
+                    <input id="topN" type="number" min="1" max="20" value="5" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="queryCount">改写搜索词数</label>
+                    <input id="queryCount" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="searchCount">每词搜索结果数</label>
+                    <input id="searchCount" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="searchBackend">抓取后端</label>
+                    <select id="searchBackend">
+                      <option value="2">Crawl4AI</option>
+                      <option value="1">Playwright</option>
+                      <option value="0">传统爬虫</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="input-card" data-wizard-step="2">
+                <div class="step-label">03 人工介入</div>
+                <label class="form-label" for="manualProductSelection">指定 / 追加要分析的产品</label>
+                <textarea id="manualProductSelection" rows="3" placeholder="可留空，默认分析爬到的前 TOP_N 个。也可以填序号和产品名，例如：1, 3, Cursor, 豆包 MarsCode"></textarea>
+                <p class="field-hint">脚本会先爬取候选产品，再用这里的内容作为“请选择”输入。</p>
+              </section>
+
+              <section class="input-card input-card-wide" data-wizard-step="3">
+                <div class="step-label">04 已有材料</div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="knownParamFile">已知产品参数</label>
                     <input id="knownParamFile" type="file" accept=".txt,.md,.json" />
-                    <textarea id="knownParamText" rows="2" placeholder="粘贴已知产品参数"></textarea>
+                    <textarea id="knownParamText" rows="4" placeholder="粘贴自己产品参数、定价、目标用户、约束等。用于生成共同对比参数点。"></textarea>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">问卷分析背景</label>
+                    <label class="form-label" for="questionnaireFile">问卷 / 用户调研分析</label>
                     <input id="questionnaireFile" type="file" accept=".md,.txt,.json" />
-                    <textarea id="questionnaireText" rows="2" placeholder="粘贴问卷分析报告"></textarea>
+                    <textarea id="questionnaireText" rows="4" placeholder="粘贴问卷分析、用户画像、采购决策、痛点与替换门槛。"></textarea>
                   </div>
                 </div>
-              </details>
+              </section>
+
+              <section class="input-card input-card-wide" data-wizard-step="4">
+                <div class="step-label">05 质检与超时</div>
+                <div class="form-row form-row-five">
+                  <div class="form-group">
+                    <label class="form-label" for="qualityMode">质检模式</label>
+                    <select id="qualityMode">
+                      <option value="rule">Rule</option>
+                      <option value="hybrid">Hybrid</option>
+                      <option value="llm">LLM</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="maxIterations">最大迭代</label>
+                    <input id="maxIterations" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="analyzeTimeout">单品超时秒</label>
+                    <input id="analyzeTimeout" type="number" min="60" max="7200" value="1200" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="finalSummaryTimeout">总结超时秒</label>
+                    <input id="finalSummaryTimeout" type="number" min="60" max="7200" value="900" />
+                  </div>
+                  <label class="switch-wrapper compact-switch">
+                    <input id="enableQualityLoop" type="checkbox" checked />
+                    <span>启用质检闭环</span>
+                  </label>
+                </div>
+                <div class="form-row form-row-six quality-extra-row">
+                  <div class="form-group">
+                    <label class="form-label" for="evidenceMode">证据抽取模式</label>
+                    <select id="evidenceMode">
+                      <option value="2">整包 LLM 优先</option>
+                      <option value="1">规则 + LLM 归一</option>
+                      <option value="0">纯规则切片</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="feedbackQueries">反馈补搜条数</label>
+                    <input id="feedbackQueries" type="number" min="0" max="10" value="2" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="feedbackBackend">反馈补搜后端</label>
+                    <select id="feedbackBackend">
+                      <option value="0">传统爬虫</option>
+                      <option value="1">Playwright</option>
+                      <option value="2">Crawl4AI</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="knownParamMaxChars">参数截断字符</label>
+                    <input id="knownParamMaxChars" type="number" min="0" max="100000" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="questionnaireMaxChars">问卷截断字符</label>
+                    <input id="questionnaireMaxChars" type="number" min="0" max="100000" value="0" />
+                  </div>
+                  <label class="switch-wrapper compact-switch">
+                    <input id="retryOnMinor" type="checkbox" />
+                    <span>Minor 也打回</span>
+                  </label>
+                </div>
+              </section>
+            </div>
+
+            <div class="wizard-actions">
+              <button id="prevStepBtn" class="btn btn-ghost" type="button">上一步</button>
+              <span id="wizardStepMeta">步骤 1 / 4</span>
+              <button id="nextStepBtn" class="btn btn-ghost" type="button">下一步</button>
             </div>
           </div>
 
@@ -178,118 +220,76 @@
                   <h3>任务进度</h3>
                   <span id="jobMeta" class="meta-text">尚未启动任务</span>
                 </div>
-                <button id="refreshBtn" class="btn btn-ghost btn-sm">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23 4 23 10 17 10"></polyline>
-                    <polyline points="1 20 1 14 7 14"></polyline>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                  </svg>
-                  刷新
-                </button>
+                <button id="refreshBtn" class="btn btn-ghost btn-sm">刷新</button>
               </div>
-              
+
               <div class="progress-flow">
-                <div class="flow-node" data-stage="prepare">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">准备</span>
-                </div>
-                <div class="flow-node" data-stage="discover">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">发现</span>
-                </div>
-                <div class="flow-node" data-stage="analyze">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">分析</span>
-                </div>
-                <div class="flow-node" data-stage="summarize">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">总结</span>
-                </div>
-                <div class="flow-node" data-stage="quality">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">质检</span>
-                </div>
-                <div class="flow-node" data-stage="done">
-                  <span class="flow-dot"></span>
-                  <span class="flow-label">完成</span>
-                </div>
+                <div class="flow-node" data-stage="prepare"><span class="flow-dot"></span><span class="flow-label">准备输入</span></div>
+                <div class="flow-node" data-stage="discover"><span class="flow-dot"></span><span class="flow-label">搜索发现</span></div>
+                <div class="flow-node" data-stage="select"><span class="flow-dot"></span><span class="flow-label">人工选择</span></div>
+                <div class="flow-node" data-stage="analyze"><span class="flow-dot"></span><span class="flow-label">分块阅读与分析</span></div>
+                <div class="flow-node" data-stage="summarize"><span class="flow-dot"></span><span class="flow-label">横向总结</span></div>
+                <div class="flow-node" data-stage="quality"><span class="flow-dot"></span><span class="flow-label">质检闭环</span></div>
+                <div class="flow-node" data-stage="done"><span class="flow-dot"></span><span class="flow-label">完成</span></div>
               </div>
-              
+
               <div class="status-bar">
-                <div class="status-item">
-                  <span>状态</span>
-                  <strong id="jobStatus">idle</strong>
-                </div>
-                <div class="status-item">
-                  <span>报告</span>
-                  <strong id="reportName">无</strong>
-                </div>
-                <div class="status-item">
-                  <span>质检</span>
-                  <strong id="qualityLoopStatus">等待任务</strong>
+                <div class="status-item"><span>状态</span><strong id="jobStatus">idle</strong></div>
+                <div class="status-item"><span>报告</span><strong id="reportName">无</strong></div>
+                <div class="status-item"><span>质检</span><strong id="qualityLoopStatus">等待任务</strong></div>
+              </div>
+
+              <div class="main-thread-card">
+                <div class="main-thread-grid">
+                  <div><span>线程</span><strong id="threadName">未启动</strong></div>
+                  <div><span>PID</span><strong id="processPid">-</strong></div>
+                  <div><span>空闲</span><strong id="idleSeconds">-</strong></div>
                 </div>
               </div>
+
+              <details class="log-toggle" open>
+                <summary>主线程情况日志</summary>
+                <pre id="runtimeLogBox" class="log-content runtime-log-content">等待主线程事件...</pre>
+              </details>
+
+              <div class="subtask-panel">
+                <div class="subtask-panel-header">
+                  <strong>搜索 / 分析子任务</strong>
+                  <span id="subtaskMeta">等待搜索</span>
+                </div>
+                <div id="subtaskList" class="subtask-list"></div>
+              </div>
+
+              <details class="log-toggle">
+                <summary>Agent 决策回放 / 运行日志</summary>
+                <pre id="logBox" class="log-content">等待任务日志...</pre>
+              </details>
             </div>
 
             <div class="result-section">
               <div class="section-header">
                 <div>
-                  <h3>最新报告</h3>
-                  <span class="meta-text">查看分析结果</span>
+                  <h3>报告查看与溯源</h3>
+                  <span class="meta-text">可查看 Markdown、参考点、Issue 和下载源文件</span>
                 </div>
                 <div class="result-actions">
                   <select id="reportSelect" class="report-dropdown" title="选择报告"></select>
-                  <a id="downloadBtn" class="btn btn-ghost btn-sm" href="#" download>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    导出
-                  </a>
+                  <a id="downloadBtn" class="btn btn-ghost btn-sm" href="#" download>下载</a>
                 </div>
               </div>
-              
+              <div class="report-summary" id="resultSummary">
+                <div class="summary-item"><span>类型</span><strong>暂无</strong></div>
+                <div class="summary-item"><span>参考点</span><strong>0</strong></div>
+                <div class="summary-item"><span>Issue</span><strong>0</strong></div>
+                <div class="summary-item"><span>字符</span><strong>0</strong></div>
+              </div>
+              <div class="issue-panel" id="issuePanel"></div>
               <div class="report-preview" id="reportViewer">
                 <div class="empty-state">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
                   <p>暂无报告</p>
-                  <span>开始分析后将在此显示结果</span>
+                  <span>开始分析后将在这里显示结果。</span>
                 </div>
               </div>
-              
-              <div class="report-summary" id="resultSummary">
-                <div class="summary-item">
-                  <span>类型</span>
-                  <strong>暂无</strong>
-                </div>
-                <div class="summary-item">
-                  <span>反馈</span>
-                  <strong>暂无</strong>
-                </div>
-                <div class="summary-item">
-                  <span>章节</span>
-                  <strong>0</strong>
-                </div>
-                <div class="summary-item">
-                  <span>字符</span>
-                  <strong>0</strong>
-                </div>
-              </div>
-              
-              <details class="log-toggle">
-                <summary>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="4 17 10 11 4 5"></polyline>
-                    <line x1="12" y1="19" x2="20" y2="19"></line>
-                  </svg>
-                  查看日志
-                </summary>
-                <pre id="logBox" class="log-content">等待任务日志...</pre>
-              </details>
             </div>
           </div>
         </section>
@@ -298,16 +298,9 @@
           <div class="table-toolbar">
             <div>
               <h2>报告库</h2>
-              <p>查看每次运行生成的最终报告和单品报告。</p>
+              <p>按任务和报告类型查看最终报告、单品报告、质检报告；支持从卡片跳转到报告预览。</p>
             </div>
-            <button id="reloadReportsBtn" class="btn btn-ghost">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-              </svg>
-              刷新报告
-            </button>
+            <button id="reloadReportsBtn" class="btn btn-ghost">刷新报告</button>
           </div>
           <div class="report-library" id="reportLibrary"></div>
         </section>
@@ -315,44 +308,29 @@
         <section class="page-section" data-page-panel="quality">
           <div class="table-toolbar">
             <div>
-              <h2>质检中心</h2>
-              <p>展示当前运行的质检闭环状态和最终报告质量信息。</p>
+              <h2>质检与 Issue</h2>
+              <p>把报告中的问题、风险、缺口做结构化展示，方便人工修正和后续迭代。</p>
             </div>
           </div>
           <div class="quality-board">
-            <div class="quality-item">
-              <span>闭环状态</span>
-              <strong id="qualityLoopStatus">等待任务</strong>
-            </div>
-            <div class="quality-item">
-              <span>质检模式</span>
-              <strong id="qualityModePreview">Rule</strong>
-            </div>
-            <div class="quality-item">
-              <span>最大迭代</span>
-              <strong id="maxIterationPreview">3</strong>
-            </div>
+            <div class="quality-item"><span>闭环状态</span><strong id="qualityCenterStatus">等待任务</strong></div>
+            <div class="quality-item"><span>质检模式</span><strong id="qualityModePreview">rule</strong></div>
+            <div class="quality-item"><span>最大迭代</span><strong id="maxIterationPreview">3</strong></div>
           </div>
+          <div class="issue-list" id="qualityIssueList"></div>
         </section>
 
         <section class="page-section" data-page-panel="settings">
           <div class="table-toolbar">
             <div>
-              <h2>设置</h2>
-              <p>配置模型、搜索 API 和默认运行参数。配置会保存在当前浏览器。</p>
+              <h2>配置</h2>
+              <p>配置模型、搜索 API 和默认运行参数。配置保存在当前浏览器 localStorage。</p>
             </div>
-            <button id="saveSettingsBtn" class="btn btn-primary">保存设置</button>
+            <button id="saveSettingsBtn" class="btn btn-primary">保存配置</button>
           </div>
           <div class="settings-grid">
             <section class="settings-card">
-              <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                  <path d="M2 17l10 5 10-5"></path>
-                  <path d="M2 12l10 5 10-5"></path>
-                </svg>
-                LLM 配置
-              </h3>
+              <h3>LLM 配置</h3>
               <div class="form-group">
                 <label class="form-label" for="llmProvider">LLM Provider</label>
                 <select id="llmProvider">
@@ -376,70 +354,74 @@
             </section>
 
             <section class="settings-card">
-              <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                搜索配置
-              </h3>
+              <h3>搜索配置</h3>
               <div class="form-group">
                 <label class="form-label" for="bochaApiKey">Bocha API Key</label>
                 <input id="bochaApiKey" type="password" placeholder="可留空，使用 .env" />
               </div>
               <div class="form-group">
-                <label class="form-label" for="settingsTopN">默认产品数</label>
-                <input id="settingsTopN" type="number" min="1" max="10" value="5" />
+                <label class="form-label" for="googleApiKey">Google API Key</label>
+                <input id="googleApiKey" type="password" placeholder="可选" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="googleCxId">Google CX ID</label>
+                <input id="googleCxId" type="text" placeholder="可选" />
               </div>
             </section>
 
             <section class="settings-card">
-              <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                质检默认值
-              </h3>
-              <div class="form-group">
-                <label class="form-label" for="settingsQualityMode">质检模式</label>
-                <select id="settingsQualityMode">
-                  <option value="rule">Rule</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="llm">LLM</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="settingsMaxIterations">最大迭代</label>
-                <input id="settingsMaxIterations" type="number" min="1" max="5" value="3" />
-              </div>
-              <label class="switch-wrapper" style="margin-top: 8px;">
-                <input id="settingsEnableQualityLoop" type="checkbox" checked />
-                <div class="switch-content">
-                  <strong>启用质检闭环</strong>
-                  <small>启动任务时默认启用</small>
+              <h3>默认运行参数</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="settingsTopN">默认产品数</label>
+                  <input id="settingsTopN" type="number" min="1" max="20" value="5" />
                 </div>
+                <div class="form-group">
+                  <label class="form-label" for="settingsQualityMode">质检模式</label>
+                  <select id="settingsQualityMode">
+                    <option value="rule">Rule</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="llm">LLM</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="settingsMaxIterations">最大迭代</label>
+                  <input id="settingsMaxIterations" type="number" min="1" max="10" value="3" />
+                </div>
+              </div>
+              <label class="switch-wrapper">
+                <input id="settingsEnableQualityLoop" type="checkbox" checked />
+                <span>默认启用质检闭环</span>
               </label>
             </section>
 
             <section class="settings-card">
-              <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                说明
-              </h3>
+              <h3>业务闭环说明</h3>
               <div class="settings-note">
-                <p>这些设置只保存在浏览器 localStorage 中，不会写入 `.env`。
-                启动任务时，前端会把当前设置随请求提交给后端。</p>
+                <p>工作流用搜索覆盖度、参考点数量、Issue 数、质检状态和人工产品选择记录来形成闭环，便于后续运营复盘和迭代。</p>
               </div>
             </section>
           </div>
         </section>
       </main>
     </div>
+
+    <aside id="reportSidePanel" class="report-side-panel" aria-hidden="true">
+      <div class="report-side-header">
+        <div>
+          <span id="sideReportType" class="report-tag">报告</span>
+          <h3 id="sideReportTitle">报告预览</h3>
+          <p id="sideReportName"></p>
+        </div>
+        <button id="closeSideReportBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
+      </div>
+      <div id="sideReportSummary" class="report-summary side-report-summary"></div>
+      <div id="sideReportViewer" class="report-preview side-report-viewer"></div>
+      <div class="report-side-footer">
+        <a id="sideDownloadBtn" class="btn btn-ghost btn-sm" href="#" download>下载</a>
+      </div>
+    </aside>
+    <div id="reportSideBackdrop" class="report-side-backdrop" hidden></div>
 
     <script src="/app.js"></script>
   </body>
