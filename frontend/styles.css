@@ -1070,10 +1070,39 @@ body {
   color: var(--accent-success);
 }
 
+.issue-content {
+  min-width: 0;
+}
+
+.issue-content strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.issue-field,
 .issue-item p,
 .issue-list-row p {
   color: var(--text-secondary);
   font-size: 13px;
+  margin-top: 5px;
+}
+
+.issue-field b {
+  color: var(--text-primary);
+}
+
+.issue-source {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.issue-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* ==================== Log Toggle ==================== */
@@ -2015,6 +2044,82 @@ select:focus {
   transform: translateX(0);
 }
 
+.product-selection-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(520px, 94vw);
+  height: 100vh;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-xl);
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--transition-smooth);
+}
+
+.product-selection-panel.open {
+  transform: translateX(0);
+}
+
+.blocking-backdrop {
+  z-index: 100;
+}
+
+.candidate-preview {
+  min-height: 86px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: flex-start;
+}
+
+.candidate-preview > span:not(.report-tag) {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.candidate-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.candidate-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.candidate-option input {
+  margin-top: 4px;
+}
+
+.candidate-option span {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.manual-add-box {
+  padding: 0 20px 18px;
+}
+
 .report-side-header,
 .report-side-footer {
   padding: 18px 20px;
@@ -2203,9 +2308,95 @@ select:focus {
   margin-top: 0;
 }
 
+.issue-list-row > div {
+  min-width: 0;
+}
+
 .issue-list-row strong {
   display: block;
   margin: 8px 0 4px;
+}
+
+.issue-library-summary {
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+}
+
+.issue-library-summary strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.issue-library-summary span {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.issue-file-list {
+  display: grid;
+  gap: 10px;
+}
+
+.issue-context {
+  margin-top: 10px;
+  padding: 10px;
+  max-height: 150px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.source-focus-card {
+  margin: 14px;
+  padding: 14px;
+  border: 1px solid var(--accent-warning);
+  border-radius: var(--radius-lg);
+  background: var(--accent-warning-soft);
+}
+
+.source-focus-card strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.source-lines {
+  display: grid;
+  gap: 4px;
+}
+
+.source-line {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.source-line.active {
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.source-line span {
+  color: var(--text-tertiary);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.source-line code {
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ==================== Settings Page ==================== */

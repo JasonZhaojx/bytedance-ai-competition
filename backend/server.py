@@ -15,7 +15,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +42,11 @@ class Job:
     report_path: str = ""
     error: str = ""
     manual_product_selection: str = ""
+    waiting_for_selection: bool = False
+    selection_submitted: bool = False
+    stdin_closed: bool = False
+    selection_prompt_logged: bool = False
+    process_stdin: Any | None = field(default=None, repr=False, compare=False)
     process_pid: int | None = None
     thread_name: str = ""
     started_at: float | None = None
@@ -65,6 +70,9 @@ class Job:
             else "",
             "error": self.error,
             "manual_product_selection": self.manual_product_selection,
+            "waiting_for_selection": self.waiting_for_selection,
+            "selection_submitted": self.selection_submitted,
+            "stdin_closed": self.stdin_closed,
             "process_pid": self.process_pid,
             "thread_name": self.thread_name,
             "thread_alive": self.status in {"queued", "running"},
@@ -102,6 +110,14 @@ class AppHandler(BaseHTTPRequestHandler):
         if path == "/api/reports":
             self._send_json({"reports": list_reports()})
             return
+        if path == "/api/issues":
+            params = parse_qs(parsed.query)
+            task_id = (params.get("task") or [""])[0].strip()
+            if task_id:
+                self._send_json({"issues": list_issues(task_id=task_id)})
+            else:
+                self._send_json({"groups": list_issue_groups()})
+            return
         if path.startswith("/api/reports/"):
             self._handle_get_report(path)
             return
@@ -114,6 +130,9 @@ class AppHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/jobs":
             self._handle_create_job()
+            return
+        if parsed.path.startswith("/api/jobs/") and parsed.path.endswith("/selection"):
+            self._handle_product_selection(parsed.path)
             return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
@@ -156,6 +175,27 @@ class AppHandler(BaseHTTPRequestHandler):
             job = JOBS.get(job_id)
         if not job:
             self._send_json({"error": "job not found"}, HTTPStatus.NOT_FOUND)
+            return
+        self._send_json(job.snapshot())
+
+    def _handle_product_selection(self, path: str) -> None:
+        parts = path.strip("/").split("/")
+        if len(parts) != 4 or parts[0] != "api" or parts[1] != "jobs" or parts[3] != "selection":
+            self._send_json({"error": "invalid selection path"}, HTTPStatus.BAD_REQUEST)
+            return
+        payload = self._read_json()
+        selection = normalize_selection(str(payload.get("selection") or ""))
+        if not selection:
+            self._send_json({"error": "selection is required"}, HTTPStatus.BAD_REQUEST)
+            return
+        with JOBS_LOCK:
+            job = JOBS.get(parts[2])
+        if not job:
+            self._send_json({"error": "job not found"}, HTTPStatus.NOT_FOUND)
+            return
+        ok, message = submit_product_selection(job, selection)
+        if not ok:
+            self._send_json({"error": message}, HTTPStatus.CONFLICT)
             return
         self._send_json(job.snapshot())
 
@@ -344,18 +384,9 @@ def run_job(job: Job, options: dict[str, Any]) -> None:
             bufsize=1,
         )
         job.process_pid = process.pid
+        job.process_stdin = process.stdin
         append_runtime_log(job, f"process started pid={process.pid}")
-        if process.stdin:
-            selection = options["manual_product_selection"]
-            selection_label = selection or f"默认前 {options['top_n']} 个"
-            append_log(
-                job,
-                f"[web-input] 产品选择: {selection_label}",
-            )
-            append_runtime_log(job, f"stdin product selection sent: {selection_label}")
-            process.stdin.write(selection + "\n")
-            process.stdin.flush()
-            process.stdin.close()
+        append_runtime_log(job, "stdin product selection deferred until candidates are chosen")
         assert process.stdout is not None
         for line in process.stdout:
             line = line.rstrip("\r\n")
@@ -369,6 +400,8 @@ def run_job(job: Job, options: dict[str, Any]) -> None:
         job.return_code = process.wait()
         job.finished_at = time.time()
         job.status = "completed" if job.return_code == 0 else "failed"
+        job.process_stdin = None
+        job.waiting_for_selection = False
         append_runtime_log(job, f"process exited code={job.return_code}")
         if job.status == "completed":
             set_stage(job, "done")
@@ -377,9 +410,40 @@ def run_job(job: Job, options: dict[str, Any]) -> None:
     except Exception as exc:
         job.status = "failed"
         job.finished_at = time.time()
+        job.waiting_for_selection = False
+        job.process_stdin = None
         job.error = str(exc)
         append_log(job, f"[backend-error] {exc}")
         append_runtime_log(job, f"backend exception: {exc}")
+
+
+def submit_product_selection(job: Job, selection: str) -> tuple[bool, str]:
+    with JOBS_LOCK:
+        if job.status not in {"queued", "running"}:
+            return False, "job is not running"
+        if job.selection_submitted:
+            return False, "selection already submitted"
+        stdin = job.process_stdin
+        if stdin is None or job.stdin_closed:
+            return False, "workflow is not waiting for product selection"
+        job.manual_product_selection = selection
+        job.selection_submitted = True
+        job.waiting_for_selection = False
+        job.stdin_closed = True
+    try:
+        stdin.write(selection + "\n")
+        stdin.flush()
+        stdin.close()
+    except Exception as exc:
+        with JOBS_LOCK:
+            job.selection_submitted = False
+            job.waiting_for_selection = True
+            job.stdin_closed = False
+            job.error = str(exc)
+        return False, f"failed to submit selection: {exc}"
+    append_log(job, f"[web-input] 产品选择: {selection}")
+    append_runtime_log(job, f"stdin product selection sent: {selection}")
+    return True, ""
 
 
 def apply_user_env(job: Job, env: dict[str, str], options: dict[str, Any]) -> None:
@@ -500,6 +564,7 @@ def update_runtime_from_log(job: Job, line: str) -> None:
             if product and product not in job.candidate_products:
                 job.candidate_products.append(product)
                 append_runtime_log(job, f"candidate product found: {product}")
+            mark_waiting_for_selection(job)
         return
 
     if job.log_section == "将要分析的产品":
@@ -543,6 +608,23 @@ def ensure_subtask(job: Job, product: str, status: str) -> None:
         )
 
 
+def mark_waiting_for_selection(job: Job) -> None:
+    with JOBS_LOCK:
+        if (
+            job.status == "running"
+            and job.candidate_products
+            and not job.selection_submitted
+            and not job.stdin_closed
+        ):
+            job.waiting_for_selection = True
+            if not job.selection_prompt_logged:
+                job.selection_prompt_logged = True
+                job.runtime_logs.append(
+                    f"{time.strftime('%H:%M:%S')} waiting for web product selection"
+                )
+    set_stage(job, "select")
+
+
 def mark_running_subtasks(job: Job, status: str) -> None:
     with JOBS_LOCK:
         for item in job.subtasks:
@@ -584,13 +666,85 @@ def list_reports() -> list[dict[str, Any]]:
             "path": str(path),
             "modified_at": path.stat().st_mtime,
             "size": path.stat().st_size,
-            "summary": summarize_report(path),
+            "summary": summarize_report(path, include_issues=False),
         }
         for path in reports[:200]
     ]
 
 
-def summarize_report(path: Path, text: str | None = None) -> dict[str, Any]:
+def report_paths_for_issue_scan() -> list[Path]:
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    report_paths = [
+        path
+        for path in REPORT_DIR.rglob("*.md")
+        if "web_inputs" not in path.relative_to(REPORT_DIR).parts
+    ]
+    return sorted(report_paths, key=lambda path: path.stat().st_mtime, reverse=True)[:200]
+
+
+def list_issue_groups() -> list[dict[str, Any]]:
+    groups: dict[str, dict[str, Any]] = {}
+    for path in report_paths_for_issue_scan():
+        summary = summarize_report(path, include_issues=False)
+        issue_count = summary["issue_count"]
+        if not issue_count:
+            continue
+        task_id = summary["task_id"]
+        group = groups.setdefault(
+            task_id,
+            {
+                "taskId": task_id,
+                "modifiedAt": 0,
+                "issueCount": 0,
+                "reportCount": 0,
+                "typeCounts": {},
+            },
+        )
+        group["modifiedAt"] = max(group["modifiedAt"], path.stat().st_mtime)
+        group["issueCount"] += issue_count
+        group["reportCount"] += 1
+        label = report_type_label(summary["type"])
+        group["typeCounts"][label] = group["typeCounts"].get(label, 0) + issue_count
+    return sorted(groups.values(), key=lambda item: item["modifiedAt"], reverse=True)
+
+
+def list_issues(task_id: str = "") -> list[dict[str, Any]]:
+    report_paths = report_paths_for_issue_scan()
+    report_names = {report_display_name(path) for path in report_paths[:200]}
+    issues: list[dict[str, Any]] = []
+    for path in report_paths:
+        if task_id and task_id_for_report(path) != task_id:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        summary = summarize_report(path, text, include_issues=True)
+        report_name = report_display_name(path)
+        for issue in summary["issues"]:
+            issues.append(
+                {
+                    "taskId": summary["task_id"],
+                    "report": report_name,
+                    "reportTitle": summary["title"],
+                    "reportType": report_type_label(summary["type"]),
+                    "modifiedAt": path.stat().st_mtime,
+                    "sourceExists": report_name in report_names,
+                    "title": issue.get("title") or summary["title"],
+                    "detail": issue.get("detail") or "",
+                    "reason": issue.get("reason") or "",
+                    "evidence": issue.get("evidence") or "",
+                    "suggestion": issue.get("suggestion") or "",
+                    "lineNumber": issue.get("line_number") or 0,
+                    "section": issue.get("section") or "",
+                    "context": issue.get("context") or "",
+                }
+            )
+    return issues
+
+
+def summarize_report(
+    path: Path,
+    text: str | None = None,
+    include_issues: bool = True,
+) -> dict[str, Any]:
     text = text if text is not None else path.read_text(encoding="utf-8", errors="replace")
     title = path.stem
     for line in text.splitlines():
@@ -598,7 +752,8 @@ def summarize_report(path: Path, text: str | None = None) -> dict[str, Any]:
             title = line[2:].strip()
             break
     report_type = report_type_for(path)
-    issues = extract_issues(text)
+    issues = extract_issues(text) if include_issues else []
+    issue_count = len(issues) if include_issues else count_issue_lines(text)
     references = sorted(set(re.findall(r"\[(?:[^]\[]+\])?\[?参考点\d+\]?", text)))
     return {
         "title": title,
@@ -618,13 +773,23 @@ def summarize_report(path: Path, text: str | None = None) -> dict[str, Any]:
         "sections": len(re.findall(r"^#{1,3}\s+", text, flags=re.MULTILINE)),
         "chars": len(text),
         "reference_count": len(references),
-        "issue_count": len(issues),
-        "issues": issues[:8],
+        "issue_count": issue_count,
+        "issues": issues,
     }
 
 
-def extract_issues(text: str) -> list[dict[str, str]]:
-    issues: list[dict[str, str]] = []
+def report_type_label(report_type: str) -> str:
+    if report_type == "quality":
+        return "质检报告"
+    if report_type == "final":
+        return "最终报告"
+    if report_type == "report_agent":
+        return "分析总报告"
+    return "单品报告"
+
+
+def count_issue_lines(text: str) -> int:
+    count = 0
     issue_block = False
     for line in text.splitlines():
         stripped = line.strip()
@@ -636,22 +801,102 @@ def extract_issues(text: str) -> list[dict[str, str]]:
         if not issue_block and not re.search(r"(issue|问题|风险|缺口|不足|待修复)", stripped, re.I):
             continue
         if stripped.startswith(("-", "*")) or re.match(r"^\d+[.)、]\s+", stripped):
+            count += 1
+    return count
+
+
+def extract_issues(text: str) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    issue_block = False
+    current_section = ""
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        heading = re.match(r"^(#{1,6})\s+(.+)$", stripped)
+        if heading:
+            current_section = heading.group(2).strip()
+        if re.match(r"^#{1,4}\s+.*(issue|问题|风险|缺口|不足|待修复)", stripped, re.I):
+            issue_block = True
+            continue
+        if issue_block and stripped.startswith("#"):
+            issue_block = False
+        if not issue_block and not re.search(r"(issue|问题|风险|缺口|不足|待修复)", stripped, re.I):
+            continue
+        if stripped.startswith(("-", "*")) or re.match(r"^\d+[.)、]\s+", stripped):
             normalized = re.sub(r"^[-*\d.)、\s]+", "", stripped)
-            issues.append(issue_to_payload(normalized))
+            issues.append(
+                issue_to_payload(
+                    normalized,
+                    line_number=index + 1,
+                    section=current_section,
+                    context=context_snippet(lines, index),
+                )
+            )
     return issues
 
 
-def issue_to_payload(value: str) -> dict[str, str]:
+def context_snippet(lines: list[str], index: int, radius: int = 2) -> str:
+    start = max(0, index - radius)
+    end = min(len(lines), index + radius + 1)
+    snippet = [line.strip() for line in lines[start:end] if line.strip()]
+    return "\n".join(snippet)[:1200]
+
+
+def issue_to_payload(
+    value: str,
+    line_number: int = 0,
+    section: str = "",
+    context: str = "",
+) -> dict[str, Any]:
     severity = "medium"
     lowered = value.lower()
     if any(token in lowered for token in ("critical", "严重", "高风险", "major")):
         severity = "high"
     elif any(token in lowered for token in ("minor", "轻微", "low")):
         severity = "low"
+    parts = split_issue_parts(value)
     return {
         "severity": severity,
-        "title": value[:80],
+        "title": parts["title"][:100],
         "detail": value,
+        "reason": parts["reason"],
+        "evidence": parts["evidence"],
+        "suggestion": parts["suggestion"],
+        "line_number": line_number,
+        "section": section,
+        "context": context,
+    }
+
+
+def split_issue_parts(value: str) -> dict[str, str]:
+    markers = {
+        "evidence": r"(?:证据|来源参考点|来源|参考点)[:：]\s*",
+        "suggestion": r"(?:建议修正|修复要求|建议|运营动作|对\s*PM\s*的启发|对PM的启发)[:：]\s*",
+        "reason": r"(?:原因|为什么重要|风险|影响)[:：]\s*",
+    }
+    first_marker = re.search(
+        r"(?:证据|来源参考点|来源|参考点|建议修正|修复要求|建议|运营动作|对\s*PM\s*的启发|对PM的启发|原因|为什么重要|风险|影响)[:：]",
+        value,
+    )
+    title = value[: first_marker.start()].strip(" ；;，,。") if first_marker else value
+
+    def extract(marker: str) -> str:
+        pattern = markers[marker]
+        match = re.search(pattern, value)
+        if not match:
+            return ""
+        rest = value[match.end() :]
+        next_match = re.search(
+            r"\s+(?:证据|来源参考点|来源|参考点|建议修正|修复要求|建议|运营动作|对\s*PM\s*的启发|对PM的启发|原因|为什么重要|风险|影响)[:：]",
+            rest,
+        )
+        return rest[: next_match.start()].strip(" ；;，,。") if next_match else rest.strip()
+
+    return {
+        "title": title or value[:100],
+        "reason": extract("reason"),
+        "evidence": extract("evidence"),
+        "suggestion": extract("suggestion"),
     }
 
 

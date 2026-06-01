@@ -56,12 +56,12 @@
             <div class="metric-card">
               <span>覆盖度</span>
               <strong id="coverageMetric">0 来源</strong>
-              <small>按参考点与章节估算</small>
+              <small id="coverageHelp">口径：当前报告中的参考点数量 + 章节数。</small>
             </div>
             <div class="metric-card">
               <span>一致性</span>
               <strong id="consistencyMetric">待质检</strong>
-              <small>结构化报告 + Issue 回放</small>
+              <small id="consistencyHelp">口径：结构化 Issue 数；0 个显示结构通过。</small>
             </div>
           </div>
         </header>
@@ -119,10 +119,12 @@
               </section>
 
               <section class="input-card" data-wizard-step="2">
-                <div class="step-label">03 人工介入</div>
-                <label class="form-label" for="manualProductSelection">指定 / 追加要分析的产品</label>
-                <textarea id="manualProductSelection" rows="3" placeholder="可留空，默认分析爬到的前 TOP_N 个。也可以填序号和产品名，例如：1, 3, Cursor, 豆包 MarsCode"></textarea>
-                <p class="field-hint">脚本会先爬取候选产品，再用这里的内容作为“请选择”输入。</p>
+                <div class="step-label">03 搜索后选择产品</div>
+                <label class="form-label">候选产品</label>
+                <div id="candidatePreview" class="candidate-preview">
+                  <span>初步搜索完成后，这里会同步显示候选产品，并弹出选择面板。</span>
+                </div>
+                <p class="field-hint">每次搜索内容不同，产品必须在初步搜索后从弹窗中选择；也可以在弹窗里手动添加爬到但未列出的产品。</p>
               </section>
 
               <section class="input-card input-card-wide" data-wizard-step="3">
@@ -422,6 +424,25 @@
       </div>
     </aside>
     <div id="reportSideBackdrop" class="report-side-backdrop" hidden></div>
+
+    <aside id="productSelectionPanel" class="product-selection-panel" aria-hidden="true">
+      <div class="report-side-header">
+        <div>
+          <span class="report-tag">人工选择</span>
+          <h3>选择要分析的竞品</h3>
+          <p>初步搜索已返回候选产品。必须选择至少一个产品，或手动添加产品名后才能继续主流程。</p>
+        </div>
+      </div>
+      <div id="candidateProductList" class="candidate-list"></div>
+      <div class="manual-add-box">
+        <label class="form-label" for="manualProductAdd">手动添加爬到的产品</label>
+        <textarea id="manualProductAdd" rows="3" placeholder="多个产品用逗号或换行分隔，例如：Cursor, 豆包 MarsCode"></textarea>
+      </div>
+      <div class="report-side-footer">
+        <button id="submitProductSelectionBtn" class="btn btn-primary" type="button" disabled>确认并继续分析</button>
+      </div>
+    </aside>
+    <div id="productSelectionBackdrop" class="report-side-backdrop blocking-backdrop" hidden></div>
 
     <script src="/app.js"></script>
   </body>

@@ -10,17 +10,23 @@ import re
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
+
+def configure_console_output() -> None:
+    """Keep Windows consoles from crashing on non-GBK search/model text."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+configure_console_output()
 
 ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
-STRUCTURED_ANALYSIS_MARKER = "===== STRUCTURED ANALYSIS JSON ====="
-STRUCTURED_ANALYSIS_MARKER_RE = re.compile(
-    r"(?im)^=+\s*STRUCTURED\s+ANALYSIS\s+JSON\s*=+\s*$"
-)
 
 
 def load_local_env(path: Path) -> None:
@@ -39,6 +45,24 @@ def load_local_env(path: Path) -> None:
 
 
 load_local_env(ROOT / ".env")
+
+
+def clear_proxy_env_if_disabled() -> None:
+    """Avoid dead local proxies breaking direct API calls by default."""
+    if os.getenv("USE_NETWORK_PROXY", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        os.environ.pop(name, None)
+
+
+clear_proxy_env_if_disabled()
 
 sys.path.insert(0, str(ROOT))
 
@@ -75,7 +99,7 @@ LLM_PROVIDER = int(os.getenv("LLM_PROVIDER", str(LLM_PROVIDER)))
 LLM0_API_KEY = (
     os.getenv("LLM0_API_KEY")
     or os.getenv("ARK_API_KEY")
-    or "ARK_API_KEY_REDACTED"
+    or ""
 )
 LLM0_BASE_URL = os.getenv("LLM0_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")
 LLM0_MODEL = os.getenv("LLM0_MODEL", "ep-20260514111325-xjmj7")
@@ -92,7 +116,7 @@ LLM2_BASE_URL = os.getenv("LLM2_BASE_URL", "https://token-plan-cn.xiaomimimo.com
 LLM2_MODEL = os.getenv("LLM2_MODEL", "mimo-v2.5-pro")
 
 SEARCH_SOURCE = os.getenv("SEARCH_SOURCE", "bocha")
-BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "SK_API_KEY_REDACTED")
+BOCHA_API_KEY = os.getenv("BOCHA_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID", "")
 HTTP_PROXY = os.getenv("HTTP_PROXY", "")
@@ -152,7 +176,7 @@ REPORT_AGENT_TABLE_GAP_SEARCH_MAX_ROUNDS = int(
     os.getenv("REPORT_AGENT_TABLE_GAP_SEARCH_MAX_ROUNDS", "3")#表格缺口搜索循环轮数。
 )
 REPORT_AGENT_TABLE_GAP_SEARCH_WORKERS = int(
-    os.getenv("REPORT_AGENT_TABLE_GAP_SEARCH_WORKERS", "5")
+    os.getenv("REPORT_AGENT_TABLE_GAP_SEARCH_WORKERS", "0")
 )
 REPORT_AGENT_PRINT_TABLES = os.getenv("REPORT_AGENT_PRINT_TABLES", "1").strip() != "0"
 REPORT_AGENT_EXPORT_TABLES = os.getenv("REPORT_AGENT_EXPORT_TABLES", "1").strip() != "0"
@@ -172,16 +196,6 @@ REPORT_AGENT_QUALITY_OUTPUT_DIR = os.getenv(
 )
 REPORT_AGENT_QUALITY_RETRY_ON_MINOR = (
     os.getenv("REPORT_AGENT_QUALITY_RETRY_ON_MINOR", "0").strip() != "0"
-)
-REPORT_AGENT_QUALITY_CHECK_SCOPE = os.getenv(
-    "REPORT_AGENT_QUALITY_CHECK_SCOPE", "acceptance"
-).strip().lower()
-REPORT_AGENT_QUALITY_RETRY_ON_MAJOR = (
-    os.getenv(
-        "REPORT_AGENT_QUALITY_RETRY_ON_MAJOR",
-        "0" if REPORT_AGENT_QUALITY_CHECK_SCOPE in {"acceptance", "format", "workflow", "delivery"} else "1",
-    ).strip()
-    != "0"
 )
 REPORT_AGENT_QUALITY_MAX_FEEDBACK_QUERIES = int(
     os.getenv("REPORT_AGENT_QUALITY_MAX_FEEDBACK_QUERIES", "2")
@@ -618,12 +632,16 @@ def select_product_names(product_names: list[str]) -> list[str]:
 
 
 def report_path_for(product_name: str, index: int, timestamp: str) -> Path:
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    return REPORT_DIR / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
+    task_report_dir(timestamp).mkdir(parents=True, exist_ok=True)
+    return task_report_dir(timestamp) / f"{timestamp}_{index}_{safe_filename(product_name)}.md"
 
 
 def done_path_for(product_name: str, index: int, timestamp: str) -> Path:
     return report_path_for(product_name, index, timestamp).with_suffix(".done")
+
+
+def task_report_dir(timestamp: str) -> Path:
+    return REPORT_DIR / timestamp
 
 
 def analyze_product(
@@ -926,9 +944,7 @@ def quality_retry_required(quality_report) -> bool:
         str(getattr(issue.severity, "value", issue.severity)).lower()
         for issue in quality_report.issues
     }
-    if "critical" in severity_values:
-        return True
-    if REPORT_AGENT_QUALITY_RETRY_ON_MAJOR and "major" in severity_values:
+    if severity_values & {"critical", "major"}:
         return True
     return REPORT_AGENT_QUALITY_RETRY_ON_MINOR and bool(quality_report.issues)
 
@@ -943,13 +959,8 @@ def normalize_quality_feedback_payload(feedback_payload: dict, quality_report) -
         )
     elif not quality_report.passed:
         normalized["retry_reason"] = "quality score did not pass"
-    elif "critical" in {
-        str(getattr(issue.severity, "value", issue.severity)).lower()
-        for issue in quality_report.issues
-    }:
-        normalized["retry_reason"] = "critical quality issues remain"
     else:
-        normalized["retry_reason"] = "major quality issues remain"
+        normalized["retry_reason"] = "major or critical quality issues remain"
     return normalized
 
 
@@ -1152,30 +1163,6 @@ def collect_quality_feedback_sources(
     return supplemental_sources, list(bundle.errors)
 
 
-def split_structured_analysis_block(markdown: str) -> tuple[str, str]:
-    """Return body markdown and the structured-analysis block after the marker."""
-    text = str(markdown or "")
-    match = STRUCTURED_ANALYSIS_MARKER_RE.search(text)
-    if not match:
-        return text.rstrip(), ""
-    body = text[: match.start()].rstrip()
-    tail = text[match.end() :].strip()
-    return body, tail
-
-
-def package_for_quality(package):
-    """Drop the structured JSON block before Quality Agent inspection."""
-    body, _ = split_structured_analysis_block(package.report_markdown)
-    if body == package.report_markdown:
-        return package
-    return replace(package, report_markdown=body)
-
-
-def structured_analysis_block(package, original_tail: str = "") -> str:
-    payload = original_tail.strip() or package.to_json()
-    return "\n".join([STRUCTURED_ANALYSIS_MARKER, payload.strip(), ""])
-
-
 def write_quality_round_artifacts(
     *,
     timestamp: str,
@@ -1185,7 +1172,7 @@ def write_quality_round_artifacts(
     feedback_payload: dict,
     retry_target: str,
 ) -> dict[str, str]:
-    output_dir = Path(REPORT_AGENT_QUALITY_OUTPUT_DIR) / f"{timestamp}_report_agent_analysis"
+    output_dir = task_report_dir(timestamp) / "quality_workflow" / "report_agent_analysis"
     round_dir = output_dir / f"round_{round_index:02d}"
     round_dir.mkdir(parents=True, exist_ok=True)
     paths = {
@@ -1298,8 +1285,7 @@ def generate_report_agent_analysis(
             break
 
         print("\n===== Quality Agent 质检 =====")
-        quality_package = package_for_quality(package)
-        quality_report = inspect_report_package(quality_package, config=quality_config)
+        quality_report = inspect_report_package(package, config=quality_config)
         feedback_payload = normalize_quality_feedback_payload(
             build_feedback_payload(quality_report, task_id=task_id),
             quality_report,
@@ -1308,7 +1294,7 @@ def generate_report_agent_analysis(
         quality_paths = write_quality_round_artifacts(
             timestamp=timestamp,
             round_index=round_index,
-            package=quality_package,
+            package=package,
             quality_report=quality_report,
             feedback_payload=feedback_payload,
             retry_target=retry_target,
@@ -1329,23 +1315,33 @@ def generate_report_agent_analysis(
             print("[quality-loop] 已达到最大轮数，保留最后一轮报告和质检反馈。")
             break
 
-    md_path = REPORT_DIR / f"{timestamp}_REPORT_AGENT_ANALYSIS.md"
-    json_path = REPORT_DIR / f"{timestamp}_REPORT_AGENT_PACKAGE.json"
+    output_dir = task_report_dir(timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    md_path = output_dir / f"{timestamp}_REPORT_AGENT_ANALYSIS.md"
+    json_path = output_dir / f"{timestamp}_REPORT_AGENT_PACKAGE.json"
     if package is None:
         raise RuntimeError("Report Agent 未生成有效输出。")
-    report_body, original_structured_tail = split_structured_analysis_block(package.report_markdown)
-    final_structured_block = structured_analysis_block(package, original_structured_tail)
-    quality_markdown = (
-        quality_report_to_markdown(
-            quality_report,
-            task_id=package.task_id,
-            source_report=package.task_id,
-        )
-        if quality_report is not None
-        else "Quality Agent 已禁用。设置 REPORT_AGENT_QUALITY_ENABLED=1 可启用。"
-    )
     final_workflow_passed = bool(
         quality_report is not None and not feedback_payload.get("retry_required")
+    )
+    quality_summary = (
+        {
+            "quality_enabled": REPORT_AGENT_QUALITY_ENABLED,
+            "workflow_passed": final_workflow_passed,
+            "score_passed": quality_report.passed if quality_report else None,
+            "score": quality_report.score if quality_report else None,
+            "issue_count": len(quality_report.issues) if quality_report else None,
+            "retry_required": feedback_payload.get("retry_required"),
+            "retry_target": retry_target,
+            "quality_report_md": quality_paths.get("quality_report_md"),
+            "quality_report_json": quality_paths.get("quality_report"),
+            "feedback_payload": quality_paths.get("feedback_payload"),
+        }
+        if quality_report is not None
+        else {
+            "quality_enabled": False,
+            "message": "Quality Agent 已禁用。设置 REPORT_AGENT_QUALITY_ENABLED=1 可启用。",
+        }
     )
     md_output = "\n\n".join(
         [
@@ -1359,15 +1355,17 @@ def generate_report_agent_analysis(
             f"最终质检分数: {quality_report.score if quality_report else 'N/A'}",
             f"最终打回层级: {retry_target}",
             "",
-            report_body,
+            package.report_markdown,
             "",
-            "===== QUALITY AGENT REPORT =====",
-            quality_markdown,
+            "## 质量闭环摘要",
+            f"- Quality Agent: {'启用' if REPORT_AGENT_QUALITY_ENABLED else '禁用'}",
+            f"- 最终工作流通过: {final_workflow_passed}",
+            f"- 最终质检分数通过: {quality_report.passed if quality_report else 'N/A'}",
+            f"- 最终质检分数: {quality_report.score if quality_report else 'N/A'}",
+            f"- Issue 数: {len(quality_report.issues) if quality_report else 'N/A'}",
+            f"- 打回层级: {retry_target}",
             "",
-            "===== QUALITY WORKFLOW ARTIFACTS =====",
-            json.dumps(quality_paths, ensure_ascii=False, indent=2) if quality_paths else "无",
-            "",
-            final_structured_block,
+            "结构化数据已单独保存为 Package JSON；质检明细保存在 quality_workflow 文件夹中。",
             "",
         ]
     )
@@ -1435,7 +1433,6 @@ def summarize_all_reports(
     items = [read_report_for_summary(path) for path in report_paths]
     report_agent_md_path: Path | None = None
     report_agent_json_path: Path | None = None
-    report_agent_markdown = ""
     if REPORT_AGENT_ENABLED:
         try:
             report_agent_md_path, report_agent_json_path = generate_report_agent_analysis(
@@ -1445,9 +1442,6 @@ def summarize_all_reports(
                 comparison_keyword_library,
                 questionnaire_analysis_text,
                 questionnaire_analysis_path,
-            )
-            report_agent_markdown = report_agent_md_path.read_text(
-                encoding="utf-8", errors="replace"
             )
             print(f"[report-agent] Markdown 已保存: {report_agent_md_path}")
             print(f"[report-agent] Package JSON 已保存: {report_agent_json_path}")
@@ -1485,6 +1479,9 @@ def summarize_all_reports(
 - 尽量保留后续报告分析需要的信息：目标用户、核心场景、产品形态/入口、商业模式/定价、关键能力、限制或风险、用户反馈和证据引用。
 - 如果“我方产品参数关键词库”不为空，请优先按这些共同参数点做横向对比；这些参数来自我方产品，不是竞品事实，缺失证据的竞品参数点要说明未找到明确证据。
 - 如果“问卷分析补充背景”不为空，请结合其中的用户画像、场景、价格敏感度、替换意愿、采购决策、风险顾虑，生成更多维度、更丰富的横向分析。
+- 必须输出“详细 Issue 清单”章节，学习单品报告前面分块阅读和参考点的写法，把每个问题拆成：Issue、影响对象、证据/来源参考点、风险等级、为什么重要、建议修正或运营动作。
+- Issue 不要只写笼统短句；如果来自资料缺失，请明确写“缺少哪类证据”和“下一步应该补爬/补访谈什么”。
+- 必须输出“业务闭环指标”章节，至少覆盖效率（节省人工阅读/搜索时间的估计口径）、覆盖度（参考点/来源/产品维度）、一致性（结构化字段和质检问题）、人工修正率（哪些结论需要人工确认）。
 - 给出横向对比和选择建议。
 - 单品事实和引用必须来自单品 FINAL SUMMARY；问卷分析只能作为需求侧、用户侧、决策侧补充，不要把问卷结论当成某个产品的官方事实。
 - 保留原文里已有的引用标记，例如 [产品名][参考点15]。
@@ -1527,39 +1524,27 @@ def summarize_all_reports(
             timeout=FINAL_SUMMARY_TIMEOUT,
         )
 
-    output_path = REPORT_DIR / f"{timestamp}_FINAL_COMPARISON.md"
+    output_dir = task_report_dir(timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{timestamp}_FINAL_COMPARISON.md"
     output = "\n\n".join(
         [
             "# 所选产品横向对比报告",
             "",
             f"原始需求: {product_description}",
             "",
-            "===== 我方产品参数关键词库 =====",
-            comparison_keyword_library.strip() or "无",
-            "",
-            "===== 问卷分析补充背景 =====",
-            f"来源: {questionnaire_analysis_path}"
-            if questionnaire_analysis_path
-            else "来源: 无",
-            questionnaire_analysis_text.strip() or "无",
-            "",
-            "===== FINAL COMPARISON SUMMARY =====",
+            "## 最终横向对比摘要",
             final_summary,
             "",
-            "===== REPORT AGENT STANDARD ANALYSIS =====",
+            "## 相关文件",
             (
-                f"Markdown: {report_agent_md_path}\n"
-                f"Package JSON: {report_agent_json_path}\n\n"
-                f"{report_agent_markdown}"
+                f"- Report Agent 标准分析: {report_agent_md_path}\n"
+                f"- Report Agent 结构化包: {report_agent_json_path}"
             )
-            if report_agent_markdown
-            else "未生成或已禁用。设置 REPORT_AGENT_ENABLED=1 可启用。",
-            "",
-            "===== 带产品名前缀的参考点 =====",
-            references,
-            "",
-            "===== SOURCE FINAL SUMMARIES =====",
-            summaries,
+            if report_agent_md_path and report_agent_json_path
+            else "- Report Agent 标准分析: 未生成或已禁用",
+            f"- 问卷分析补充: {questionnaire_analysis_path or '无'}",
+            "- 单品报告、参考点和质检轮次请在当前任务文件夹内查看。",
             "",
         ]
     )

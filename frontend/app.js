@@ -4,12 +4,18 @@ let isSubmitting = false;
 let lastReportName = "";
 let currentReportName = "";
 let allReportsCache = [];
+let allIssuesCache = [];
+let issueGroupsCache = [];
+let issuesLoaded = false;
+let issuesLoading = false;
 let currentWizardStep = 1;
+let selectionPanelJobId = "";
+let selectionPanelCandidatesKey = "";
 
 const $ = (selector) => document.querySelector(selector);
 
 const productDescription = $("#productDescription");
-const manualProductSelection = $("#manualProductSelection");
+const candidatePreview = $("#candidatePreview");
 const llmProvider = $("#llmProvider");
 const topN = $("#topN");
 const queryCount = $("#queryCount");
@@ -77,6 +83,8 @@ const maxIterationPreview = $("#maxIterationPreview");
 const timeMetric = $("#timeMetric");
 const coverageMetric = $("#coverageMetric");
 const consistencyMetric = $("#consistencyMetric");
+const coverageHelp = $("#coverageHelp");
+const consistencyHelp = $("#consistencyHelp");
 const qualityIssueList = $("#qualityIssueList");
 const wizardTabs = Array.from(document.querySelectorAll("[data-step-target]"));
 const wizardPanels = Array.from(document.querySelectorAll("[data-wizard-step]"));
@@ -85,12 +93,18 @@ const nextStepBtn = $("#nextStepBtn");
 const wizardStepMeta = $("#wizardStepMeta");
 const subtaskList = $("#subtaskList");
 const subtaskMeta = $("#subtaskMeta");
+const productSelectionPanel = $("#productSelectionPanel");
+const productSelectionBackdrop = $("#productSelectionBackdrop");
+const candidateProductList = $("#candidateProductList");
+const manualProductAdd = $("#manualProductAdd");
+const submitProductSelectionBtn = $("#submitProductSelectionBtn");
 
 startBtn.addEventListener("click", startJob);
 refreshBtn.addEventListener("click", handleRefresh);
 reloadReportsBtn?.addEventListener("click", () => loadReports({ preserveSelection: true }));
 closeSideReportBtn?.addEventListener("click", closeReportSidePanel);
 reportSideBackdrop?.addEventListener("click", closeReportSidePanel);
+submitProductSelectionBtn?.addEventListener("click", submitProductSelection);
 reportSelect.addEventListener("change", () => {
   if (reportSelect.value) loadReport(reportSelect.value);
 });
@@ -138,13 +152,15 @@ async function startJob() {
   isSubmitting = true;
   currentReportName = "";
   lastReportName = "";
+  selectionPanelJobId = "";
+  selectionPanelCandidatesKey = "";
+  closeProductSelectionPanel();
   clearTimeout(pollTimer);
   setStartButtonLoading(true);
   serverStatus.textContent = "Starting";
 
   const payload = {
     product_description: description,
-    manual_product_selection: manualProductSelection.value.trim(),
     llm_provider: llmProvider.value,
     top_n: Number(topN.value || 5),
     query_count: Number(queryCount.value || 3),
@@ -256,6 +272,7 @@ function renderJob(job) {
   logBox.scrollTop = logBox.scrollHeight;
   renderRuntimeState(job);
   renderSubtasks(job);
+  maybeOpenProductSelection(job);
   renderNodeFlow(job);
   setQualityStatus(stageLabel(job.stage || job.status));
   updateBusinessMetrics(job);
@@ -333,6 +350,92 @@ function renderSubtasks(job) {
       ? `${queries.length} 搜索词 · ${candidates.length} 候选 · ${subtasks.length} 子任务`
       : "等待搜索";
   subtaskList.innerHTML = chunks.join("") || `<div class="subtask-empty">等待主流程输出搜索词和候选产品。</div>`;
+  if (candidatePreview) {
+    candidatePreview.innerHTML = candidates.length
+      ? candidates.map((name) => `<span class="report-tag">${escapeHtml(name)}</span>`).join("")
+      : `<span>初步搜索完成后，这里会同步显示候选产品，并弹出选择面板。</span>`;
+  }
+}
+
+function maybeOpenProductSelection(job) {
+  if (!productSelectionPanel || !candidateProductList) return;
+  const candidatesKey = (job.candidate_products || []).join("|");
+  if (job.waiting_for_selection && !job.selection_submitted && (job.job_id !== selectionPanelJobId || candidatesKey !== selectionPanelCandidatesKey)) {
+    selectionPanelJobId = job.job_id;
+    selectionPanelCandidatesKey = candidatesKey;
+    openProductSelectionPanel(job);
+  }
+}
+
+function openProductSelectionPanel(job) {
+  const candidates = job.candidate_products || [];
+  const previouslySelected = new Set(selectedProductNames());
+  const manualValue = manualProductAdd?.value || "";
+  productSelectionPanel.classList.add("open");
+  productSelectionPanel.setAttribute("aria-hidden", "false");
+  if (productSelectionBackdrop) productSelectionBackdrop.hidden = false;
+  if (manualProductAdd) manualProductAdd.value = manualValue;
+  candidateProductList.innerHTML = candidates.length
+    ? candidates
+        .map(
+          (name, index) => `
+            <label class="candidate-option">
+              <input type="checkbox" value="${escapeHtml(name)}" ${previouslySelected.has(name) ? "checked" : ""} />
+              <span>${index + 1}. ${escapeHtml(name)}</span>
+            </label>
+          `
+        )
+        .join("")
+    : `<div class="issue-empty">还没有候选产品。可以先手动填写要分析的产品名。</div>`;
+  updateProductSelectionButton();
+  candidateProductList.querySelectorAll("input[type='checkbox']").forEach((input) => {
+    input.addEventListener("change", updateProductSelectionButton);
+  });
+  manualProductAdd?.addEventListener("input", updateProductSelectionButton);
+}
+
+function closeProductSelectionPanel() {
+  productSelectionPanel?.classList.remove("open");
+  productSelectionPanel?.setAttribute("aria-hidden", "true");
+  if (productSelectionBackdrop) productSelectionBackdrop.hidden = true;
+}
+
+function selectedProductNames() {
+  const checked = Array.from(candidateProductList?.querySelectorAll("input:checked") || []).map((item) => item.value.trim());
+  const manual = (manualProductAdd?.value || "")
+    .split(/[,，、\n]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return Array.from(new Set([...checked, ...manual]));
+}
+
+function updateProductSelectionButton() {
+  if (!submitProductSelectionBtn) return;
+  submitProductSelectionBtn.disabled = selectedProductNames().length === 0;
+}
+
+async function submitProductSelection() {
+  if (!currentJobId || !submitProductSelectionBtn) return;
+  const products = selectedProductNames();
+  if (!products.length) {
+    showToast("请至少选择或手动添加一个产品", "warning");
+    return;
+  }
+  submitProductSelectionBtn.disabled = true;
+  try {
+    const job = await api(`/api/jobs/${currentJobId}/selection`, {
+      method: "POST",
+      body: JSON.stringify({ selection: products.join(", ") }),
+    });
+    closeProductSelectionPanel();
+    renderJob(job);
+    showToast("产品选择已提交，继续分析", "success");
+    clearTimeout(pollTimer);
+    pollTimer = setTimeout(pollJob, 800);
+  } catch (error) {
+    showToast("提交产品选择失败: " + error.message, "error");
+    updateProductSelectionButton();
+  }
 }
 
 function subtaskStatusLabel(status) {
@@ -402,19 +505,29 @@ async function loadReports(options = {}) {
       renderIssues([]);
       setDownload("");
       renderReportLibrary([]);
-      renderQualityIssues([]);
+      allIssuesCache = [];
+      issueGroupsCache = [];
+      issuesLoaded = true;
+      renderQualityIssueGroups([]);
       return;
     }
 
     renderReportLibrary(allReportsCache);
-    renderQualityIssues(collectIssues(allReportsCache));
     for (const report of allReportsCache) {
       const label = `${reportTypeLabel(report)} · ${report.summary?.title || report.name}`;
       reportSelect.appendChild(new Option(label, report.name));
     }
     if (options.preserveSelection && selected) reportSelect.value = selected;
     if (!reportSelect.value && allReportsCache[0]) reportSelect.value = allReportsCache[0].name;
-    if (reportSelect.value) await loadReport(reportSelect.value);
+    if (options.loadSelected && reportSelect.value) await loadReport(reportSelect.value);
+    issuesLoaded = false;
+    allIssuesCache = [];
+    issueGroupsCache = [];
+    if (document.querySelector('[data-page-panel="quality"]')?.classList.contains("active")) {
+      loadQualityIssues();
+    } else if (qualityIssueList) {
+      qualityIssueList.innerHTML = `<div class="issue-empty">进入本页后再加载 Issue 明细，避免工作台初始化卡顿。</div>`;
+    }
   } catch (error) {
     showToast("加载报告列表失败: " + error.message, "error");
   }
@@ -528,7 +641,7 @@ async function loadReport(name) {
   }
 }
 
-async function openReportSidePanel(name) {
+async function openReportSidePanel(name, focus = {}) {
   if (!reportSidePanel || !sideReportViewer) return;
   reportSidePanel.classList.add("open");
   reportSidePanel.setAttribute("aria-hidden", "false");
@@ -557,10 +670,41 @@ async function openReportSidePanel(name) {
       sideDownloadBtn.style.opacity = "1";
     }
     sideReportViewer.innerHTML = markdownToHtml(data.content || "");
+    focusReportPreview(data.content || "", focus);
   } catch (error) {
     sideReportViewer.innerHTML = `<div class="empty-state error"><p>加载报告失败</p><span>${escapeHtml(error.message)}</span></div>`;
     showToast("加载报告失败: " + error.message, "error");
   }
+}
+
+function focusReportPreview(content, focus = {}) {
+  if (!sideReportViewer || (!focus.line && !focus.query)) return;
+  const lines = content.split("\n");
+  let targetLine = Number(focus.line || 0);
+  if (!targetLine && focus.query) {
+    const query = String(focus.query).slice(0, 80).trim();
+    const found = lines.findIndex((line) => query && line.includes(query));
+    if (found >= 0) targetLine = found + 1;
+  }
+  if (!targetLine) return;
+  const start = Math.max(0, targetLine - 4);
+  const end = Math.min(lines.length, targetLine + 3);
+  const snippet = lines
+    .slice(start, end)
+    .map((line, index) => {
+      const lineNumber = start + index + 1;
+      const active = lineNumber === targetLine ? " active" : "";
+      return `<div class="source-line${active}"><span>${lineNumber}</span><code>${escapeHtml(line || " ")}</code></div>`;
+    })
+    .join("");
+  sideReportViewer.insertAdjacentHTML(
+    "afterbegin",
+    `<section class="source-focus-card">
+      <strong>定位到 Issue 原文附近</strong>
+      <div class="source-lines">${snippet}</div>
+    </section>`
+  );
+  sideReportViewer.scrollTop = 0;
 }
 
 function closeReportSidePanel() {
@@ -588,6 +732,19 @@ function renderSideSummaryHtml(data) {
       `
     )
     .join("");
+}
+
+function renderIssueField(label, value) {
+  if (!value) return "";
+  return `
+    <p class="issue-field">
+      <b>${escapeHtml(label)}：</b>${escapeHtml(value)}
+    </p>
+  `;
+}
+
+function findReportByName(name) {
+  return allReportsCache.find((report) => report.name === name);
 }
 
 function showLoadingSkeleton() {
@@ -632,7 +789,18 @@ function renderIssues(issues) {
         (issue) => `
           <article class="issue-item ${escapeHtml(issue.severity || "medium")}">
             <span>${escapeHtml(issue.severity || "medium")}</span>
-            <p>${escapeHtml(issue.detail || issue.title || "")}</p>
+            <div class="issue-content">
+              <strong>${escapeHtml(issue.title || "未命名 Issue")}</strong>
+              ${renderIssueField("原因", issue.reason || issue.detail)}
+              ${renderIssueField("证据", issue.evidence)}
+              ${renderIssueField("建议", issue.suggestion)}
+              ${renderIssueLocation({
+                report: "当前报告",
+                lineNumber: issue.line_number,
+                section: issue.section,
+              })}
+              ${renderIssueContext({ context: issue.context })}
+            </div>
           </article>
         `
       )
@@ -646,35 +814,193 @@ function renderQualityIssues(issues) {
     qualityIssueList.innerHTML = `<div class="issue-empty">暂无 Issue。运行质检闭环后会展示每轮问题、影响范围和修复方向。</div>`;
     return;
   }
-  qualityIssueList.innerHTML = issues
-    .slice(0, 24)
+  const groups = groupIssuesByTask(issues);
+  renderQualityIssueGroups(
+    groups.map((group) => ({
+      taskId: group.taskId,
+      modifiedAt: group.modifiedAt,
+      issueCount: group.issues.length,
+      typeCounts: Object.fromEntries(issueFolderTags(group.issues).map((tag) => {
+        const parts = tag.split(" ");
+        return [parts.slice(0, -1).join(" "), Number(parts.at(-1) || 0)];
+      })),
+    }))
+  );
+}
+
+function renderQualityIssueGroups(groups) {
+  if (!qualityIssueList) return;
+  if (!groups.length) {
+    qualityIssueList.innerHTML = `<div class="issue-empty">暂无 Issue。运行质检闭环后会展示每轮问题、影响范围和修复方向。</div>`;
+    return;
+  }
+  const totalIssues = groups.reduce((sum, group) => sum + Number(group.issueCount || 0), 0);
+  qualityIssueList.innerHTML = `
+    <div class="issue-library-summary">
+      <strong>共 ${totalIssues} 个 Issue</strong>
+      <span>先按任务归档；打开任务后再加载该任务的问题、来源章节、行号和原文片段。</span>
+    </div>
+    ${groups
     .map(
-      (item) => `
-        <article class="issue-list-row">
-          <div>
-            <span class="report-tag">${escapeHtml(item.reportType)}</span>
-            <strong>${escapeHtml(item.title)}</strong>
-            <p>${escapeHtml(item.detail)}</p>
+      (group) => `
+        <section class="report-folder report-folder-card issue-folder-card">
+          <div class="report-folder-header">
+            <div>
+              <h3>${escapeHtml(group.taskId)}</h3>
+              <time>${new Date(group.modifiedAt * 1000).toLocaleString("zh-CN")}</time>
+            </div>
+            <span class="report-tag">${group.issueCount} 个 Issue</span>
           </div>
-          <button class="btn btn-ghost btn-sm" data-report="${escapeHtml(item.report)}">查看来源</button>
-        </article>
+          <div class="report-meta">
+            ${issueGroupTags(group).map((tag) => `<span class="report-tag">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+          <div class="report-card-footer">
+            <span class="report-tag">任务 Issue 文件夹</span>
+            <button class="btn btn-ghost btn-sm" data-issue-task="${escapeHtml(group.taskId)}">打开 Issue</button>
+          </div>
+        </section>
       `
     )
-    .join("");
-  qualityIssueList.querySelectorAll("button[data-report]").forEach((button) => {
-    button.addEventListener("click", () => {
-      openReportSidePanel(button.dataset.report);
-    });
+    .join("")}
+  `;
+  qualityIssueList.querySelectorAll("button[data-issue-task]").forEach((button) => {
+    button.addEventListener("click", () => renderIssueFolderFiles(button.dataset.issueTask));
   });
 }
 
+async function loadQualityIssues(force = false) {
+  if (!qualityIssueList || issuesLoading) return;
+  if (issuesLoaded && !force) {
+    renderQualityIssueGroups(issueGroupsCache);
+    return;
+  }
+  issuesLoading = true;
+  qualityIssueList.innerHTML = `
+    <div class="skeleton-container">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text short"></div>
+    </div>
+  `;
+  try {
+    const data = await api("/api/issues");
+    issueGroupsCache = data.groups || [];
+    allIssuesCache = [];
+    issuesLoaded = true;
+    renderQualityIssueGroups(issueGroupsCache);
+  } catch (error) {
+    qualityIssueList.innerHTML = `<div class="issue-empty">Issue 加载失败：${escapeHtml(error.message)}</div>`;
+    showToast("加载 Issue 失败: " + error.message, "error");
+  } finally {
+    issuesLoading = false;
+  }
+}
+
+async function renderIssueFolderFiles(taskId) {
+  if (!qualityIssueList) return;
+  qualityIssueList.innerHTML = `
+    <div class="skeleton-container">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text short"></div>
+    </div>
+  `;
+  let group;
+  try {
+    const data = await api(`/api/issues?task=${encodeURIComponent(taskId)}`);
+    allIssuesCache = data.issues || [];
+    group = groupIssuesByTask(allIssuesCache).find((item) => item.taskId === taskId);
+  } catch (error) {
+    qualityIssueList.innerHTML = `<div class="issue-empty">Issue 加载失败：${escapeHtml(error.message)}</div>`;
+    showToast("加载任务 Issue 失败: " + error.message, "error");
+    return;
+  }
+  if (!group) {
+    qualityIssueList.innerHTML = `<div class="issue-empty">当前任务没有可展示的 Issue。</div>`;
+    return;
+  }
+  qualityIssueList.innerHTML = `
+    <section class="report-file-page">
+      <div class="report-file-page-header">
+        <button class="btn btn-ghost btn-sm" data-back-issue-folders type="button">返回文件夹</button>
+        <div>
+          <h3>${escapeHtml(group.taskId)}</h3>
+          <p>${group.issues.length} 个 Issue，按来源报告展开；点击来源在右侧预览原文件。</p>
+        </div>
+      </div>
+      <div class="issue-file-list">
+        ${group.issues.map(renderIssueRow).join("")}
+      </div>
+    </section>
+  `;
+  qualityIssueList.querySelectorAll("button[data-report]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const report = button.dataset.report;
+      if (!findReportByName(report)) {
+        showToast("找不到对应来源文件: " + report, "warning");
+        return;
+      }
+      const line = Number(button.dataset.line || 0);
+      const query = button.dataset.query || "";
+      openReportSidePanel(report, { line, query });
+    });
+  });
+  qualityIssueList.querySelector("[data-back-issue-folders]")?.addEventListener("click", () => {
+    renderQualityIssueGroups(issueGroupsCache);
+  });
+}
+
+function renderIssueRow(item) {
+  return `
+    <article class="issue-list-row">
+      <div>
+        <div class="issue-row-tags">
+          <span class="report-tag">${escapeHtml(item.reportType)}</span>
+          <span class="report-tag">${escapeHtml(item.reportTitle)}</span>
+        </div>
+        <strong>${escapeHtml(item.title)}</strong>
+        ${renderIssueField("原因", item.reason || item.detail)}
+        ${renderIssueField("证据", item.evidence)}
+        ${renderIssueField("建议", item.suggestion)}
+        ${renderIssueLocation(item)}
+        ${renderIssueContext(item)}
+      </div>
+      <button class="btn btn-ghost btn-sm" data-report="${escapeHtml(item.report)}" data-line="${escapeHtml(item.lineNumber || "")}" data-query="${escapeHtml(item.title)}" ${item.sourceExists ? "" : "disabled"}>${item.sourceExists ? "定位原文" : "来源缺失"}</button>
+    </article>
+  `;
+}
+
+function renderIssueLocation(item) {
+  const parts = [];
+  if (item.section) parts.push(`章节：${item.section}`);
+  if (item.lineNumber) parts.push(`行号：${item.lineNumber}`);
+  parts.push(`来源文件：${item.report || "未匹配到文件"}`);
+  return `<small class="issue-source">${escapeHtml(parts.join(" · "))}</small>`;
+}
+
+function renderIssueContext(item) {
+  if (!item.context) return "";
+  return `<pre class="issue-context">${escapeHtml(item.context)}</pre>`;
+}
+
 function collectIssues(reports) {
+  const reportNames = new Set(reports.map((report) => report.name));
   return reports.flatMap((report) =>
     (report.summary?.issues || []).map((issue) => ({
+      taskId: report.summary?.task_id || inferTaskId(report.name),
       report: report.name,
+      reportTitle: report.summary?.title || report.name,
       reportType: reportTypeLabel(report),
+      modifiedAt: report.modified_at || 0,
+      sourceExists: reportNames.has(report.name),
       title: issue.title || report.summary?.title || report.name,
       detail: issue.detail || issue.title || "",
+      reason: issue.reason || "",
+      evidence: issue.evidence || "",
+      suggestion: issue.suggestion || "",
+      lineNumber: issue.line_number || 0,
+      section: issue.section || "",
+      context: issue.context || "",
     }))
   );
 }
@@ -689,8 +1015,17 @@ function updateBusinessMetrics(job) {
 
 function updateMetricsFromSummary(summary) {
   if (!summary) return;
-  coverageMetric.textContent = `${summary.reference_count || 0} 参考点`;
-  consistencyMetric.textContent = summary.issue_count ? `${summary.issue_count} Issue` : "结构通过";
+  const references = summary.reference_count || 0;
+  const sections = summary.sections || 0;
+  const issues = summary.issue_count || 0;
+  coverageMetric.textContent = `${references} 参考点 / ${sections} 章节`;
+  consistencyMetric.textContent = issues ? `${issues} Issue 待看` : "结构通过";
+  if (coverageHelp) {
+    coverageHelp.textContent = `口径：后端从报告正文统计 [参考点N] 引用数和 Markdown 标题章节数；当前为 ${references} 个参考点、${sections} 个章节。`;
+  }
+  if (consistencyHelp) {
+    consistencyHelp.textContent = `口径：后端从“Issue/问题/风险/缺口/待修复”等章节抽取结构化问题；当前为 ${issues} 个。`;
+  }
 }
 
 function setQualityStatus(value) {
@@ -762,6 +1097,7 @@ function setDownload(name) {
 function showPage(page) {
   navButtons.forEach((button) => button.classList.toggle("active", button.dataset.page === page));
   pagePanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.pagePanel === page));
+  if (page === "quality") loadQualityIssues();
 }
 
 function groupReportsByTask(reports) {
@@ -774,6 +1110,32 @@ function groupReportsByTask(reports) {
     group.modifiedAt = Math.max(group.modifiedAt, report.modified_at || 0);
   }
   return [...groups.values()].sort((a, b) => b.modifiedAt - a.modifiedAt);
+}
+
+function groupIssuesByTask(issues) {
+  const groups = new Map();
+  for (const issue of issues) {
+    const taskId = issue.taskId || inferTaskId(issue.report);
+    if (!groups.has(taskId)) groups.set(taskId, { taskId, modifiedAt: 0, issues: [] });
+    const group = groups.get(taskId);
+    group.issues.push(issue);
+    group.modifiedAt = Math.max(group.modifiedAt, issue.modifiedAt || 0);
+  }
+  return [...groups.values()].sort((a, b) => b.modifiedAt - a.modifiedAt);
+}
+
+function issueFolderTags(issues) {
+  const counts = {};
+  for (const issue of issues) {
+    const label = issue.reportType || "Issue";
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  return Object.entries(counts).map(([label, count]) => `${label} ${count}`);
+}
+
+function issueGroupTags(group) {
+  const counts = group.typeCounts || {};
+  return Object.entries(counts).map(([label, count]) => `${label} ${count}`);
 }
 
 function reportType(report) {
