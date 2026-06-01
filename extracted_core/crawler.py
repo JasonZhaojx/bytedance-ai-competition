@@ -101,8 +101,8 @@ def fetch_page_text(
 ) -> str:
     """Fetch a URL and extract readable main text.
 
-    The function first uses trafilatura directly when no proxy is needed, then
-    falls back to requests so callers can pass an HTTP proxy.
+    The function downloads with requests so the caller-provided timeout always
+    applies, then uses trafilatura/BeautifulSoup to extract readable text.
     """
     if not url:
         return ""
@@ -111,22 +111,17 @@ def fetch_page_text(
     should_verify_ssl = (not bool(proxy)) if verify_ssl is None else verify_ssl
 
     try:
-        downloaded = None
-        if not proxy:
-            downloaded = trafilatura.fetch_url(url)
-
-        if not downloaded:
-            response = requests.get(
-                url,
-                headers=DEFAULT_HEADERS,
-                proxies=proxies,
-                timeout=timeout,
-                verify=should_verify_ssl,
-            )
-            if response.status_code != 200:
-                return ""
-            response.encoding = response.apparent_encoding
-            downloaded = response.text
+        response = requests.get(
+            url,
+            headers=DEFAULT_HEADERS,
+            proxies=proxies,
+            timeout=timeout,
+            verify=should_verify_ssl,
+        )
+        if response.status_code != 200:
+            return ""
+        response.encoding = response.apparent_encoding
+        downloaded = response.text
 
         text = trafilatura.extract(
             downloaded,

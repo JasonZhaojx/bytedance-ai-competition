@@ -138,7 +138,7 @@
                 </div>
                 <div class="option-group">
                   <label class="form-label">最大迭代</label>
-                  <input id="maxIterations" type="number" min="1" max="5" value="2" title="最大迭代次数" placeholder="输入1-5之间的数字" />
+                  <input id="maxIterations" type="number" min="1" max="5" value="3" title="最大迭代次数" placeholder="输入1-5之间的数字" />
                 </div>
                 <label class="option-switch">
                   <input id="enableQualityLoop" type="checkbox" checked />
@@ -238,9 +238,6 @@
                   <span class="meta-text">查看分析结果</span>
                 </div>
                 <div class="result-actions">
-                  <button id="backToReportsBtn" class="btn btn-ghost btn-sm hidden" type="button">
-                    返回列表
-                  </button>
                   <select id="reportSelect" class="report-dropdown" title="选择报告"></select>
                   <a id="downloadBtn" class="btn btn-ghost btn-sm" href="#" download>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -321,19 +318,11 @@
               <h2>质检中心</h2>
               <p>展示当前运行的质检闭环状态和最终报告质量信息。</p>
             </div>
-            <button id="reloadQualityReportsBtn" class="btn btn-ghost">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-              </svg>
-              刷新质检报告
-            </button>
           </div>
           <div class="quality-board">
             <div class="quality-item">
               <span>闭环状态</span>
-              <strong id="qualityCenterStatus">等待任务</strong>
+              <strong id="qualityLoopStatus">等待任务</strong>
             </div>
             <div class="quality-item">
               <span>质检模式</span>
@@ -341,14 +330,9 @@
             </div>
             <div class="quality-item">
               <span>最大迭代</span>
-              <strong id="maxIterationPreview">2</strong>
+              <strong id="maxIterationPreview">3</strong>
             </div>
           </div>
-          <div class="section-subtitle">
-            <h3>质检报告</h3>
-            <p>单独查看 Quality Agent 每轮生成的检查结果。</p>
-          </div>
-          <div class="report-library quality-report-library" id="qualityReportLibrary"></div>
         </section>
 
         <section class="page-section" data-page-panel="settings">
@@ -427,7 +411,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label" for="settingsMaxIterations">最大迭代</label>
-                <input id="settingsMaxIterations" type="number" min="1" max="5" value="2" />
+                <input id="settingsMaxIterations" type="number" min="1" max="5" value="3" />
               </div>
               <label class="switch-wrapper" style="margin-top: 8px;">
                 <input id="settingsEnableQualityLoop" type="checkbox" checked />
@@ -456,23 +440,6 @@
         </section>
       </main>
     </div>
-
-    <aside id="reportSidePanel" class="report-side-panel" aria-hidden="true">
-      <div class="report-side-header">
-        <div>
-          <span id="sideReportType" class="report-tag">报告</span>
-          <h3 id="sideReportTitle">报告预览</h3>
-          <p id="sideReportName"></p>
-        </div>
-        <button id="closeSideReportBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
-      </div>
-      <div id="sideReportSummary" class="report-summary side-report-summary"></div>
-      <div id="sideReportViewer" class="report-preview side-report-viewer"></div>
-      <div class="report-side-footer">
-        <a id="sideDownloadBtn" class="btn btn-ghost btn-sm" href="#" download>下载</a>
-      </div>
-    </aside>
-    <div id="reportSideBackdrop" class="report-side-backdrop" hidden></div>
 
     <script src="/app.js"></script>
   </body>

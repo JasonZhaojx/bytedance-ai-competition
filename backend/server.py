@@ -21,7 +21,7 @@ from urllib.parse import unquote, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND_DIR = ROOT / "frontend"
 REPORT_DIR = ROOT / "reports"
-RUNNER = ROOT / "run_similar_product_reports_with_new_analyze_quality.py"
+RUNNER = ROOT / "run_similar_product_reports.py"
 DEFAULT_PORT = int(os.getenv("WEB_PORT", "8000"))
 
 
@@ -46,9 +46,7 @@ class Job:
             "stage": self.stage,
             "return_code": self.return_code,
             "report_path": self.report_path,
-            "report_name": report_display_name(Path(self.report_path))
-            if self.report_path
-            else "",
+            "report_name": Path(self.report_path).name if self.report_path else "",
             "error": self.error,
             "logs": self.logs[-500:],
         }
@@ -56,9 +54,7 @@ class Job:
 
 JOBS: dict[str, Job] = {}
 JOBS_LOCK = threading.Lock()
-FINAL_REPORT_RE = re.compile(
-    r"(?:总总结已保存|Markdown 已保存|Report Agent Markdown 已保存):\s*(.+\.md)"
-)
+FINAL_REPORT_RE = re.compile(r"总总结已保存:\s*(.+)")
 
 
 class AppHandler(BaseHTTPRequestHandler):
@@ -155,10 +151,8 @@ class AppHandler(BaseHTTPRequestHandler):
             return
         self._send_json(
             {
-                "name": report_display_name(report_path),
+                "name": report_path.name,
                 "path": str(report_path),
-                "modified_at": report_path.stat().st_mtime,
-                "size": report_path.stat().st_size,
                 "content": report_path.read_text(encoding="utf-8", errors="replace"),
                 "summary": summarize_report(report_path),
             }
@@ -195,7 +189,6 @@ class AppHandler(BaseHTTPRequestHandler):
         content = file_path.read_bytes()
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", content_type(file_path))
-        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         self.wfile.write(content)
@@ -237,16 +230,11 @@ def run_job(job: Job, options: dict[str, Any]) -> None:
             "PYTHONIOENCODING": "utf-8",
             "DISABLE_ANALYZE_CONSOLES": "1",
             "TOP_N": str(options["top_n"]),
-            "REPORT_AGENT_QUALITY_ENABLED": "1"
+            "ENABLE_FINAL_QUALITY_LOOP": "true"
             if options["enable_quality_loop"]
-            else "0",
-            "REPORT_AGENT_QUALITY_MAX_ROUNDS": str(options["max_iterations"]),
-            "INSPECTION_MODE": quality_mode_to_env(options["quality_mode"]),
-            "REPORT_AGENT_QUALITY_RETRY_ON_MINOR": "0",
-            "REPORT_AGENT_QUALITY_MAX_FEEDBACK_QUERIES": "2",
-            "QUALITY_FEEDBACK_SEARCH_BACKEND": os.getenv(
-                "QUALITY_FEEDBACK_SEARCH_BACKEND", "0"
-            ),
+            else "false",
+            "FINAL_QUALITY_MODE": options["quality_mode"],
+            "FINAL_QUALITY_MAX_ITERATIONS": str(options["max_iterations"]),
         }
     )
     apply_user_env(job, env, options)
@@ -317,15 +305,6 @@ def apply_user_env(job: Job, env: dict[str, str], options: dict[str, Any]) -> No
         env["QUESTIONNAIRE_ANALYSIS_MD"] = str(path)
 
 
-def quality_mode_to_env(value: str) -> str:
-    mapping = {
-        "rule": "rule_only",
-        "hybrid": "hybrid_voting",
-        "llm": "llm_fallback",
-    }
-    return mapping.get(str(value or "").strip().lower(), "hybrid_voting")
-
-
 STAGE_ORDER = ["prepare", "discover", "analyze", "summarize", "quality", "done"]
 
 
@@ -336,14 +315,7 @@ def set_stage(job: Job, stage: str) -> None:
 
 
 def update_stage_from_log(job: Job, line: str) -> None:
-    if any(
-        token in line
-        for token in (
-            "LLM 改写后的搜索词",
-            "搜索到的产品",
-            "rewrite search queries",
-        )
-    ):
+    if any(token in line for token in ("LLM 改写后的搜索词", "搜索到的产品", "rewrite search queries")):
         set_stage(job, "discover")
     elif any(
         token in line
@@ -355,18 +327,11 @@ def update_stage_from_log(job: Job, line: str) -> None:
         )
     ):
         set_stage(job, "analyze")
-    elif any(
-        token in line
-        for token in (
-            "生成所选产品大总结",
-            "Report Agent 标准分析链路",
-            "FINAL COMPARISON",
-        )
-    ):
+    elif any(token in line for token in ("生成所选产品大总结", "FINAL COMPARISON")):
         set_stage(job, "summarize")
-    elif any(token in line for token in ("Quality Agent 质检", "[quality-loop]")):
+    elif any(token in line for token in ("最终报告质检闭环", "[quality-loop]")):
         set_stage(job, "quality")
-    elif "总总结已保存" in line or "Markdown 已保存" in line:
+    elif "总总结已保存" in line:
         set_stage(job, "done")
 
 
@@ -384,21 +349,16 @@ def _jobs_sorted() -> list[Job]:
 
 def list_reports() -> list[dict[str, Any]]:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    reports = [
-        path
-        for path in REPORT_DIR.rglob("*.md")
-        if "web_inputs" not in path.relative_to(REPORT_DIR).parts
-    ]
-    reports = sorted(reports, key=lambda path: path.stat().st_mtime, reverse=True)
+    reports = sorted(REPORT_DIR.glob("*.md"), key=lambda path: path.stat().st_mtime, reverse=True)
     return [
         {
-            "name": report_display_name(path),
+            "name": path.name,
             "path": str(path),
             "modified_at": path.stat().st_mtime,
             "size": path.stat().st_size,
             "summary": summarize_report(path),
         }
-        for path in reports[:200]
+        for path in reports[:80]
     ]
 
 
@@ -409,78 +369,13 @@ def summarize_report(path: Path) -> dict[str, Any]:
         if line.startswith("# "):
             title = line[2:].strip()
             break
-    relative_name = report_display_name(path)
-    report_type = report_type_for(path)
     return {
         "title": title,
-        "task_id": task_id_for_report(path),
-        "round": quality_round_for(path),
-        "type": report_type,
-        "is_final": report_type == "final",
-        "is_report_agent": report_type == "report_agent",
-        "is_single": report_type == "single",
-        "is_quality": is_quality_report(path),
-        "quality_feedback_applied": (
-            "===== QUALITY AGENT SUMMARY =====" in text
-            or "===== QUALITY AGENT REPORT =====" in text
-            or "===== QUALITY FEEDBACK APPLIED =====" in text
-        ),
-        "relative_name": relative_name,
+        "is_final": "FINAL_COMPARISON" in path.name,
+        "quality_feedback_applied": "===== QUALITY FEEDBACK APPLIED =====" in text,
         "sections": len(re.findall(r"^#{1,3}\s+", text, flags=re.MULTILINE)),
         "chars": len(text),
     }
-
-
-def report_display_name(path: Path) -> str:
-    try:
-        return path.resolve().relative_to(REPORT_DIR.resolve()).as_posix()
-    except ValueError:
-        return path.name
-
-
-def is_quality_report(path: Path) -> bool:
-    try:
-        relative = path.resolve().relative_to(REPORT_DIR.resolve())
-    except ValueError:
-        return False
-    return "quality_workflow" in relative.parts
-
-
-def task_id_for_report(path: Path) -> str:
-    try:
-        relative = path.resolve().relative_to(REPORT_DIR.resolve())
-    except ValueError:
-        return path.stem
-    if relative.parts[:1] == ("quality_workflow",) and len(relative.parts) >= 2:
-        match = re.match(r"^(\d{8}_\d{6})", relative.parts[1])
-        return match.group(1) if match else relative.parts[1]
-    first = relative.parts[0]
-    if len(relative.parts) > 1 and re.match(r"^\d{8}_\d{6}$", first):
-        return first
-    match = re.match(r"^(\d{8}_\d{6})", path.name)
-    return match.group(1) if match else path.stem
-
-
-def quality_round_for(path: Path) -> str:
-    try:
-        relative = path.resolve().relative_to(REPORT_DIR.resolve())
-    except ValueError:
-        return ""
-    for part in relative.parts:
-        if re.match(r"^round_\d+$", part):
-            return part
-    return ""
-
-
-def report_type_for(path: Path) -> str:
-    if is_quality_report(path):
-        return "quality"
-    name = path.name.upper()
-    if "FINAL_COMPARISON" in name:
-        return "final"
-    if "REPORT_AGENT_ANALYSIS" in name:
-        return "report_agent"
-    return "single"
 
 
 def safe_report_path(name: str) -> Path | None:

@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Iterable, List, Optional
 import asyncio
 import re
+import time
 
 import requests
 from duckduckgo_search import DDGS
@@ -45,6 +46,8 @@ class SearchConfig:
     crawl_backend: int = 0
     target_language: Optional[str] = None
     timeout: int = 15
+    total_timeout: int = 0
+    query_started_at: float = 0.0
 
 
 @dataclass
@@ -360,13 +363,13 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
             print(f"[playwright] crawl failed: {result.url} ({exc})")
             text = ""
             source_name = "网页正文"
-        if len(text) < config.crawl_min_chars:
+        if len(text) < config.crawl_min_chars and not _deadline_exceeded(config):
             try:
                 print(f"[crawler] Playwright未获取到足够正文，改用传统爬虫: {result.url}")
                 text = fetch_page_text(
                     result.url,
                     proxy=config.proxy,
-                    timeout=config.timeout,
+                    timeout=_remaining_timeout(config),
                     max_chars=config.crawl_max_chars,
                     target_language=config.target_language,
                 )
@@ -382,13 +385,13 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
             print(f"[crawl4ai] crawl failed: {result.url} ({exc})")
             text = ""
             source_name = "网页正文"
-        if len(text) < config.crawl_min_chars:
+        if len(text) < config.crawl_min_chars and not _deadline_exceeded(config):
             try:
                 print(f"[crawler] Crawl4AI未获取到足够正文，改用传统爬虫: {result.url}")
                 text = fetch_page_text(
                     result.url,
                     proxy=config.proxy,
-                    timeout=config.timeout,
+                    timeout=_remaining_timeout(config),
                     max_chars=config.crawl_max_chars,
                     target_language=config.target_language,
                 )
@@ -400,7 +403,7 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
         text = fetch_page_text(
             result.url,
             proxy=config.proxy,
-            timeout=config.timeout,
+            timeout=_remaining_timeout(config),
             max_chars=config.crawl_max_chars,
             target_language=config.target_language,
         )
@@ -416,13 +419,63 @@ def _crawl_or_snippet(result: SearchResult, config: SearchConfig) -> SearchResul
     return result
 
 
+def _query_started_at(config: SearchConfig) -> float:
+    return float(getattr(config, "query_started_at", 0.0) or 0.0)
+
+
+def _query_total_timeout(config: SearchConfig) -> int:
+    return max(0, int(getattr(config, "total_timeout", 0) or 0))
+
+
+def _deadline_exceeded(config: SearchConfig) -> bool:
+    total_timeout = _query_total_timeout(config)
+    started_at = _query_started_at(config)
+    return bool(total_timeout and started_at and time.monotonic() - started_at >= total_timeout)
+
+
+def _remaining_timeout(config: SearchConfig) -> int:
+    base_timeout = max(1, int(getattr(config, "timeout", 15) or 15))
+    total_timeout = _query_total_timeout(config)
+    started_at = _query_started_at(config)
+    if not total_timeout or not started_at:
+        return base_timeout
+    remaining = total_timeout - (time.monotonic() - started_at)
+    return max(1, min(base_timeout, int(remaining)))
+
+
+def _with_remaining_timeout(config: SearchConfig) -> SearchConfig:
+    return replace(config, timeout=_remaining_timeout(config))
+
+
+def _crawl_results_with_deadline(
+    query: str,
+    results: List[SearchResult],
+    config: SearchConfig,
+) -> List[SearchResult]:
+    crawled: List[SearchResult] = []
+    for item in results:
+        if not item.url:
+            continue
+        if _deadline_exceeded(config):
+            print(
+                f"[search-timeout] query exceeded {_query_total_timeout(config)}s, "
+                f"stop current search: {query}"
+            )
+            break
+        crawled.append(_crawl_or_snippet(item, _with_remaining_timeout(config)))
+    return crawled
+
+
 def search_bocha(query: str, config: SearchConfig) -> List[SearchResult]:
     """Search with Bocha Web Search API."""
     if not config.bocha_api_key:
         raise ValueError("bocha_api_key is required for Bocha search")
 
+    if not _query_started_at(config):
+        config = replace(config, query_started_at=time.monotonic())
+
     response = requests.post(
-        "https://api.bochaai.com/v1/web-search",
+        "https://api.bocha.cn/v1/web-search",
         headers={
             "Authorization": f"Bearer {config.bocha_api_key}",
             "Content-Type": "application/json",
@@ -433,7 +486,7 @@ def search_bocha(query: str, config: SearchConfig) -> List[SearchResult]:
             "summary": True,
             "freshness": "noLimit",
         },
-        timeout=config.timeout,
+        timeout=_remaining_timeout(config),
     )
     response.raise_for_status()
 
@@ -459,13 +512,16 @@ def search_bocha(query: str, config: SearchConfig) -> List[SearchResult]:
                 source=SearchSource.BOCHA.value,
             )
         )
-    return [_crawl_or_snippet(item, config) for item in results if item.url]
+    return _crawl_results_with_deadline(query, results, config)
 
 
 def search_google(query: str, config: SearchConfig) -> List[SearchResult]:
     """Search with Google Custom Search JSON API."""
     if not config.google_api_key or not config.google_cx_id:
         raise ValueError("google_api_key and google_cx_id are required for Google search")
+
+    if not _query_started_at(config):
+        config = replace(config, query_started_at=time.monotonic())
 
     response = requests.get(
         "https://www.googleapis.com/customsearch/v1",
@@ -475,7 +531,7 @@ def search_google(query: str, config: SearchConfig) -> List[SearchResult]:
             "cx": config.google_cx_id,
             "num": config.count,
         },
-        timeout=config.timeout,
+        timeout=_remaining_timeout(config),
     )
     response.raise_for_status()
 
@@ -488,12 +544,15 @@ def search_google(query: str, config: SearchConfig) -> List[SearchResult]:
         )
         for item in response.json().get("items", [])
     ]
-    return [_crawl_or_snippet(item, config) for item in results if item.url]
+    return _crawl_results_with_deadline(query, results, config)
 
 
 def search_duckduckgo(query: str, config: SearchConfig) -> List[SearchResult]:
     """Search with DuckDuckGo and filter blacklisted domains."""
-    with DDGS(proxy=config.proxy, timeout=config.timeout) as ddgs:
+    if not _query_started_at(config):
+        config = replace(config, query_started_at=time.monotonic())
+
+    with DDGS(proxy=config.proxy, timeout=_remaining_timeout(config)) as ddgs:
         raw_results = list(
             ddgs.text(
                 keywords=query,
@@ -520,7 +579,7 @@ def search_duckduckgo(query: str, config: SearchConfig) -> List[SearchResult]:
         if len(results) >= config.count:
             break
 
-    return [_crawl_or_snippet(item, config) for item in results]
+    return _crawl_results_with_deadline(query, results, config)
 
 
 def search(query: str, config: SearchConfig) -> List[SearchResult]:

@@ -213,6 +213,7 @@ def extract_product_names(
         max_tokens=config.max_tokens,
         timeout=config.llm_timeout,
     )
+    print("[test]",prompt)
     return _json_list_from_text(content)
 
 
