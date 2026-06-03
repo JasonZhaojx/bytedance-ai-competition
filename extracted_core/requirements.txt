@@ -1,0 +1,6 @@
+duckduckgo-search
+openai
+requests
+trafilatura
+playwright
+crawl4ai
