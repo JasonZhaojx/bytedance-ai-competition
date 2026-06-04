@@ -1,0 +1,66 @@
+{"cell_id": "核心硬件配置横向对比表_0_竞品名称", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_核心芯片方案", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "核心芯片方案", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_内存容量", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "内存容量", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_散热方案", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "散热方案", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_网口配置", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "网口配置", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_总无线速率", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "总无线速率", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_证据ID", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "证据ID", "competitor": "Redmi AX3600", "value": "[]", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_0_竞品", "table_name": "核心硬件配置横向对比表", "row_index": 0, "column": "竞品", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_竞品名称", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_核心芯片方案", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "核心芯片方案", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_内存容量", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "内存容量", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_散热方案", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "散热方案", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_网口配置", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "网口配置", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_总无线速率", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "总无线速率", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_证据ID", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "证据ID", "competitor": "华硕TUF GAMING AX5400", "value": "[]", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_1_竞品", "table_name": "核心硬件配置横向对比表", "row_index": 1, "column": "竞品", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "核心硬件配置横向对比表_2_竞品名称", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_核心芯片方案", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "核心芯片方案", "competitor": "小米AX9000", "value": "高通IPQ8072A六核旗舰芯片，包含4核A53 2.2GHz CPU、双核1.7GHz网络加速引擎", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_内存容量", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "内存容量", "competitor": "小米AX9000", "value": "1GB", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_散热方案", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "散热方案", "competitor": "小米AX9000", "value": "上下双散热器+低噪声主动散热风扇+独立隔离排风风道", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_网口配置", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "网口配置", "competitor": "小米AX9000", "value": "1个2.5G WAN/LAN盲插口、1个千兆WAN/LAN盲插口、3个千兆LAN口", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_总无线速率", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "总无线速率", "competitor": "小米AX9000", "value": "9000Mbps（三频WiFi6）", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_证据ID", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "证据ID", "competitor": "小米AX9000", "value": "[\"ev_069\", \"ev_070\", \"ev_075\", \"ev_076\"]", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心硬件配置横向对比表_2_竞品", "table_name": "核心硬件配置横向对比表", "row_index": 2, "column": "竞品", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": ["ev_069", "ev_070", "ev_075", "ev_076"]}
+{"cell_id": "核心功能与差异化能力对比表_0_竞品名称", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_游戏加速能力", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "游戏加速能力", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_网络安全防护特性", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "网络安全防护特性", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_Mesh组网支持", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "Mesh组网支持", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_USB存储兼容格式", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "USB存储兼容格式", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_证据ID", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "证据ID", "competitor": "Redmi AX3600", "value": "[]", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_0_竞品", "table_name": "核心功能与差异化能力对比表", "row_index": 0, "column": "竞品", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_竞品名称", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_游戏加速能力", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "游戏加速能力", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_网络安全防护特性", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "网络安全防护特性", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_Mesh组网支持", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "Mesh组网支持", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_USB存储兼容格式", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "USB存储兼容格式", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_证据ID", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "证据ID", "competitor": "华硕TUF GAMING AX5400", "value": "[]", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_1_竞品", "table_name": "核心功能与差异化能力对比表", "row_index": 1, "column": "竞品", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "核心功能与差异化能力对比表_2_竞品名称", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_游戏加速能力", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "游戏加速能力", "competitor": "小米AX9000", "value": "配备独立5.8GHz电竞频段，仅支持小米手机专属游戏加速，非小米生态机型无法享受专属低延迟优化", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_网络安全防护特性", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "网络安全防护特性", "competitor": "小米AX9000", "value": "支持WPA-PSK/WPA2-PSK/WPA3-SAE全系列加密、无线访问控制黑白名单、SSID隐藏功能，内置防火墙", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_Mesh组网支持", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "Mesh组网支持", "competitor": "小米AX9000", "value": "支持最多10台小米WiFi6路由器Mesh混合组网，实现多节点无缝漫游", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_USB存储兼容格式", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "USB存储兼容格式", "competitor": "小米AX9000", "value": "仅支持NTFS/FAT32文件系统，不兼容APFS、Ext系列等其他常用格式", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_证据ID", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "证据ID", "competitor": "小米AX9000", "value": "[\"ev_071\", \"ev_072\", \"ev_074\", \"ev_075\"]", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "核心功能与差异化能力对比表_2_竞品", "table_name": "核心功能与差异化能力对比表", "row_index": 2, "column": "竞品", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": ["ev_071", "ev_072", "ev_074", "ev_075"]}
+{"cell_id": "定价与生态适配对比表_0_竞品名称", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_日常售价区间", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "日常售价区间", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_接入生态", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "接入生态", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_管理端支持", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "管理端支持", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_标称覆盖面积", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "标称覆盖面积", "competitor": "Redmi AX3600", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_证据ID", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "证据ID", "competitor": "Redmi AX3600", "value": "[]", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_0_竞品", "table_name": "定价与生态适配对比表", "row_index": 0, "column": "竞品", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_竞品名称", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_日常售价区间", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "日常售价区间", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_接入生态", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "接入生态", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_管理端支持", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "管理端支持", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_标称覆盖面积", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "标称覆盖面积", "competitor": "华硕TUF GAMING AX5400", "value": "待搜索", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_证据ID", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "证据ID", "competitor": "华硕TUF GAMING AX5400", "value": "[]", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_1_竞品", "table_name": "定价与生态适配对比表", "row_index": 1, "column": "竞品", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "定价与生态适配对比表_2_竞品名称", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_日常售价区间", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "日常售价区间", "competitor": "小米AX9000", "value": "899-999元，远高于500元目标价位段", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_接入生态", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "接入生态", "competitor": "小米AX9000", "value": "无需额外网关即可接入米家生态", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_管理端支持", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "管理端支持", "competitor": "小米AX9000", "value": "支持Web/安卓/iOS三端管理", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_标称覆盖面积", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "标称覆盖面积", "competitor": "小米AX9000", "value": "90-120平大户型", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_证据ID", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "证据ID", "competitor": "小米AX9000", "value": "[\"ev_073\", \"ev_075\", \"ev_076\"]", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}
+{"cell_id": "定价与生态适配对比表_2_竞品", "table_name": "定价与生态适配对比表", "row_index": 2, "column": "竞品", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": ["ev_073", "ev_075", "ev_076"]}

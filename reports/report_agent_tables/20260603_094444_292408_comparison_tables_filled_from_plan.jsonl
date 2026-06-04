@@ -1,0 +1,90 @@
+{"cell_id": "基础产品定位与用户场景对比_0_竞品", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "竞品", "competitor": "通义灵码", "value": "通义灵码", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_0_官方公开定位", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "官方公开定位", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码官方产品定位；关键词：通义灵码 官网 产品定位 slogan）", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_0_目标用户分层", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "目标用户分层", "competitor": "通义灵码", "value": "云原生开发者、企业级Java开发团队、阿里云生态用户", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_0_核心优势场景", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "核心优势场景", "competitor": "通义灵码", "value": "云原生开发、Java企业级应用开发、阿里云3000+云服务一键接入", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_0_公开适用边界_短板", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "公开适用边界/短板", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码公开短板；关键词：通义灵码 用户实测 短板 能力边界）", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_0_关联证据ID", "table_name": "基础产品定位与用户场景对比", "row_index": 0, "column": "关联证据ID", "competitor": "通义灵码", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_竞品", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "竞品", "competitor": "CodeGeeX", "value": "CodeGeeX", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_官方公开定位", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "官方公开定位", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX官方产品定位；关键词：CodeGeeX 官网 产品定位 slogan）", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_目标用户分层", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "目标用户分层", "competitor": "CodeGeeX", "value": "高校师生、开源社区开发者、教育场景用户", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_核心优势场景", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "核心优势场景", "competitor": "CodeGeeX", "value": "跨语言代码翻译、开源项目开发、教学实验场景，翻译准确率92%", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_公开适用边界_短板", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "公开适用边界/短板", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX公开短板；关键词：CodeGeeX 用户实测 短板 能力边界）", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_1_关联证据ID", "table_name": "基础产品定位与用户场景对比", "row_index": 1, "column": "关联证据ID", "competitor": "CodeGeeX", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "基础产品定位与用户场景对比_2_竞品", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "竞品", "competitor": "CodeBuddy", "value": "CodeBuddy", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "基础产品定位与用户场景对比_2_官方公开定位", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "官方公开定位", "competitor": "CodeBuddy", "value": "AI时代的智能编程伙伴，面向全类型开发者提供编码提效能力", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "基础产品定位与用户场景对比_2_目标用户分层", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "目标用户分层", "competitor": "CodeBuddy", "value": "全阶段个人开发者、政企开发团队、非纯编码岗位从业者", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "基础产品定位与用户场景对比_2_核心优势场景", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "核心优势场景", "competitor": "CodeBuddy", "value": "微信小程序开发、音视频客户端开发、游戏Demo快速搭建、全栈项目生成", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "基础产品定位与用户场景对比_2_公开适用边界_短板", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "公开适用边界/短板", "competitor": "CodeBuddy", "value": "生成代码自带Bug需人工修复，免费版额度耗尽后响应延迟升至8-12秒，2026年企业版涨价超150%", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "基础产品定位与用户场景对比_2_关联证据ID", "table_name": "基础产品定位与用户场景对比", "row_index": 2, "column": "关联证据ID", "competitor": "CodeBuddy", "value": "[\"ev_071\", \"ev_072\", \"ev_076\"]", "evidence_ids": ["ev_071", "ev_072", "ev_076"]}
+{"cell_id": "产品形态与使用体验对比_0_竞品", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "竞品", "competitor": "通义灵码", "value": "通义灵码", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_0_支持的产品形态", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "支持的产品形态", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码全量交付形态；关键词：通义灵码 产品形态 交付形态）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_0_适配IDE清单", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "适配IDE清单", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码全量适配IDE清单；关键词：通义灵码 官方支持 IDE 清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_0_IDE最低版本要求", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "IDE最低版本要求", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码IDE最低版本要求；关键词：通义灵码 IDE 最低版本 运行要求）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_0_首次激活配置成本", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "首次激活配置成本", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码首次激活流程耗时；关键词：通义灵码 新用户 安装激活 实测耗时）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_0_关联证据ID", "table_name": "产品形态与使用体验对比", "row_index": 0, "column": "关联证据ID", "competitor": "通义灵码", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_竞品", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "竞品", "competitor": "CodeGeeX", "value": "CodeGeeX", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_支持的产品形态", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "支持的产品形态", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX全量交付形态；关键词：CodeGeeX 产品形态 交付形态）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_适配IDE清单", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "适配IDE清单", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX全量适配IDE清单；关键词：CodeGeeX 官方支持 IDE 清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_IDE最低版本要求", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "IDE最低版本要求", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeXIDE最低版本要求；关键词：CodeGeeX IDE 最低版本 运行要求）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_首次激活配置成本", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "首次激活配置成本", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX首次激活流程耗时；关键词：CodeGeeX 新用户 安装激活 实测耗时）", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_1_关联证据ID", "table_name": "产品形态与使用体验对比", "row_index": 1, "column": "关联证据ID", "competitor": "CodeGeeX", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "产品形态与使用体验对比_2_竞品", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "竞品", "competitor": "CodeBuddy", "value": "CodeBuddy", "evidence_ids": ["ev_073"]}
+{"cell_id": "产品形态与使用体验对比_2_支持的产品形态", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "支持的产品形态", "competitor": "CodeBuddy", "value": "IDE插件、独立AI IDE、CLI命令行三类互补形态", "evidence_ids": ["ev_073"]}
+{"cell_id": "产品形态与使用体验对比_2_适配IDE清单", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "适配IDE清单", "competitor": "CodeBuddy", "value": "VS Code、JetBrains全系列、Visual Studio 2022、微信开发者工具、Xcode等", "evidence_ids": ["ev_073"]}
+{"cell_id": "产品形态与使用体验对比_2_IDE最低版本要求", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "IDE最低版本要求", "competitor": "CodeBuddy", "value": "VS Code v1.85+、JetBrains 2023.3+、Visual Studio 2022 v17.4+、Xcode 15.0+", "evidence_ids": ["ev_073"]}
+{"cell_id": "产品形态与使用体验对比_2_首次激活配置成本", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "首次激活配置成本", "competitor": "CodeBuddy", "value": "插件一键安装重启即可使用，独立IDE导入原有VS Code配置登录即可用，耗时约2分钟", "evidence_ids": ["ev_073"]}
+{"cell_id": "产品形态与使用体验对比_2_关联证据ID", "table_name": "产品形态与使用体验对比", "row_index": 2, "column": "关联证据ID", "competitor": "CodeBuddy", "value": "[\"ev_073\"]", "evidence_ids": ["ev_073"]}
+{"cell_id": "商业化定价与权益对比_0_竞品", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "竞品", "competitor": "通义灵码", "value": "通义灵码", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_0_免费版权益配额", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "免费版权益配额", "competitor": "通义灵码", "value": "个人免费版，支持50+编程语言基础代码补全", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_0_个人Pro版定价", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "个人Pro版定价", "competitor": "通义灵码", "value": "68元/月，新客享8折优惠", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_0_企业版定价档位", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "企业版定价档位", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码企业版定价档位；关键词：通义灵码 企业版 定价 档位）", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_0_计费规则", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "计费规则", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码全量计费规则；关键词：通义灵码 计费规则 预付费 后付费）", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_0_关联证据ID", "table_name": "商业化定价与权益对比", "row_index": 0, "column": "关联证据ID", "competitor": "通义灵码", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_竞品", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "竞品", "competitor": "CodeGeeX", "value": "CodeGeeX", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_免费版权益配额", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "免费版权益配额", "competitor": "CodeGeeX", "value": "完全免费无限制，支持100+编程语言", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_个人Pro版定价", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "个人Pro版定价", "competitor": "CodeGeeX", "value": "无付费个人版，社区捐赠模式", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_企业版定价档位", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "企业版定价档位", "competitor": "CodeGeeX", "value": "商业授权按需询价", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_计费规则", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "计费规则", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX全量计费规则；关键词：CodeGeeX 计费规则 预付费 后付费）", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_1_关联证据ID", "table_name": "商业化定价与权益对比", "row_index": 1, "column": "关联证据ID", "competitor": "CodeGeeX", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_竞品", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "竞品", "competitor": "CodeBuddy", "value": "CodeBuddy", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_免费版权益配额", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "免费版权益配额", "competitor": "CodeBuddy", "value": "个人永久免费，每月2000次对话额度，Craft每日限20次", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_个人Pro版定价", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "个人Pro版定价", "competitor": "CodeBuddy", "value": "39元/月", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_企业版定价档位", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "企业版定价档位", "competitor": "CodeBuddy", "value": "SaaS企业版198元/人/月，专有云企业版316元/人/月", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_计费规则", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "计费规则", "competitor": "CodeBuddy", "value": "全档位预付费Credits抵扣，额度当月有效，过期未用自动作废", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "商业化定价与权益对比_2_关联证据ID", "table_name": "商业化定价与权益对比", "row_index": 2, "column": "关联证据ID", "competitor": "CodeBuddy", "value": "[\"ev_074\", \"ev_078\", \"ev_080\"]", "evidence_ids": ["ev_074", "ev_078", "ev_080"]}
+{"cell_id": "Agent核心能力对比_0_竞品", "table_name": "Agent核心能力对比", "row_index": 0, "column": "竞品", "competitor": "通义灵码", "value": "通义灵码", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_0_底层大模型架构", "table_name": "Agent核心能力对比", "row_index": 0, "column": "底层大模型架构", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码底层大模型架构；关键词：通义灵码 底层大模型 技术架构）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_0_核心代码辅助功能", "table_name": "Agent核心能力对比", "row_index": 0, "column": "核心代码辅助功能", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码全量核心代码辅助功能；关键词：通义灵码 代码补全 除错 单元测试生成 功能清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_0_智能体特性", "table_name": "Agent核心能力对比", "row_index": 0, "column": "智能体特性", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码AI智能体能力；关键词：通义灵码 智能体 多文件生成 全项目生成 能力）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_0_大项目全量上下文支持能力", "table_name": "Agent核心能力对比", "row_index": 0, "column": "大项目全量上下文支持能力", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码大项目上下文处理能力；关键词：通义灵码 大项目 全量上下文 索引规模 实测数据）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_0_关联证据ID", "table_name": "Agent核心能力对比", "row_index": 0, "column": "关联证据ID", "competitor": "通义灵码", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_竞品", "table_name": "Agent核心能力对比", "row_index": 1, "column": "竞品", "competitor": "CodeGeeX", "value": "CodeGeeX", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_底层大模型架构", "table_name": "Agent核心能力对比", "row_index": 1, "column": "底层大模型架构", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX底层大模型架构；关键词：CodeGeeX 底层大模型 技术架构）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_核心代码辅助功能", "table_name": "Agent核心能力对比", "row_index": 1, "column": "核心代码辅助功能", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX全量核心代码辅助功能；关键词：CodeGeeX 代码补全 除错 单元测试生成 功能清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_智能体特性", "table_name": "Agent核心能力对比", "row_index": 1, "column": "智能体特性", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeXAI智能体能力；关键词：CodeGeeX 智能体 多文件生成 全项目生成 能力）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_大项目全量上下文支持能力", "table_name": "Agent核心能力对比", "row_index": 1, "column": "大项目全量上下文支持能力", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX大项目上下文处理能力；关键词：CodeGeeX 大项目 全量上下文 索引规模 实测数据）", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_1_关联证据ID", "table_name": "Agent核心能力对比", "row_index": 1, "column": "关联证据ID", "competitor": "CodeGeeX", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "Agent核心能力对比_2_竞品", "table_name": "Agent核心能力对比", "row_index": 2, "column": "竞品", "competitor": "CodeBuddy", "value": "CodeBuddy", "evidence_ids": ["ev_075"]}
+{"cell_id": "Agent核心能力对比_2_底层大模型架构", "table_name": "Agent核心能力对比", "row_index": 2, "column": "底层大模型架构", "competitor": "CodeBuddy", "value": "腾讯混元+DeepSeek双模型架构，兼容MCP开放生态", "evidence_ids": ["ev_075"]}
+{"cell_id": "Agent核心能力对比_2_核心代码辅助功能", "table_name": "Agent核心能力对比", "row_index": 2, "column": "核心代码辅助功能", "competitor": "CodeBuddy", "value": "代码补全、一键除错、代码秒懂、单元测试生成、本地CR助手等", "evidence_ids": ["ev_075"]}
+{"cell_id": "Agent核心能力对比_2_智能体特性", "table_name": "Agent核心能力对比", "row_index": 2, "column": "智能体特性", "competitor": "CodeBuddy", "value": "支持Craft智能体模式，自主完成多文件生成、改写，输出可运行完整项目", "evidence_ids": ["ev_075"]}
+{"cell_id": "Agent核心能力对比_2_大项目全量上下文支持能力", "table_name": "Agent核心能力对比", "row_index": 2, "column": "大项目全量上下文支持能力", "competitor": "CodeBuddy", "value": "支持@workspace指令一键梳理大型代码库目录结构、类图与依赖关系", "evidence_ids": ["ev_075"]}
+{"cell_id": "Agent核心能力对比_2_关联证据ID", "table_name": "Agent核心能力对比", "row_index": 2, "column": "关联证据ID", "competitor": "CodeBuddy", "value": "[\"ev_075\"]", "evidence_ids": ["ev_075"]}
+{"cell_id": "生态集成与安全合规能力对比_0_竞品", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "竞品", "competitor": "通义灵码", "value": "通义灵码", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_0_兼容开放生态", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "兼容开放生态", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码开放生态兼容能力；关键词：通义灵码 开放生态 协议 扩展能力）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_0_云服务集成能力", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "云服务集成能力", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码云服务原生集成清单；关键词：通义灵码 阿里云 云服务 原生集成 清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_0_企业级合规特性", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "企业级合规特性", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码安全合规认证清单；关键词：通义灵码 SSO 等保 SOC2 合规认证）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_0_私有部署支持情况", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "私有部署支持情况", "competitor": "通义灵码", "value": "待搜索（方向：通义灵码私有部署支持规则；关键词：通义灵码 私有部署 离线部署 支持规则）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_0_关联证据ID", "table_name": "生态集成与安全合规能力对比", "row_index": 0, "column": "关联证据ID", "competitor": "通义灵码", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_竞品", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "竞品", "competitor": "CodeGeeX", "value": "CodeGeeX", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_兼容开放生态", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "兼容开放生态", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX开放生态兼容能力；关键词：CodeGeeX 开放生态 协议 扩展能力）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_云服务集成能力", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "云服务集成能力", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX云服务原生集成清单；关键词：CodeGeeX 国内云厂商 云服务 原生集成 清单）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_企业级合规特性", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "企业级合规特性", "competitor": "CodeGeeX", "value": "待搜索（方向：CodeGeeX安全合规认证清单；关键词：CodeGeeX SSO 等保 SOC2 合规认证）", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_私有部署支持情况", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "私有部署支持情况", "competitor": "CodeGeeX", "value": "支持开源本地部署，代码完全离线运行", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_1_关联证据ID", "table_name": "生态集成与安全合规能力对比", "row_index": 1, "column": "关联证据ID", "competitor": "CodeGeeX", "value": "[\"ev_080\"]", "evidence_ids": ["ev_080"]}
+{"cell_id": "生态集成与安全合规能力对比_2_竞品", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "竞品", "competitor": "CodeBuddy", "value": "CodeBuddy", "evidence_ids": ["ev_077"]}
+{"cell_id": "生态集成与安全合规能力对比_2_兼容开放生态", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "兼容开放生态", "competitor": "CodeBuddy", "value": "全面兼容MCP开放生态，支持自定义添加私有MCP服务，可调用300+微信生态API", "evidence_ids": ["ev_077"]}
+{"cell_id": "生态集成与安全合规能力对比_2_云服务集成能力", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "云服务集成能力", "competitor": "CodeBuddy", "value": "深度集成腾讯云CloudBase、EdgeOne Pages、Supabase等云服务", "evidence_ids": ["ev_077"]}
+{"cell_id": "生态集成与安全合规能力对比_2_企业级合规特性", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "企业级合规特性", "competitor": "CodeBuddy", "value": "支持提示词防护、敏感命令检查、安全沙箱，暂未公开SSO、SOC2认证信息", "evidence_ids": ["ev_077"]}
+{"cell_id": "生态集成与安全合规能力对比_2_私有部署支持情况", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "私有部署支持情况", "competitor": "CodeBuddy", "value": "仅专有云企业版提供完全离线私有部署能力", "evidence_ids": ["ev_077"]}
+{"cell_id": "生态集成与安全合规能力对比_2_关联证据ID", "table_name": "生态集成与安全合规能力对比", "row_index": 2, "column": "关联证据ID", "competitor": "CodeBuddy", "value": "[\"ev_077\"]", "evidence_ids": ["ev_077"]}

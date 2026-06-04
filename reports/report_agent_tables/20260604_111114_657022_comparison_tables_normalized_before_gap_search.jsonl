@@ -1,0 +1,54 @@
+{"cell_id": "基础定位与用户场景对比表_0_竞品名称", "table_name": "基础定位与用户场景对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_0_官方定位", "table_name": "基础定位与用户场景对比表", "row_index": 0, "column": "官方定位", "competitor": "Redmi AX3600", "value": "平民级高性价比WiFi6家用路由器", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_0_适用边界", "table_name": "基础定位与用户场景对比表", "row_index": 0, "column": "适用边界", "competitor": "Redmi AX3600", "value": "仅全千兆有线口，无2.5G高速口，2.4G信号表现一般", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_1_竞品名称", "table_name": "基础定位与用户场景对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_1_官方定位", "table_name": "基础定位与用户场景对比表", "row_index": 1, "column": "官方定位", "competitor": "华硕TUF GAMING AX5400", "value": "主打电竞属性的中端WiFi6家用路由器", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_1_适用边界", "table_name": "基础定位与用户场景对比表", "row_index": 1, "column": "适用边界", "competitor": "华硕TUF GAMING AX5400", "value": "仅支持千兆有线接入，无法满足2.5G以上带宽高速接入需求", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_2_竞品名称", "table_name": "基础定位与用户场景对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_2_官方定位", "table_name": "基础定位与用户场景对比表", "row_index": 2, "column": "官方定位", "competitor": "小米AX9000", "value": "小米第三代WiFi6旗舰电竞三频路由器", "evidence_ids": []}
+{"cell_id": "基础定位与用户场景对比表_2_适用边界", "table_name": "基础定位与用户场景对比表", "row_index": 2, "column": "适用边界", "competitor": "小米AX9000", "value": "体积大无法放入常规弱电箱，非小米机型无法享受专属游戏加速", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_0_竞品名称", "table_name": "核心硬件配置对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_0_核心芯片", "table_name": "核心硬件配置对比表", "row_index": 0, "column": "核心芯片", "competitor": "Redmi AX3600", "value": "高通IPQ8071A企业级4核A53+双核NPU", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_0_总无线速率", "table_name": "核心硬件配置对比表", "row_index": 0, "column": "总无线速率", "competitor": "Redmi AX3600", "value": "2976Mbps", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_0_网口规格", "table_name": "核心硬件配置对比表", "row_index": 0, "column": "网口规格", "competitor": "Redmi AX3600", "value": "1千兆WAN+3千兆LAN，无2.5G口", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_1_竞品名称", "table_name": "核心硬件配置对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_1_核心芯片", "table_name": "核心硬件配置对比表", "row_index": 1, "column": "核心芯片", "competitor": "华硕TUF GAMING AX5400", "value": "1.5GHz三核博通处理器", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_1_总无线速率", "table_name": "核心硬件配置对比表", "row_index": 1, "column": "总无线速率", "competitor": "华硕TUF GAMING AX5400", "value": "5400Mbps", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_1_网口规格", "table_name": "核心硬件配置对比表", "row_index": 1, "column": "网口规格", "competitor": "华硕TUF GAMING AX5400", "value": "1千兆WAN+4千兆LAN，无2.5G口", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_2_竞品名称", "table_name": "核心硬件配置对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_2_核心芯片", "table_name": "核心硬件配置对比表", "row_index": 2, "column": "核心芯片", "competitor": "小米AX9000", "value": "高通IPQ8072A六核旗舰芯片", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_2_总无线速率", "table_name": "核心硬件配置对比表", "row_index": 2, "column": "总无线速率", "competitor": "小米AX9000", "value": "9000Mbps三频WiFi6", "evidence_ids": []}
+{"cell_id": "核心硬件配置对比表_2_网口规格", "table_name": "核心硬件配置对比表", "row_index": 2, "column": "网口规格", "competitor": "小米AX9000", "value": "1个2.5G自适应WAN/LAN口+4千兆口", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_0_竞品名称", "table_name": "核心功能与差异化卖点对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_0_游戏加速", "table_name": "核心功能与差异化卖点对比表", "row_index": 0, "column": "游戏加速", "competitor": "Redmi AX3600", "value": "内置网易UU游戏加速，无独立低延迟优化引擎", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_0_组网能力", "table_name": "核心功能与差异化卖点对比表", "row_index": 0, "column": "组网能力", "competitor": "Redmi AX3600", "value": "支持米家生态混合MESH组网", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_0_生态适配", "table_name": "核心功能与差异化卖点对比表", "row_index": 0, "column": "生态适配", "competitor": "Redmi AX3600", "value": "适配米家智能家居自动发现一键配网", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_1_竞品名称", "table_name": "核心功能与差异化卖点对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_1_游戏加速", "table_name": "核心功能与差异化卖点对比表", "row_index": 1, "column": "游戏加速", "competitor": "华硕TUF GAMING AX5400", "value": "三端游戏流量优先处理，赠40天全端UU高级会员", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_1_组网能力", "table_name": "核心功能与差异化卖点对比表", "row_index": 1, "column": "组网能力", "competitor": "华硕TUF GAMING AX5400", "value": "支持AiMesh2.0多路由智能组网扩展覆盖", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_1_生态适配", "table_name": "核心功能与差异化卖点对比表", "row_index": 1, "column": "生态适配", "competitor": "华硕TUF GAMING AX5400", "value": "搭载AiProtection Pro商用级实时威胁拦截体系", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_2_竞品名称", "table_name": "核心功能与差异化卖点对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_2_游戏加速", "table_name": "核心功能与差异化卖点对比表", "row_index": 2, "column": "游戏加速", "competitor": "小米AX9000", "value": "独立5.8GHz电竞频段，仅支持小米手机专属游戏加速", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_2_组网能力", "table_name": "核心功能与差异化卖点对比表", "row_index": 2, "column": "组网能力", "competitor": "小米AX9000", "value": "最多可与10台小米WiFi6路由器组成Mesh网络", "evidence_ids": []}
+{"cell_id": "核心功能与差异化卖点对比表_2_生态适配", "table_name": "核心功能与差异化卖点对比表", "row_index": 2, "column": "生态适配", "competitor": "小米AX9000", "value": "无需额外网关即可接入米家生态", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_0_竞品名称", "table_name": "定价与售后政策对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_0_日常售价区间", "table_name": "定价与售后政策对比表", "row_index": 0, "column": "日常售价区间", "competitor": "Redmi AX3600", "value": "日常499元，大促最高涨至599元", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_0_整机质保", "table_name": "定价与售后政策对比表", "row_index": 0, "column": "整机质保", "competitor": "Redmi AX3600", "value": "12个月全国联保", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_0_增值权益", "table_name": "定价与售后政策对比表", "row_index": 0, "column": "增值权益", "competitor": "Redmi AX3600", "value": "无付费增值服务，7天无理由15天包换", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_1_竞品名称", "table_name": "定价与售后政策对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_1_日常售价区间", "table_name": "定价与售后政策对比表", "row_index": 1, "column": "日常售价区间", "competitor": "华硕TUF GAMING AX5400", "value": "全渠道470-799元，主流集中在549-599元", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_1_整机质保", "table_name": "定价与售后政策对比表", "row_index": 1, "column": "整机质保", "competitor": "华硕TUF GAMING AX5400", "value": "3年官方质保", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_1_增值权益", "table_name": "定价与售后政策对比表", "row_index": 1, "column": "增值权益", "competitor": "华硕TUF GAMING AX5400", "value": "可选139元付费上门安装调试服务", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_2_竞品名称", "table_name": "定价与售后政策对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_2_日常售价区间", "table_name": "定价与售后政策对比表", "row_index": 2, "column": "日常售价区间", "competitor": "小米AX9000", "value": "日常899-999元，远高于500元目标价位段", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_2_整机质保", "table_name": "定价与售后政策对比表", "row_index": 2, "column": "整机质保", "competitor": "小米AX9000", "value": "12个月全国联保", "evidence_ids": []}
+{"cell_id": "定价与售后政策对比表_2_增值权益", "table_name": "定价与售后政策对比表", "row_index": 2, "column": "增值权益", "competitor": "小米AX9000", "value": "无公开付费增值服务", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_0_竞品名称", "table_name": "用户反馈优缺点对比表", "row_index": 0, "column": "竞品名称", "competitor": "Redmi AX3600", "value": "Redmi AX3600", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_0_用户公认优点", "table_name": "用户反馈优缺点对比表", "row_index": 0, "column": "用户公认优点", "competitor": "Redmi AX3600", "value": "信号覆盖强、多设备接入稳定、操作简便、性价比高", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_0_核心短板", "table_name": "用户反馈优缺点对比表", "row_index": 0, "column": "核心短板", "competitor": "Redmi AX3600", "value": "2.4G信号表现不佳，5GHz频段实际速度未达预期", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_1_竞品名称", "table_name": "用户反馈优缺点对比表", "row_index": 1, "column": "竞品名称", "competitor": "华硕TUF GAMING AX5400", "value": "华硕TUF GAMING AX5400", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_1_用户公认优点", "table_name": "用户反馈优缺点对比表", "row_index": 1, "column": "用户公认优点", "competitor": "华硕TUF GAMING AX5400", "value": "信号强、传输速度快、三端游戏加速好用、3年质保周期长", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_1_核心短板", "table_name": "用户反馈优缺点对比表", "row_index": 1, "column": "核心短板", "competitor": "华硕TUF GAMING AX5400", "value": "天线数量标注存在冲突，无2.5G网口，散热方案未公开", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_2_竞品名称", "table_name": "用户反馈优缺点对比表", "row_index": 2, "column": "竞品名称", "competitor": "小米AX9000", "value": "小米AX9000", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_2_用户公认优点", "table_name": "用户反馈优缺点对比表", "row_index": 2, "column": "用户公认优点", "competitor": "小米AX9000", "value": "用料扎实信号强，运行稳定，Mesh组网扩展能力强", "evidence_ids": []}
+{"cell_id": "用户反馈优缺点对比表_2_核心短板", "table_name": "用户反馈优缺点对比表", "row_index": 2, "column": "核心短板", "competitor": "小米AX9000", "value": "正式版固件1年半未更新，高负载下外壳温度高，体积大无法放弱电箱", "evidence_ids": []}

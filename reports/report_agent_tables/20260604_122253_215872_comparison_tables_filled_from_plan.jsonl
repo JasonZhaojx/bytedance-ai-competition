@@ -1,0 +1,96 @@
+{"cell_id": "核心硬件参数横向对比表_0_竞品名称", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "竞品名称", "competitor": "罗技 G903", "value": "罗技 G903", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_最高DPI", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "最高DPI", "competitor": "罗技 G903", "value": "25600", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_传感器型号", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "传感器型号", "competitor": "罗技 G903", "value": "HERO 25K", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_裸机重量", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "裸机重量", "competitor": "罗技 G903", "value": "约110g", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_支持连接方式", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "支持连接方式", "competitor": "罗技 G903", "value": "2.4G无线+有线双模", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_轮询率上限", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "轮询率上限", "competitor": "罗技 G903", "value": "待搜索（方向：验证原生硬件支持的最高USB回报率；关键词：罗技G903 原生轮询率上限）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_标称续航时长", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "标称续航时长", "competitor": "罗技 G903", "value": "180小时", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_无线充电支持类型", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "无线充电支持类型", "competitor": "罗技 G903", "value": "仅兼容罗技专属Powerplay协议，不支持通用Qi", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_可编程按键数量", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "可编程按键数量", "competitor": "罗技 G903", "value": "11个", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_0_证据ID", "table_name": "核心硬件参数横向对比表", "row_index": 0, "column": "证据ID", "competitor": "罗技 G903", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_竞品名称", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "竞品名称", "competitor": "罗技 gpw3", "value": "罗技 gpw3", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_最高DPI", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "最高DPI", "competitor": "罗技 gpw3", "value": "待搜索（方向：核实官方标称的最高DPI参数；关键词：罗技GPW3 最高DPI）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_传感器型号", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "传感器型号", "competitor": "罗技 gpw3", "value": "待搜索（方向：确认官方标称的传感器具体型号；关键词：罗技GPW3 传感器型号）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_裸机重量", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "裸机重量", "competitor": "罗技 gpw3", "value": "约60g", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_支持连接方式", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "支持连接方式", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计产品支持的所有连接方式；关键词：罗技GPW3 支持连接方式）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_轮询率上限", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "轮询率上限", "competitor": "罗技 gpw3", "value": "8KHz", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_标称续航时长", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "标称续航时长", "competitor": "罗技 gpw3", "value": "待搜索（方向：核实官方标称的续航时长参数；关键词：罗技GPW3 标称续航时长）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_无线充电支持类型", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "无线充电支持类型", "competitor": "罗技 gpw3", "value": "待搜索（方向：验证产品支持的无线充电协议类型；关键词：罗技GPW3 无线充电支持类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_可编程按键数量", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "可编程按键数量", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计产品支持的可编程按键总数；关键词：罗技GPW3 可编程按键数量）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_1_证据ID", "table_name": "核心硬件参数横向对比表", "row_index": 1, "column": "证据ID", "competitor": "罗技 gpw3", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_竞品名称", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "竞品名称", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "雷蛇炼狱蝰蛇v3 专业版", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_最高DPI", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "最高DPI", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实官方标称的最高DPI参数；关键词：雷蛇炼狱蝰蛇V3专业版 最高DPI）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_传感器型号", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "传感器型号", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：确认官方标称的传感器具体型号；关键词：雷蛇炼狱蝰蛇V3专业版 传感器型号）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_裸机重量", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "裸机重量", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实不含配重线材的裸机实际重量；关键词：雷蛇炼狱蝰蛇V3专业版 裸机重量）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_支持连接方式", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "支持连接方式", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计产品支持的所有连接方式；关键词：雷蛇炼狱蝰蛇V3专业版 支持连接方式）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_轮询率上限", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "轮询率上限", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：验证原生硬件支持的最高USB回报率；关键词：雷蛇炼狱蝰蛇V3专业版 轮询率上限）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_标称续航时长", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "标称续航时长", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实官方标称的续航时长参数；关键词：雷蛇炼狱蝰蛇V3专业版 标称续航时长）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_无线充电支持类型", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "无线充电支持类型", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：验证产品支持的无线充电协议类型；关键词：雷蛇炼狱蝰蛇V3专业版 无线充电支持类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_可编程按键数量", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "可编程按键数量", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计产品支持的可编程按键总数；关键词：雷蛇炼狱蝰蛇V3专业版 可编程按键数量）", "evidence_ids": ["ev_067"]}
+{"cell_id": "核心硬件参数横向对比表_2_证据ID", "table_name": "核心硬件参数横向对比表", "row_index": 2, "column": "证据ID", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_竞品名称", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "竞品名称", "competitor": "罗技 G903", "value": "罗技 G903", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_适配手长范围", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "适配手长范围", "competitor": "罗技 G903", "value": "18-20cm", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_适配握法类型", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "适配握法类型", "competitor": "罗技 G903", "value": "趴握，左右手通用", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_核心目标用户标签", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "核心目标用户标签", "competitor": "罗技 G903", "value": "大手配重偏好型资深电竞玩家", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_高频使用场景", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "高频使用场景", "competitor": "罗技 G903", "value": "FPS/MOBA电竞游戏、日常办公", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_用户核心好评点", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "用户核心好评点", "competitor": "罗技 G903", "value": "续航长、做工扎实、自定义程度高", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_用户核心吐槽痛点", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "用户核心吐槽痛点", "competitor": "罗技 G903", "value": "裸重偏重压手、异形设计易积灰、中键偏硬", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_0_证据ID", "table_name": "目标用户与场景匹配对比表", "row_index": 0, "column": "证据ID", "competitor": "罗技 G903", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_竞品名称", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "竞品名称", "competitor": "罗技 gpw3", "value": "罗技 gpw3", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_适配手长范围", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "适配手长范围", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计不同手长用户的使用反馈占比；关键词：罗技GPW3 适配手长范围）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_适配握法类型", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "适配握法类型", "competitor": "罗技 gpw3", "value": "待搜索（方向：明确产品最优适配的握法类型；关键词：罗技GPW3 适配握法类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_核心目标用户标签", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "核心目标用户标签", "competitor": "罗技 gpw3", "value": "待搜索（方向：提炼核心付费用户典型画像；关键词：罗技GPW3 核心目标用户标签）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_高频使用场景", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "高频使用场景", "competitor": "罗技 gpw3", "value": "待搜索（方向：明确产品覆盖的最高频使用场景；关键词：罗技GPW3 高频使用场景）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_用户核心好评点", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "用户核心好评点", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计用户反馈占比最高的好评点；关键词：罗技GPW3 用户核心好评点）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_用户核心吐槽痛点", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "用户核心吐槽痛点", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计用户反馈占比最高的体验缺陷；关键词：罗技GPW3 用户核心吐槽痛点）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_1_证据ID", "table_name": "目标用户与场景匹配对比表", "row_index": 1, "column": "证据ID", "competitor": "罗技 gpw3", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_竞品名称", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "竞品名称", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "雷蛇炼狱蝰蛇v3 专业版", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_适配手长范围", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "适配手长范围", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计不同手长用户的使用反馈占比；关键词：雷蛇炼狱蝰蛇V3专业版 适配手长范围）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_适配握法类型", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "适配握法类型", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：明确产品最优适配的握法类型；关键词：雷蛇炼狱蝰蛇V3专业版 适配握法类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_核心目标用户标签", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "核心目标用户标签", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：提炼核心付费用户典型画像；关键词：雷蛇炼狱蝰蛇V3专业版 核心目标用户标签）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_高频使用场景", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "高频使用场景", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：明确产品覆盖的最高频使用场景；关键词：雷蛇炼狱蝰蛇V3专业版 高频使用场景）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_用户核心好评点", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "用户核心好评点", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计用户反馈占比最高的好评点；关键词：雷蛇炼狱蝰蛇V3专业版 用户核心好评点）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_用户核心吐槽痛点", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "用户核心吐槽痛点", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计用户反馈占比最高的体验缺陷；关键词：雷蛇炼狱蝰蛇V3专业版 用户核心吐槽痛点）", "evidence_ids": ["ev_067"]}
+{"cell_id": "目标用户与场景匹配对比表_2_证据ID", "table_name": "目标用户与场景匹配对比表", "row_index": 2, "column": "证据ID", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_竞品名称", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "竞品名称", "competitor": "罗技 G903", "value": "罗技 G903", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_官方首发指导价", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "官方首发指导价", "competitor": "罗技 G903", "value": "899元", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_550_900元区间在售版本类型", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "550-900元区间在售版本类型", "competitor": "罗技 G903", "value": "RNG联名款、限定套装版", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_生态绑定要求", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "生态绑定要求", "competitor": "罗技 G903", "value": "无线充电功能需搭配罗技专属Powerplay鼠标垫使用", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_额外配套采购成本", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "额外配套采购成本", "competitor": "罗技 G903", "value": "Powerplay鼠标垫单独售价超500元", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_用户感知价值评分", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "用户感知价值评分", "competitor": "罗技 G903", "value": "待搜索（方向：统计全平台用户对产品价值的打分；关键词：罗技G903 用户感知价值评分）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_0_证据ID", "table_name": "定价与商业化策略对比表", "row_index": 0, "column": "证据ID", "competitor": "罗技 G903", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_竞品名称", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "竞品名称", "competitor": "罗技 gpw3", "value": "罗技 gpw3", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_官方首发指导价", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "官方首发指导价", "competitor": "罗技 gpw3", "value": "待搜索（方向：核实产品上市时的官方首发定价；关键词：罗技GPW3 官方首发指导价）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_550_900元区间在售版本类型", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "550-900元区间在售版本类型", "competitor": "罗技 gpw3", "value": "待搜索（方向：核实当前目标价位段售卖的具体版本；关键词：罗技GPW3 550-900元在售版本）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_生态绑定要求", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "生态绑定要求", "competitor": "罗技 gpw3", "value": "待搜索（方向：确认核心功能是否需搭配专属外设使用；关键词：罗技GPW3 生态绑定要求）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_额外配套采购成本", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "额外配套采购成本", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计专属配套外设的额外采购总成本；关键词：罗技GPW3 额外配套采购成本）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_用户感知价值评分", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "用户感知价值评分", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计全平台用户对产品价值的打分；关键词：罗技GPW3 用户感知价值评分）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_1_证据ID", "table_name": "定价与商业化策略对比表", "row_index": 1, "column": "证据ID", "competitor": "罗技 gpw3", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_竞品名称", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "竞品名称", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "雷蛇炼狱蝰蛇v3 专业版", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_官方首发指导价", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "官方首发指导价", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实产品上市时的官方首发定价；关键词：雷蛇炼狱蝰蛇V3专业版 官方首发指导价）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_550_900元区间在售版本类型", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "550-900元区间在售版本类型", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实当前目标价位段售卖的具体版本；关键词：雷蛇炼狱蝰蛇V3专业版 550-900元在售版本）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_生态绑定要求", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "生态绑定要求", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：确认核心功能是否需搭配专属外设使用；关键词：雷蛇炼狱蝰蛇V3专业版 生态绑定要求）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_额外配套采购成本", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "额外配套采购成本", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计专属配套外设的额外采购总成本；关键词：雷蛇炼狱蝰蛇V3专业版 额外配套采购成本）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_用户感知价值评分", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "用户感知价值评分", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计全平台用户对产品价值的打分；关键词：雷蛇炼狱蝰蛇V3专业版 用户感知价值评分）", "evidence_ids": ["ev_067"]}
+{"cell_id": "定价与商业化策略对比表_2_证据ID", "table_name": "定价与商业化策略对比表", "row_index": 2, "column": "证据ID", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_竞品名称", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "竞品名称", "competitor": "罗技 G903", "value": "罗技 G903", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_已知批量硬件故障类型", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "已知批量硬件故障类型", "competitor": "罗技 G903", "value": "左键晃动、侧键偶发失效、微动双击", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_官方标称微动寿命", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "官方标称微动寿命", "competitor": "罗技 G903", "value": "待搜索（方向：查询官方公开的微动标称寿命参数；关键词：罗技G903 官方标称微动寿命）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_基础保修时长", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "基础保修时长", "competitor": "罗技 G903", "value": "待搜索（方向：查询罗技官方公开的基础保修时长；关键词：罗技G903 官方基础保修时长）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_换新门槛", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "换新门槛", "competitor": "罗技 G903", "value": "待搜索（方向：核实罗技官方售后换新的判定规则；关键词：罗技G903 售后换新门槛）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_用户售后满意度", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "用户售后满意度", "competitor": "罗技 G903", "value": "待搜索（方向：统计全平台用户售后评价满意度；关键词：罗技G903 用户售后满意度）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_0_证据ID", "table_name": "品控与售后保障对比表", "row_index": 0, "column": "证据ID", "competitor": "罗技 G903", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_竞品名称", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "竞品名称", "competitor": "罗技 gpw3", "value": "罗技 gpw3", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_已知批量硬件故障类型", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "已知批量硬件故障类型", "competitor": "罗技 gpw3", "value": "待搜索（方向：汇总公开反馈中概率较高的共性硬件缺陷；关键词：罗技GPW3 已知批量硬件故障类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_官方标称微动寿命", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "官方标称微动寿命", "competitor": "罗技 gpw3", "value": "待搜索（方向：查询官方公开的微动标称寿命参数；关键词：罗技GPW3 官方标称微动寿命）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_基础保修时长", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "基础保修时长", "competitor": "罗技 gpw3", "value": "待搜索（方向：查询罗技官方公开的基础保修时长；关键词：罗技GPW3 官方基础保修时长）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_换新门槛", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "换新门槛", "competitor": "罗技 gpw3", "value": "待搜索（方向：核实罗技官方售后换新的判定规则；关键词：罗技GPW3 售后换新门槛）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_用户售后满意度", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "用户售后满意度", "competitor": "罗技 gpw3", "value": "待搜索（方向：统计全平台用户售后评价满意度；关键词：罗技GPW3 用户售后满意度）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_1_证据ID", "table_name": "品控与售后保障对比表", "row_index": 1, "column": "证据ID", "competitor": "罗技 gpw3", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_竞品名称", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "竞品名称", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "雷蛇炼狱蝰蛇v3 专业版", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_已知批量硬件故障类型", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "已知批量硬件故障类型", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：汇总公开反馈中概率较高的共性硬件缺陷；关键词：雷蛇炼狱蝰蛇V3专业版 已知批量硬件故障类型）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_官方标称微动寿命", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "官方标称微动寿命", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：查询官方公开的微动标称寿命参数；关键词：雷蛇炼狱蝰蛇V3专业版 官方标称微动寿命）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_基础保修时长", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "基础保修时长", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：查询雷蛇官方公开的基础保修时长；关键词：雷蛇炼狱蝰蛇V3专业版 官方基础保修时长）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_换新门槛", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "换新门槛", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：核实雷蛇官方售后换新的判定规则；关键词：雷蛇炼狱蝰蛇V3专业版 售后换新门槛）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_用户售后满意度", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "用户售后满意度", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "待搜索（方向：统计全平台用户售后评价满意度；关键词：雷蛇炼狱蝰蛇V3专业版 用户售后满意度）", "evidence_ids": ["ev_067"]}
+{"cell_id": "品控与售后保障对比表_2_证据ID", "table_name": "品控与售后保障对比表", "row_index": 2, "column": "证据ID", "competitor": "雷蛇炼狱蝰蛇v3 专业版", "value": "[\"ev_067\"]", "evidence_ids": ["ev_067"]}

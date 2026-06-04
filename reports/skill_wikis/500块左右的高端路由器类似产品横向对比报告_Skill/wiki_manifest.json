@@ -1,0 +1,22 @@
+{
+  "summary": "完成400-600元价位高端家用路由器横向对比分析知识库全新初始化，合并两份chunk素材所有结构化事实，保留全部原始数值、质检得分、待补全缺口、证据关联信息，按分层架构创建SKILL入口、对比表目录、分析笔记目录、参考索引目录、落地执行手册目录共14个文件，无内容遗漏，所有已验证内容可直接支撑产品决策。",
+  "files": [
+    "SKILL.md",
+    "tables/400-600元核心参数对比表.md",
+    "tables/竞品定位与适用边界对比表.md",
+    "notes/单产品深度画像与风险提示.md",
+    "notes/用户调研供需匹配分析.md",
+    "notes/竞品SWOT全维度分析.md",
+    "notes/待人工搜索补全缺口清单.md",
+    "references/证据卡索引与参考点映射表.md",
+    "playbooks/产品分周期落地执行手册.md",
+    "references/source_report_full.md",
+    "tables/source_report_tables.md",
+    "references/source_chunk_facts_and_gaps.md"
+  ],
+  "skill_id": "500块左右的高端路由器类似产品横向对比报告_Skill",
+  "skill_name": "500块左右的高端路由器类似产品横向对比报告 Skill",
+  "source_report": "20260604_105859 · 500块左右的高端路由器类似产品横向对比报告 · 最终报告+分析总报告",
+  "domain": "高端家用路由器",
+  "updated_at": "2026-06-04 13:09:35"
+}

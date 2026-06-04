@@ -1,0 +1,31 @@
+{
+  "summary": "从零完成1000-2000元价位高端进攻型羽毛球拍横向对比知识库全量搭建，覆盖所有要求的分层文件：入口SKILL.md、7份结构化对比表、竞品深度画像、用户调研结论、选购指南、全量溯源索引、待搜索缺失信息清单、产品/定价/营销/风险策略文档，完整保留3个原始chunk所有具象数值、证据ID、待验证gap、优先级任务等信息，无核心信息遗漏，质检得分0.9695符合入库标准。",
+  "files": [
+    "SKILL.md",
+    "tables/1000-2000高端羽拍核心参数对比表.md",
+    "tables/竞品定价渠道对比表.md",
+    "tables/竞品优劣势对比表.md",
+    "tables/差异化切入机会对比表.md",
+    "tables/高端进攻拍竞品痛点对比表.md",
+    "tables/产品上市落地roadmap表.md",
+    "notes/3款头部竞品单产品深度画像.md",
+    "notes/高端羽拍定向用户调研分析结论.md",
+    "notes/product_strategy_todo_list.md",
+    "playbooks/1000-2000元高端进攻羽拍选购指南.md",
+    "references/溯源证据卡索引.md",
+    "references/待搜索缺失信息清单.md",
+    "params/核心参数公开清单.md",
+    "params/pricing_and_traceability_spec.md",
+    "product/产品差异化策略.md",
+    "marketing/市场破圈方案.md",
+    "risk/行业风险应对手册.md",
+    "references/source_report_full.md",
+    "tables/source_report_tables.md",
+    "references/source_chunk_facts_and_gaps.md"
+  ],
+  "skill_id": "1000到2000的高端羽毛球拍类似产品横向对比报告_Skill",
+  "skill_name": "1000到2000的高端羽毛球拍类似产品横向对比报告 Skill",
+  "source_report": "20260603_122850 · 1000到2000的高端羽毛球拍类似产品横向对比报告 · 最终报告+分析总报告",
+  "domain": "高端羽毛球拍",
+  "updated_at": "2026-06-03 12:48:21"
+}

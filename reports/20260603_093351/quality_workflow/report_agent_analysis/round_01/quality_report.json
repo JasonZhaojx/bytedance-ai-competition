@@ -1,0 +1,467 @@
+{
+  "task_id": "20260603_093351_report_agent_analysis_q1",
+  "source_report": "20260603_093351_report_agent_analysis_q1",
+  "exported_at": "2026-06-03T09:49:13",
+  "passed": true,
+  "score": 0.962,
+  "confidence_level": "high",
+  "needs_human_review": false,
+  "low_confidence_reasons": [],
+  "evidence_quality_avg": 0.7866666666666666,
+  "domain_type": "software",
+  "inspection_time_sec": 0.0,
+  "inspection_rounds": 1,
+  "llm_score": null,
+  "rule_score": null,
+  "final_decision": null,
+  "issue_count": 10,
+  "issues": [
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于核心结论的修改建议",
+      "suggestion": "关于核心结论的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+      "explanation": "Quality Agent 已按最终正文大章节逐段阅读，并将该章节转成可执行的修改或补充建议。",
+      "impact": "核心结论会直接影响产品决策优先级，需要同时具备判断、依据和下一步动作。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "核心结论"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于分析背景与目标的修改建议",
+      "suggestion": "关于分析背景与目标的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+      "explanation": "Quality Agent 已按最终正文大章节逐段阅读，并将该章节转成可执行的修改或补充建议。",
+      "impact": "背景和目标如果边界不清，后续竞品选择、用户场景和策略建议会失去共同口径。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "分析背景与目标"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于竞品分类与选择理由中通义灵码的修改建议",
+      "suggestion": "关于竞品分类与选择理由中通义灵码的修改建议：围绕通义灵码、CodeGeeX、CodeBuddy补充纳入/排除标准，例如目标用户、产品形态、商业化阶段、生态绑定和替代关系，并说明每个竞品为什么值得对比。",
+      "explanation": "Quality Agent 已按最终正文大章节逐段阅读，并将通义灵码、CodeGeeX转成可执行的修改或补充建议。",
+      "impact": "竞品选择理由不充分会让横向对比对象失焦，影响结论的代表性。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "竞品分类与选择理由",
+        "竞品分类与选择理由中通义灵码",
+        "通义灵码",
+        "CodeGeeX",
+        "CodeBuddy"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议",
+      "suggestion": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议：把头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口、CodeGeeX缺失高阶AI IDE核心特性单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+      "explanation": "Quality Agent 已按最终正文大章节逐段阅读，并将头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口转成可执行的修改或补充建议。",
+      "impact": "头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口需要连接真实任务和产品动作，否则建议难以落到具体需求。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "用户场景与任务分析",
+        "用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据",
+        "国内市场存在全免费无额度限制AI IDE的明确空",
+        "VS Code原生操作习惯+全插件无缝迁移是最高",
+        "头部竞品2026年集体大幅上调企业版定价"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于重点竞品拆解中通义灵码的修改建议",
+      "suggestion": "关于重点竞品拆解中通义灵码的修改建议：为通义灵码、目标用户、核心场景补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+      "explanation": "Quality Agent 已按最终正文大章节逐段阅读，并将通义灵码、目标用户转成可执行的修改或补充建议。",
+      "impact": "通义灵码、目标用户维度不统一会削弱后续横向比较和差异化判断。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "重点竞品拆解",
+        "重点竞品拆解中通义灵码",
+        "通义灵码",
+        "目标用户",
+        "核心场景"
+      ]
+    },
+    {
+      "type": "insufficient_evidence",
+      "severity": "minor",
+      "description": "建议人工搜索CodeGeeX 企业版定价",
+      "suggestion": "建议人工搜索CodeGeeX 企业版定价",
+      "explanation": "该章节包含 Markdown 表格，表格数据需要人工逐项搜索或核对来源。",
+      "impact": "避免横向对比表格中的字段误填、漏填或来源不可追溯。",
+      "confidence": 0.25,
+      "affected_fields": [
+        "横向能力对比",
+        "table_manual_search"
+      ]
+    },
+    {
+      "type": "insufficient_evidence",
+      "severity": "minor",
+      "description": "建议人工搜索CodeGeeX 合规管控能力",
+      "suggestion": "建议人工搜索CodeGeeX 合规管控能力",
+      "explanation": "该章节包含 Markdown 表格，表格数据需要人工逐项搜索或核对来源。",
+      "impact": "避免横向对比表格中的字段误填、漏填或来源不可追溯。",
+      "confidence": 0.25,
+      "affected_fields": [
+        "横向能力对比",
+        "table_manual_search"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议",
+      "suggestion": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议：把我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单、我方暂未针对阿里云云服务开发生态做定向场景调优单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+      "explanation": "Quality Agent 已按最终正文大章节阅读；该章节重点检查我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单是否能支撑后续策略推导。",
+      "impact": "我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单若停留在罗列，会削弱产品机会、风险和策略之间的推导链。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "SWOT 分析",
+        "SWOT 分析中我方优先补齐全量企业级合规资质与公开文档",
+        "Strengths",
+        "通义灵码依托阿里云生态构建核心差异化能力",
+        "CodeBuddy深度绑定微信小程序、腾讯云生态"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议",
+      "suggestion": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议：把通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足、高阶AI IDE核心特性缺失单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+      "explanation": "Quality Agent 已按最终正文大章节阅读；该章节重点检查通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足是否有触发条件和影响判断。",
+      "impact": "通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足需要转成优先级与触发条件，才能支持下一步取舍。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "产品机会点与风险",
+        "产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单",
+        "## 产品机会点与风险",
+        "国内尚无覆盖90%个人开发场景的全免费无调用次数",
+        "用户对「和VS Code操作习惯完全一致、原有插"
+      ]
+    },
+    {
+      "type": "incomplete_info",
+      "severity": "minor",
+      "description": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议",
+      "suggestion": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议：把60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保、90_daysP1 从现有30份调研样本中筛选1单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+      "explanation": "Quality Agent 已按最终正文大章节阅读；该章节重点检查60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保是否具体、可验证、可执行。",
+      "impact": "60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保如果缺少验证指标和时间窗口，会难以执行和复盘。",
+      "confidence": 0.15,
+      "affected_fields": [
+        "产品策略建议",
+        "产品策略建议中60_daysP1 上线2人起购的中小团队专属S",
+        "30_daysP0 冷启动阶段全渠道上线「新用户",
+        "30_daysP0 优先落地VS Code全操作",
+        "30_daysP0 上线永久完全免费无调用次数限"
+      ]
+    }
+  ],
+  "suggestions": [
+    "关于核心结论的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+    "关于分析背景与目标的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+    "关于竞品分类与选择理由中通义灵码的修改建议：围绕通义灵码、CodeGeeX、CodeBuddy补充纳入/排除标准，例如目标用户、产品形态、商业化阶段、生态绑定和替代关系，并说明每个竞品为什么值得对比。",
+    "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议：把头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口、CodeGeeX缺失高阶AI IDE核心特性单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+    "关于重点竞品拆解中通义灵码的修改建议：为通义灵码、目标用户、核心场景补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+    "建议人工搜索CodeGeeX 企业版定价",
+    "建议人工搜索CodeGeeX 合规管控能力",
+    "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议：把我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单、我方暂未针对阿里云云服务开发生态做定向场景调优单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+    "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议：把通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足、高阶AI IDE核心特性缺失单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+    "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议：把60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保、90_daysP1 从现有30份调研样本中筛选1单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。"
+  ],
+  "required_resources": [],
+  "feedback_payload": {
+    "task_id": "20260603_093351_report_agent_analysis_q1",
+    "passed": true,
+    "score": 0.962,
+    "confidence_level": "high",
+    "needs_human_review": false,
+    "retry_required": true,
+    "feedback_messages": [
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于核心结论的修改建议",
+        "suggested_fix": "关于核心结论的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+        "affected_fields": [
+          "核心结论"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于分析背景与目标的修改建议",
+        "suggested_fix": "关于分析背景与目标的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+        "affected_fields": [
+          "分析背景与目标"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于竞品分类与选择理由中通义灵码的修改建议",
+        "suggested_fix": "关于竞品分类与选择理由中通义灵码的修改建议：围绕通义灵码、CodeGeeX、CodeBuddy补充纳入/排除标准，例如目标用户、产品形态、商业化阶段、生态绑定和替代关系，并说明每个竞品为什么值得对比。",
+        "affected_fields": [
+          "竞品分类与选择理由",
+          "竞品分类与选择理由中通义灵码",
+          "通义灵码",
+          "CodeGeeX",
+          "CodeBuddy"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议",
+        "suggested_fix": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议：把头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口、CodeGeeX缺失高阶AI IDE核心特性单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+        "affected_fields": [
+          "用户场景与任务分析",
+          "用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据",
+          "国内市场存在全免费无额度限制AI IDE的明确空",
+          "VS Code原生操作习惯+全插件无缝迁移是最高",
+          "头部竞品2026年集体大幅上调企业版定价"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于重点竞品拆解中通义灵码的修改建议",
+        "suggested_fix": "关于重点竞品拆解中通义灵码的修改建议：为通义灵码、目标用户、核心场景补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+        "affected_fields": [
+          "重点竞品拆解",
+          "重点竞品拆解中通义灵码",
+          "通义灵码",
+          "目标用户",
+          "核心场景"
+        ]
+      },
+      {
+        "target_agent": "collector_agent",
+        "action": "补充或重做上游产物",
+        "priority": "low",
+        "issue_type": "insufficient_evidence",
+        "description": "建议人工搜索CodeGeeX 企业版定价",
+        "suggested_fix": "建议人工搜索CodeGeeX 企业版定价",
+        "affected_fields": [
+          "横向能力对比",
+          "table_manual_search"
+        ]
+      },
+      {
+        "target_agent": "collector_agent",
+        "action": "补充或重做上游产物",
+        "priority": "low",
+        "issue_type": "insufficient_evidence",
+        "description": "建议人工搜索CodeGeeX 合规管控能力",
+        "suggested_fix": "建议人工搜索CodeGeeX 合规管控能力",
+        "affected_fields": [
+          "横向能力对比",
+          "table_manual_search"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议",
+        "suggested_fix": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议：把我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单、我方暂未针对阿里云云服务开发生态做定向场景调优单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+        "affected_fields": [
+          "SWOT 分析",
+          "SWOT 分析中我方优先补齐全量企业级合规资质与公开文档",
+          "Strengths",
+          "通义灵码依托阿里云生态构建核心差异化能力",
+          "CodeBuddy深度绑定微信小程序、腾讯云生态"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议",
+        "suggested_fix": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议：把通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足、高阶AI IDE核心特性缺失单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+        "affected_fields": [
+          "产品机会点与风险",
+          "产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单",
+          "## 产品机会点与风险",
+          "国内尚无覆盖90%个人开发场景的全免费无调用次数",
+          "用户对「和VS Code操作习惯完全一致、原有插"
+        ]
+      },
+      {
+        "target_agent": "writer_agent",
+        "action": "revise_report",
+        "priority": "low",
+        "issue_type": "incomplete_info",
+        "description": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议",
+        "suggested_fix": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议：把60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保、90_daysP1 从现有30份调研样本中筛选1单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+        "affected_fields": [
+          "产品策略建议",
+          "产品策略建议中60_daysP1 上线2人起购的中小团队专属S",
+          "30_daysP0 冷启动阶段全渠道上线「新用户",
+          "30_daysP0 优先落地VS Code全操作",
+          "30_daysP0 上线永久完全免费无调用次数限"
+        ]
+      }
+    ],
+    "grouped_by_agent": {
+      "writer_agent": [
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于核心结论的修改建议",
+          "suggested_fix": "关于核心结论的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+          "affected_fields": [
+            "核心结论"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于分析背景与目标的修改建议",
+          "suggested_fix": "关于分析背景与目标的修改建议：为本节核心判断补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+          "affected_fields": [
+            "分析背景与目标"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于竞品分类与选择理由中通义灵码的修改建议",
+          "suggested_fix": "关于竞品分类与选择理由中通义灵码的修改建议：围绕通义灵码、CodeGeeX、CodeBuddy补充纳入/排除标准，例如目标用户、产品形态、商业化阶段、生态绑定和替代关系，并说明每个竞品为什么值得对比。",
+          "affected_fields": [
+            "竞品分类与选择理由",
+            "竞品分类与选择理由中通义灵码",
+            "通义灵码",
+            "CodeGeeX",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议",
+          "suggested_fix": "关于用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据的修改建议：把头部竞品多项企业级合规能力无公开明确证据、通义灵码核心企业级合规能力仍存在官方公开信息缺口、CodeGeeX缺失高阶AI IDE核心特性单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+          "affected_fields": [
+            "用户场景与任务分析",
+            "用户场景与任务分析中头部竞品多项企业级合规能力无公开明确证据",
+            "国内市场存在全免费无额度限制AI IDE的明确空",
+            "VS Code原生操作习惯+全插件无缝迁移是最高",
+            "头部竞品2026年集体大幅上调企业版定价"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于重点竞品拆解中通义灵码的修改建议",
+          "suggested_fix": "关于重点竞品拆解中通义灵码的修改建议：为通义灵码、目标用户、核心场景补上可追溯证据锚点；没有证据的判断改成待确认，避免把推断、用户感知或策略假设直接写成事实。",
+          "affected_fields": [
+            "重点竞品拆解",
+            "重点竞品拆解中通义灵码",
+            "通义灵码",
+            "目标用户",
+            "核心场景"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议",
+          "suggested_fix": "关于SWOT 分析中我方优先补齐全量企业级合规资质与公开文档的修改建议：把我方优先补齐全量企业级合规资质与公开文档、通义灵码、CodeBuddy均未公开支持SSO单、我方暂未针对阿里云云服务开发生态做定向场景调优单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+          "affected_fields": [
+            "SWOT 分析",
+            "SWOT 分析中我方优先补齐全量企业级合规资质与公开文档",
+            "Strengths",
+            "通义灵码依托阿里云生态构建核心差异化能力",
+            "CodeBuddy深度绑定微信小程序、腾讯云生态"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议",
+          "suggested_fix": "关于产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单的修改建议：把通义灵码、CodeBuddy均未公开支持SSO单、我方当前产品矩阵覆盖度不足、高阶AI IDE核心特性缺失单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+          "affected_fields": [
+            "产品机会点与风险",
+            "产品机会点与风险中通义灵码、CodeBuddy均未公开支持SSO单",
+            "## 产品机会点与风险",
+            "国内尚无覆盖90%个人开发场景的全免费无调用次数",
+            "用户对「和VS Code操作习惯完全一致、原有插"
+          ]
+        },
+        {
+          "target_agent": "writer_agent",
+          "action": "revise_report",
+          "priority": "low",
+          "issue_type": "incomplete_info",
+          "description": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议",
+          "suggested_fix": "关于产品策略建议中60_daysP1 上线2人起购的中小团队专属S的修改建议：把60_daysP1 上线2人起购的中小团队专属S、60_daysP1 优先完成SSO单点登录、等保、90_daysP1 从现有30份调研样本中筛选1单独列为待验证项，写清缺口字段、目标对象、需要补搜的数据口径，并把暂时不能下结论的判断边界标出来。",
+          "affected_fields": [
+            "产品策略建议",
+            "产品策略建议中60_daysP1 上线2人起购的中小团队专属S",
+            "30_daysP0 冷启动阶段全渠道上线「新用户",
+            "30_daysP0 优先落地VS Code全操作",
+            "30_daysP0 上线永久完全免费无调用次数限"
+          ]
+        }
+      ],
+      "collector_agent": [
+        {
+          "target_agent": "collector_agent",
+          "action": "补充或重做上游产物",
+          "priority": "low",
+          "issue_type": "insufficient_evidence",
+          "description": "建议人工搜索CodeGeeX 企业版定价",
+          "suggested_fix": "建议人工搜索CodeGeeX 企业版定价",
+          "affected_fields": [
+            "横向能力对比",
+            "table_manual_search"
+          ]
+        },
+        {
+          "target_agent": "collector_agent",
+          "action": "补充或重做上游产物",
+          "priority": "low",
+          "issue_type": "insufficient_evidence",
+          "description": "建议人工搜索CodeGeeX 合规管控能力",
+          "suggested_fix": "建议人工搜索CodeGeeX 合规管控能力",
+          "affected_fields": [
+            "横向能力对比",
+            "table_manual_search"
+          ]
+        }
+      ]
+    }
+  }
+}

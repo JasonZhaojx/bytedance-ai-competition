@@ -1,0 +1,21 @@
+{
+  "summary": "Initialized the full Codex-style AI IDE domestic alternative horizontal comparison skill wiki, merged 3 chunks of verified analysis content (total quality score 0.962), created 8 core structured files covering progressive disclosure entry, 9-dimension competitor comparison table, 3 product full profiles, SWOT market analysis, 3-phase go-to-market roadmap, evidence source index, missing information todo list, and user research parameter dataset, preserved all original concrete values, evidence IDs, open gaps and action items without abstraction loss.",
+  "files": [
+    "SKILL.md",
+    "tables/core_competitor_9dim_comparison.md",
+    "competitor_profiles/all_3_products_profile.md",
+    "notes/swot_analysis_market_opportunities.md",
+    "playbooks/3phase_product_go_to_market_roadmap.md",
+    "references/evidence_and_source_index.md",
+    "notes/missing_info_manual_search_todo.md",
+    "params/user_research_raw_data.md",
+    "references/source_report_full.md",
+    "tables/source_report_tables.md",
+    "references/source_chunk_facts_and_gaps.md"
+  ],
+  "skill_id": "codex_ai_ide_的国产替代品类似产品横向对比报告_Skill",
+  "skill_name": "codex ai ide 的国产替代品类似产品横向对比报告 Skill",
+  "source_report": "20260603_093351 · codex ai ide 的国产替代品类似产品横向对比报告 · 最终报告+分析总报告",
+  "domain": "ai ide",
+  "updated_at": "2026-06-03 10:16:44"
+}

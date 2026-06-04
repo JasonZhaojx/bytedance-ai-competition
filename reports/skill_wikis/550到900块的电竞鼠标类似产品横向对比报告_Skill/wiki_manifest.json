@@ -1,0 +1,24 @@
+{
+  "summary": "完成550-900元价位段旗舰无线电竞鼠标横向对比竞品分析技能库的首次全量搭建，覆盖所有提取的事实数据、对比表格、竞品拆解、SWOT分析、落地执行 roadmap、定价体系、证据溯源索引、待核验问题清单等内容，所有原始标注的 concrete value 100% 保留，符合渐进式披露的知识库规范",
+  "files": [
+    "SKILL.md",
+    "tables/550-900元电竞鼠标核心参数对比表.md",
+    "tables/竞品体验短板对比表.md",
+    "tables/竞品商业化策略对比表.md",
+    "notes/竞品优劣势拆解库.md",
+    "notes/市场机会风险分析.md",
+    "roadmap/30_60_90天执行任务清单.md",
+    "pricing/SKU价格体系规划.md",
+    "playbooks/电竞鼠标产品定位策略手册.md",
+    "references/证据卡索引.md",
+    "notes/待搜索待核验问题清单.md",
+    "references/source_report_full.md",
+    "tables/source_report_tables.md",
+    "references/source_chunk_facts_and_gaps.md"
+  ],
+  "skill_id": "550到900块的电竞鼠标类似产品横向对比报告_Skill",
+  "skill_name": "550到900块的电竞鼠标类似产品横向对比报告 Skill",
+  "source_report": "20260604_121145 · 550到900块的电竞鼠标类似产品横向对比报告 · 最终报告+分析总报告",
+  "domain": "高端电竞鼠标",
+  "updated_at": "2026-06-04 12:36:42"
+}

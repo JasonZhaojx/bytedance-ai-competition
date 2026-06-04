@@ -1,0 +1,25 @@
+{
+  "summary": "初始化20-30万级中大型纯电轿车竞品横向对比专项知识库，合并两份输入Chunk全量事实，共生成12份结构化文件，覆盖入口说明、4款产品独立画像、2张核心对比表、SWOT机会风险分析、待补信息清单、分周期落地策略、证据索引、质检归档全模块，所有 concrete 数值（定价、用户调研数据、质检得分、优先级标签）100%保留，所有未验证信息缺口明确标注待人工补充。",
+  "files": [
+    "SKILL.md",
+    "profiles/我方产品_profile.md",
+    "profiles/极氪001_2026款_profile.md",
+    "profiles/小米SU7_profile.md",
+    "profiles/小鹏P7_2025款_profile.md",
+    "tables/核心参数横向对比表.md",
+    "tables/竞品能力对比汇总表.md",
+    "notes/SWOT_机会风险分析.md",
+    "notes/待补信息人工搜索清单.md",
+    "playbooks/产品策略落地执行指引.md",
+    "references/证据卡与来源索引.md",
+    "quality/质检记录.md",
+    "references/source_report_full.md",
+    "tables/source_report_tables.md",
+    "references/source_chunk_facts_and_gaps.md"
+  ],
+  "skill_id": "30w左右的新能源汽车类似产品横向对比报告_Skill",
+  "skill_name": "30w左右的新能源汽车类似产品横向对比报告 Skill",
+  "source_report": "20260603_105546 · 30w左右的新能源汽车类似产品横向对比报告 · 最终报告+分析总报告",
+  "domain": "新能源车",
+  "updated_at": "2026-06-03 11:14:40"
+}
