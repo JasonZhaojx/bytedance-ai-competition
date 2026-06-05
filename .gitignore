@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+
+# Environment and local secrets
+.env
+.env.local
+.env.*.local
+.venv/
+venv/
+.local_env.bat
+.local_python_path.txt
+
+# Runtime reports and workflow outputs
+reports/
+outputs/
+logs/
+*.done
+
+# Tool caches
+.cache/
+.pytest_cache/
+pytest-cache-files-*/
+.tox/
+.coverage
+htmlcov/
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg/
+
+# Playwright
+playwright/.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+*.tsbuildinfo

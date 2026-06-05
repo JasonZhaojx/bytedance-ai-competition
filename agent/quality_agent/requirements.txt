@@ -1,0 +1,24 @@
+# Quality Agent Dependencies
+
+# Core dependencies
+python-dotenv>=1.0.0
+tqdm>=4.66.0
+
+# Optional: for better async progress bars (auto-installed by tqdm if available)
+# Note: async-tqdm is optional, the code will fall back gracefully if not installed
+
+# LLM dependencies
+openai>=1.0.0
+
+# Data processing
+pydantic>=2.0.0
+python-dateutil>=2.8.0
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Development
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
