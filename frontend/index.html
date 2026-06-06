@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>竞品分析工作台 - Competitor AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <div class="brand-info">
+            <strong>Competitor AI</strong>
+            <span>真实竞品分析工作流</span>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-page="workspace">工作台</button>
+          <button class="nav-item" data-page="reports">报告库</button>
+          <button class="nav-item" data-page="questionnaires">问卷中心</button>
+          <button class="nav-item" data-page="skills">报告 Skill</button>
+          <button class="nav-item" data-page="quality">质检与 Issue</button>
+          <button class="nav-item" data-page="settings">配置</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="server-status-card">
+            <div class="server-status-header">
+              <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span>服务状态</span>
+              </div>
+            </div>
+            <strong id="serverStatus">Ready</strong>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="page-header">
+          <div class="header-left">
+            <span class="eyebrow">Multi-Agent Research Workflow</span>
+            <h1>竞品分析工作台</h1>
+            <p>围绕主流程输入完成搜索、分块阅读、竞品分析、人工修正、报告生成和质检闭环。</p>
+            <p>花费1000秒，获得超详细的报告，解放生产力</p>
+          </div>
+          <div class="metric-row">
+            <div class="metric-card">
+              <span>效率提升</span>
+              <strong id="timeMetric">待运行</strong>
+              <small>以自动化节点数和耗时估算</small>
+            </div>
+            <div class="metric-card">
+              <span>覆盖度</span>
+              <strong id="coverageMetric">0 来源</strong>
+              <small id="coverageHelp">口径：当前报告中的参考点数量 + 章节数。</small>
+            </div>
+            <div class="metric-card">
+              <span>一致性</span>
+              <strong id="consistencyMetric">待质检</strong>
+              <small id="consistencyHelp">口径：结构化 Issue 数；0 个显示结构通过。</small>
+            </div>
+          </div>
+        </header>
+
+        <section class="workspace-main page-section active" data-page-panel="workspace">
+          <div class="quick-config">
+            <div class="config-header">
+              <div>
+                <h2>主流程输入</h2>
+                <p>这些参数会直接映射到后端脚本的环境变量和交互输入，不再隐藏关键配置。</p>
+              </div>
+              <button id="startBtn" class="btn btn-primary">
+                <span>开始分析</span>
+              </button>
+            </div>
+
+            <div class="wizard-tabs" id="wizardTabs">
+              <button class="active" type="button" data-step-target="1">1 需求</button>
+              <button type="button" data-step-target="2">2 搜索与产品</button>
+              <button type="button" data-step-target="3">3 已有材料</button>
+              <button type="button" data-step-target="4">4 质检配置</button>
+            </div>
+
+            <div class="workflow-input-grid">
+              <section class="input-card input-card-wide" data-wizard-step="1">
+                <div class="step-label">01 需求</div>
+                <label class="form-label" for="productDescription">产品需求 / 竞品方向</label>
+                <textarea id="productDescription" rows="4" placeholder="例如：预算 15 万左右，适合家庭代步的合资轿车竞品分析；或 AI IDE 面向企业研发团队的竞品对比。"></textarea>
+              </section>
+
+              <section class="input-card input-card-wide" data-wizard-step="2">
+                <div class="step-label">02 搜索配置</div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="topN">默认产品数 TOP_N</label>
+                    <input id="topN" type="number" min="1" max="20" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="queryCount">改写搜索词数</label>
+                    <input id="queryCount" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="searchCount">每词搜索结果数</label>
+                    <input id="searchCount" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="searchBackend">抓取后端</label>
+                    <select id="searchBackend">
+                      <option value="2">Crawl4AI</option>
+                      <option value="1">Playwright</option>
+                      <option value="0">传统爬虫</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="input-card input-card-wide" data-wizard-step="3">
+                <div class="step-label">03 已有材料</div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="knownParamFile">已知产品参数</label>
+                    <input id="knownParamFile" type="file" accept=".txt,.md,.json" />
+                    <textarea id="knownParamText" rows="4" placeholder="粘贴自己产品参数、定价、目标用户、约束等。用于生成共同对比参数点。"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="questionnaireFile">问卷 / 用户调研分析</label>
+                    <input id="questionnaireFile" type="file" accept=".md,.txt,.json" />
+                    <textarea id="questionnaireText" rows="4" placeholder="粘贴问卷分析、用户画像、采购决策、痛点与替换门槛。"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="input-card input-card-wide" data-wizard-step="4">
+                <div class="step-label">04 质检与超时</div>
+                <div class="form-row form-row-five">
+                  <div class="form-group">
+                    <label class="form-label" for="maxIterations">最大迭代</label>
+                    <input id="maxIterations" type="number" min="1" max="10" value="3" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="analyzeTimeout">单品超时秒</label>
+                    <input id="analyzeTimeout" type="number" min="60" max="7200" value="1200" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="finalSummaryTimeout">总结超时秒</label>
+                    <input id="finalSummaryTimeout" type="number" min="60" max="7200" value="900" />
+                  </div>
+                  <label class="switch-wrapper compact-switch">
+                    <input id="enableQualityLoop" type="checkbox" checked />
+                    <span>启用质检闭环</span>
+                  </label>
+                </div>
+                <div class="form-row form-row-six quality-extra-row">
+                  <div class="form-group">
+                    <label class="form-label" for="evidenceMode">证据抽取模式</label>
+                    <select id="evidenceMode">
+                      <option value="2">整包 LLM 优先</option>
+                      <option value="1">规则 + LLM 归一</option>
+                      <option value="0">纯规则切片</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="feedbackQueries">反馈补搜条数</label>
+                    <input id="feedbackQueries" type="number" min="0" max="10" value="2" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="feedbackBackend">反馈补搜后端</label>
+                    <select id="feedbackBackend">
+                      <option value="0">传统爬虫</option>
+                      <option value="1">Playwright</option>
+                      <option value="2">Crawl4AI</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="knownParamMaxChars">参数截断字符</label>
+                    <input id="knownParamMaxChars" type="number" min="0" max="100000" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="questionnaireMaxChars">问卷截断字符</label>
+                    <input id="questionnaireMaxChars" type="number" min="0" max="100000" value="0" />
+                  </div>
+                  <label class="switch-wrapper compact-switch">
+                    <input id="retryOnMinor" type="checkbox" />
+                    <span>Minor 也打回</span>
+                  </label>
+                </div>
+              </section>
+            </div>
+
+            <div class="wizard-actions">
+              <button id="prevStepBtn" class="btn btn-ghost" type="button">上一步</button>
+              <span id="wizardStepMeta">步骤 1 / 4</span>
+              <button id="nextStepBtn" class="btn btn-ghost" type="button">下一步</button>
+            </div>
+          </div>
+
+          <div class="workspace-content">
+            <div class="progress-section">
+              <div class="section-header">
+                <div>
+                  <h3>任务进度</h3>
+                  <span id="jobMeta" class="meta-text">尚未启动任务</span>
+                </div>
+                <div class="progress-actions">
+                  <button id="refreshBtn" class="btn btn-ghost btn-sm" type="button">刷新</button>
+                  <button id="terminateBtn" class="btn btn-danger btn-sm" type="button" disabled>终止</button>
+                </div>
+              </div>
+
+              <div class="progress-flow">
+                <div class="flow-node" data-stage="prepare"><span class="flow-dot"></span><span class="flow-label">准备输入</span></div>
+                <div class="flow-node" data-stage="discover"><span class="flow-dot"></span><span class="flow-label">搜索发现</span></div>
+                <div class="flow-node" data-stage="select"><span class="flow-dot"></span><span class="flow-label">人工选择</span></div>
+                <div class="flow-node" data-stage="analyze"><span class="flow-dot"></span><span class="flow-label">分块阅读与分析</span></div>
+                <div class="flow-node" data-stage="summarize"><span class="flow-dot"></span><span class="flow-label">横向总结</span></div>
+                <div class="flow-node" data-stage="quality"><span class="flow-dot"></span><span class="flow-label">质检闭环</span></div>
+                <div class="flow-node" data-stage="done"><span class="flow-dot"></span><span class="flow-label">完成</span></div>
+              </div>
+
+              <div class="status-bar">
+                <div class="status-item"><span>状态</span><strong id="jobStatus">idle</strong></div>
+                <div class="status-item"><span>报告</span><strong id="reportName">无</strong></div>
+                <div class="status-item"><span>质检</span><strong id="qualityLoopStatus">等待任务</strong></div>
+              </div>
+
+              <div class="main-thread-card">
+                <div class="main-thread-grid">
+                  <div><span>线程</span><strong id="threadName">未启动</strong></div>
+                  <div><span>PID</span><strong id="processPid">-</strong></div>
+                  <div><span>空闲</span><strong id="idleSeconds">-</strong></div>
+                </div>
+              </div>
+
+              <details class="log-toggle" open>
+                <summary>主线程情况日志</summary>
+                <pre id="runtimeLogBox" class="log-content runtime-log-content">等待主线程事件...</pre>
+              </details>
+
+              <div class="subtask-panel">
+                <div class="subtask-panel-header">
+                  <strong>搜索 / 分析子任务</strong>
+                  <span id="subtaskMeta">等待搜索</span>
+                </div>
+                <div id="subtaskList" class="subtask-list"></div>
+              </div>
+
+              <div class="agent-log-launcher">
+                <div>
+                  <strong>Agent 决策回放 / 运行日志</strong>
+                  <span id="agentLogInlineMeta">等待任务日志...</span>
+                </div>
+                <button id="openAgentLogBtn" class="btn btn-ghost btn-sm" type="button">打开日志</button>
+              </div>
+            </div>
+
+            <div class="result-section">
+              <div class="section-header">
+                <div>
+                  <h3>报告查看与溯源</h3>
+                  <span class="meta-text">可查看 Markdown、参考点、Issue 和下载源文件</span>
+                </div>
+                <div class="result-actions">
+                  <select id="reportSelect" class="report-dropdown" title="选择报告"></select>
+                  <a id="downloadBtn" class="btn btn-ghost btn-sm" href="#" download>下载</a>
+                </div>
+              </div>
+              <div class="report-summary" id="resultSummary">
+                <div class="summary-item"><span>类型</span><strong>暂无</strong></div>
+                <div class="summary-item"><span>参考点</span><strong>0</strong></div>
+                <div class="summary-item"><span>Issue</span><strong>0</strong></div>
+                <div class="summary-item"><span>字符</span><strong>0</strong></div>
+              </div>
+              <div class="issue-panel" id="issuePanel"></div>
+              <div class="report-preview" id="reportViewer">
+                <div class="empty-state">
+                  <p>暂无报告</p>
+                  <span>开始分析后将在这里显示结果。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-section" data-page-panel="reports">
+          <div class="table-toolbar">
+            <div>
+              <h2>报告库</h2>
+              <p>按任务和报告类型查看最终报告、单品报告、质检报告；支持从卡片跳转到报告预览。</p>
+            </div>
+            <button id="reloadReportsBtn" class="btn btn-ghost">刷新报告</button>
+          </div>
+          <div class="report-library" id="reportLibrary"></div>
+        </section>
+
+        <section class="page-section" data-page-panel="questionnaires">
+          <div class="table-toolbar">
+            <div>
+              <h2>问卷生成和分析中心</h2>
+              <p>基于竞品方向生成调研问卷，读取本地问卷回答并输出分析报告。</p>
+            </div>
+            <button id="reloadQuestionnairesBtn" class="btn btn-ghost" type="button">刷新文件</button>
+          </div>
+
+          <div class="questionnaire-workbench">
+            <section class="settings-card questionnaire-main-card">
+              <div class="questionnaire-tabs" id="questionnaireTabs">
+                <button class="active" type="button" data-questionnaire-tab="generate">问卷生成</button>
+                <button type="button" data-questionnaire-tab="analyze">问卷分析</button>
+                <button type="button" data-questionnaire-tab="simulate">AI 模拟填写</button>
+              </div>
+
+              <div class="questionnaire-panel active" data-questionnaire-panel="generate">
+                <div class="form-group">
+                  <label class="form-label" for="questionnaireProductDescription">产品/竞品方向</label>
+                  <input id="questionnaireProductFile" type="file" accept=".txt,.md" />
+                  <textarea id="questionnaireProductDescription" rows="4" placeholder="例如：AI IDE 面向企业研发团队的国产替代竞品问卷"></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="questionnaireQuestionCount">题目数量</label>
+                    <input id="questionnaireQuestionCount" type="number" min="3" max="80" value="20" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="questionnaireSearchSource">搜索源</label>
+                    <select id="questionnaireSearchSource">
+                      <option value="bocha">博查</option>
+                      <option value="google">Google CSE</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="questionnaireCompetitorNames">手动竞品名</label>
+                  <textarea id="questionnaireCompetitorNames" rows="3" placeholder="可选，多个名称用逗号或换行分隔"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="questionnaireOwnParamText">自己产品参数</label>
+                  <textarea id="questionnaireOwnParamText" rows="5" placeholder="可选，粘贴定价、套餐、功能、目标用户、部署方式等"></textarea>
+                </div>
+                <label class="switch-wrapper compact-switch questionnaire-switch">
+                  <input id="questionnaireSkipSearch" type="checkbox" />
+                  <span>跳过搜索，仅使用手动竞品名</span>
+                </label>
+                <button id="generateQuestionnaireBtn" class="btn btn-primary" type="button">生成问卷</button>
+                <div id="questionnaireGenerateStatus" class="skill-status">等待生成</div>
+              </div>
+
+              <div class="questionnaire-panel" data-questionnaire-panel="analyze">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="analysisQuestionnaireSelect">问卷文件</label>
+                    <select id="analysisQuestionnaireSelect"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="analysisResponsesSelect">回答 JSONL</label>
+                    <select id="analysisResponsesSelect"></select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="analysisProductDescription">分析主题</label>
+                  <input id="analysisProductDescription" type="text" placeholder="留空时自动使用问卷文件名" />
+                </div>
+                <button id="analyzeQuestionnaireBtn" class="btn btn-primary" type="button">分析问卷</button>
+                <div id="questionnaireAnalysisStatus" class="skill-status">等待分析</div>
+              </div>
+
+              <div class="questionnaire-panel" data-questionnaire-panel="simulate">
+                <div class="settings-note questionnaire-warning">
+                  <p>AI 模拟问卷填写仅作为快速测试使用，不能替代真实用户调研。</p>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="simulateQuestionnaireSelect">问卷文件</label>
+                    <select id="simulateQuestionnaireSelect"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="simulateResponseCount">模拟份数</label>
+                    <input id="simulateResponseCount" type="number" min="1" max="300" value="25" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="simulateProductDescription">模拟主题</label>
+                  <input id="simulateProductDescription" type="text" placeholder="留空时自动使用问卷文件名" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="simulateCompetitorNames">竞品名</label>
+                  <textarea id="simulateCompetitorNames" rows="3" placeholder="可选，多个名称用逗号或换行分隔"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="simulateOwnParamText">自己产品参数</label>
+                  <textarea id="simulateOwnParamText" rows="4" placeholder="可选，用于让模拟画像和作答更贴近产品假设"></textarea>
+                </div>
+                <button id="simulateQuestionnaireBtn" class="btn btn-primary" type="button">生成模拟回答</button>
+                <div id="questionnaireSimulateStatus" class="skill-status">等待模拟填写</div>
+              </div>
+            </section>
+
+            <section class="settings-card questionnaire-files-card">
+              <h3>本地问卷文件</h3>
+              <div id="questionnaireFileList" class="questionnaire-file-list"></div>
+            </section>
+
+            <section class="settings-card questionnaire-preview-card">
+              <h3>结果预览</h3>
+              <div id="questionnaireResultMeta" class="skill-active-meta">
+                <strong>未选择文件</strong>
+                <span>生成、模拟或分析后会在这里预览。</span>
+              </div>
+              <div id="questionnaireResultPreview" class="report-preview questionnaire-preview">
+                <div class="empty-state">
+                  <p>暂无预览</p>
+                  <span>请选择一个本地问卷文件。</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-section" data-page-panel="skills">
+          <div class="table-toolbar">
+            <div>
+              <h2>报告 Skill</h2>
+              <p>把本地报告保存成可检索的 skill wiki，并围绕选中的 skill 对话。</p>
+            </div>
+            <button id="reloadSkillsBtn" class="btn btn-ghost">刷新 Skill</button>
+          </div>
+
+          <div class="skill-workbench">
+            <section class="settings-card skill-build-card">
+              <h3>生成 Skill</h3>
+              <div class="form-group">
+                <label class="form-label" for="skillReportSelect">本地报告包</label>
+                <select id="skillReportSelect"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="skillNameInput">Skill 名称</label>
+                <input id="skillNameInput" type="text" placeholder="例如：AI IDE 竞品报告知识库" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="skillDomainInput">领域提示</label>
+                <input id="skillDomainInput" type="text" placeholder="例如：AI IDE、企业研发工具、Agent 平台" />
+              </div>
+              <button id="buildSkillBtn" class="btn btn-primary" type="button">生成并保存</button>
+              <div id="skillBuildStatus" class="skill-status">等待选择报告</div>
+            </section>
+
+            <section class="settings-card skill-library-card">
+              <h3>本地 Skills</h3>
+              <div id="skillWikiList" class="skill-wiki-list"></div>
+            </section>
+
+            <section class="settings-card skill-chat-card">
+              <h3>Skill Chat</h3>
+              <div id="skillActiveMeta" class="skill-active-meta">
+                <strong>未选择 Skill</strong>
+                <span>请选择一个本地 skill</span>
+              </div>
+              <div id="skillDocPreview" class="skill-doc-preview"></div>
+              <div id="skillChatMessages" class="skill-chat-messages">
+                <div class="skill-chat-empty">等待提问</div>
+              </div>
+              <div class="skill-chat-input-row">
+                <textarea id="skillChatInput" rows="3" placeholder="输入关于这份报告的问题"></textarea>
+                <button id="skillChatSendBtn" class="btn btn-primary" type="button">发送</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page-section" data-page-panel="quality">
+          <div class="table-toolbar">
+            <div>
+              <h2>质检与 Issue</h2>
+              <p>把报告中的问题、风险、缺口做结构化展示，方便人工修正和后续迭代。</p>
+            </div>
+          </div>
+          <div class="quality-board">
+            <div class="quality-item"><span>闭环状态</span><strong id="qualityCenterStatus">等待任务</strong></div>
+            <div class="quality-item"><span>质检范围</span><strong id="qualityModePreview">交付验收</strong></div>
+            <div class="quality-item"><span>最大迭代</span><strong id="maxIterationPreview">3</strong></div>
+          </div>
+          <div class="issue-list" id="qualityIssueList"></div>
+        </section>
+
+        <section class="page-section" data-page-panel="settings">
+          <div class="table-toolbar">
+            <div>
+              <h2>配置</h2>
+              <p>配置模型、搜索 API 和默认运行参数。配置保存在当前浏览器 localStorage。</p>
+            </div>
+            <button id="saveSettingsBtn" class="btn btn-primary">保存配置</button>
+          </div>
+          <div class="settings-grid">
+            <section class="settings-card">
+              <h3>LLM 配置</h3>
+              <div class="form-group">
+                <label class="form-label" for="llmProvider">LLM Provider</label>
+                <select id="llmProvider">
+                  <option value="0">豆包 / Ark</option>
+                  <option value="1">SiliconFlow</option>
+                  <option value="2">MiMo</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="arkApiKey">LLM API Key</label>
+                <input id="arkApiKey" type="password" placeholder="可留空，使用 .env" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="llmBaseUrl">LLM Base URL</label>
+                <input id="llmBaseUrl" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="llmModel">LLM Model / Endpoint</label>
+                <input id="llmModel" type="text" placeholder="ep-..." />
+              </div>
+            </section>
+
+            <section class="settings-card">
+              <h3>搜索配置</h3>
+              <div class="form-group">
+                <label class="form-label" for="bochaApiKey">Bocha API Key</label>
+                <input id="bochaApiKey" type="password" placeholder="可留空，使用 .env" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="googleApiKey">Google API Key</label>
+                <input id="googleApiKey" type="password" placeholder="可选" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="googleCxId">Google CX ID</label>
+                <input id="googleCxId" type="text" placeholder="可选" />
+              </div>
+            </section>
+
+            <section class="settings-card">
+              <h3>默认运行参数</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="settingsTopN">默认产品数</label>
+                  <input id="settingsTopN" type="number" min="1" max="20" value="3" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="settingsMaxIterations">最大迭代</label>
+                  <input id="settingsMaxIterations" type="number" min="1" max="10" value="3" />
+                </div>
+              </div>
+              <label class="switch-wrapper">
+                <input id="settingsEnableQualityLoop" type="checkbox" checked />
+                <span>默认启用质检闭环</span>
+              </label>
+            </section>
+
+            <section class="settings-card">
+              <h3>业务闭环说明</h3>
+              <div class="settings-note">
+                <p>工作流用搜索覆盖度、参考点数量、Issue 数、质检状态和人工产品选择记录来形成闭环，便于后续运营复盘和迭代。</p>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside id="reportSidePanel" class="report-side-panel" aria-hidden="true">
+      <div class="report-side-header">
+        <div>
+          <span id="sideReportType" class="report-tag">报告</span>
+          <h3 id="sideReportTitle">报告预览</h3>
+          <p id="sideReportName"></p>
+        </div>
+        <button id="closeSideReportBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
+      </div>
+      <div id="sideReportSummary" class="report-summary side-report-summary"></div>
+      <div id="sideReportViewer" class="report-preview side-report-viewer"></div>
+      <div class="report-side-footer">
+        <a id="sideDownloadBtn" class="btn btn-ghost btn-sm" href="#" download>下载</a>
+      </div>
+    </aside>
+    <aside id="evidenceDrawer" class="evidence-drawer" aria-hidden="true">
+      <div class="evidence-drawer-header">
+        <div>
+          <span id="evidenceDrawerBadge" class="report-tag">证据卡</span>
+          <h3 id="evidenceDrawerTitle">证据卡</h3>
+          <p id="evidenceDrawerSource">点击报告中的 ev_ ID 查看来源</p>
+        </div>
+        <button id="closeEvidenceDrawerBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
+      </div>
+      <div id="evidenceDrawerActions" class="evidence-drawer-actions"></div>
+      <div id="evidenceDrawerContent" class="report-preview evidence-drawer-content">
+        <div class="empty-state">
+          <p>暂无证据卡</p>
+          <span>点击报告里的 ev_001 等证据 ID 后显示。</span>
+        </div>
+      </div>
+    </aside>
+    <aside id="sourceReportDrawer" class="source-report-drawer" aria-hidden="true">
+      <div class="source-report-drawer-header">
+        <div>
+          <span class="report-tag">来源报告</span>
+          <h3 id="sourceReportDrawerTitle">来源报告</h3>
+          <p id="sourceReportDrawerPath">点击证据卡里的本地来源路径查看原文</p>
+        </div>
+        <button id="closeSourceReportDrawerBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
+      </div>
+      <div id="sourceReportDrawerMeta" class="report-summary side-report-summary"></div>
+      <div id="sourceReportDrawerContent" class="report-preview source-report-drawer-content">
+        <div class="empty-state">
+          <p>暂无来源报告</p>
+          <span>点击证据卡中的本地 Markdown 路径后显示。</span>
+        </div>
+      </div>
+    </aside>
+    <div id="reportSideBackdrop" class="report-side-backdrop" hidden></div>
+
+    <div id="agentLogBackdrop" class="agent-log-backdrop" hidden></div>
+    <section id="agentLogModal" class="agent-log-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="agentLogTitle">
+      <div class="agent-log-modal-header">
+        <div>
+          <span class="report-tag">Agent 日志</span>
+          <h3 id="agentLogTitle">Agent 决策回放 / 运行日志</h3>
+          <p id="agentLogMeta">尚未启动任务</p>
+        </div>
+        <button id="closeAgentLogBtn" class="btn btn-ghost btn-sm" type="button">关闭</button>
+      </div>
+      <pre id="logBox" class="log-content agent-log-content">等待任务日志...</pre>
+    </section>
+
+    <aside id="productSelectionPanel" class="product-selection-panel" aria-hidden="true">
+      <div class="report-side-header">
+        <div>
+          <span class="report-tag">人工选择</span>
+          <h3>选择要分析的竞品</h3>
+          <p>初步搜索已返回候选产品。必须选择至少一个产品，或手动添加产品名后才能继续主流程。</p>
+        </div>
+      </div>
+      <div id="candidateProductList" class="candidate-list"></div>
+      <div class="manual-add-box">
+        <label class="form-label" for="manualProductAdd">手动添加爬到的产品</label>
+        <textarea id="manualProductAdd" rows="3" placeholder="多个产品用逗号或换行分隔，例如：Cursor, 豆包 MarsCode"></textarea>
+      </div>
+      <div class="report-side-footer">
+        <button id="submitProductSelectionBtn" class="btn btn-primary" type="button" disabled>确认并继续分析</button>
+      </div>
+    </aside>
+    <div id="productSelectionBackdrop" class="report-side-backdrop blocking-backdrop" hidden></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
