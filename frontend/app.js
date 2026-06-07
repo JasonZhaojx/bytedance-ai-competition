@@ -1644,11 +1644,12 @@ async function handleLocalReportLinkClick(event) {
 async function openSourceReportDrawer(rawPath) {
   if (!sourceReportDrawer || !sourceReportDrawerContent) return;
   const reportName = normalizeLocalReportName(rawPath);
+  const reportDisplayPath = displayLocalReportPath(rawPath);
   positionSourceReportDrawer();
   sourceReportDrawer.classList.add("open");
   sourceReportDrawer.setAttribute("aria-hidden", "false");
   if (sourceReportDrawerTitle) sourceReportDrawerTitle.textContent = "加载中...";
-  if (sourceReportDrawerPath) sourceReportDrawerPath.textContent = reportName || rawPath || "未识别来源路径";
+  if (sourceReportDrawerPath) sourceReportDrawerPath.textContent = reportDisplayPath || rawPath || "未识别来源路径";
   if (sourceReportDrawerMeta) sourceReportDrawerMeta.innerHTML = "";
   sourceReportDrawerContent.innerHTML = `
     <div class="skeleton-container">
@@ -1668,7 +1669,7 @@ async function openSourceReportDrawer(rawPath) {
     const data = await api(`/api/reports/${encodeURIComponent(reportName)}`);
     const summary = data.summary || {};
     if (sourceReportDrawerTitle) sourceReportDrawerTitle.textContent = summary.title || data.name || reportName;
-    if (sourceReportDrawerPath) sourceReportDrawerPath.textContent = data.name || reportName;
+    if (sourceReportDrawerPath) sourceReportDrawerPath.textContent = displayLocalReportPath(data.name || reportName) || data.name || reportName;
     if (sourceReportDrawerMeta) sourceReportDrawerMeta.innerHTML = renderSideSummaryHtml(data);
     sourceReportDrawerContent.dataset.reportName = data.name || reportName;
     sourceReportDrawerContent.innerHTML = renderMarkdownPreview(data.content || "", {
@@ -1712,6 +1713,11 @@ function normalizeLocalReportName(rawPath) {
   if (mdIndex >= 0) value = value.slice(0, mdIndex + 3);
   if (!value.toLowerCase().endsWith(".md")) return "";
   return value;
+}
+
+function displayLocalReportPath(rawPath) {
+  const reportName = normalizeLocalReportName(rawPath);
+  return reportName ? `reports/${reportName}` : String(rawPath || "").trim();
 }
 
 function decodeHtmlEntities(value) {
@@ -2620,14 +2626,15 @@ function autoLinkEvidenceIds(html) {
 
 function autoLinkLocalReportPaths(html) {
   const parts = String(html || "").split(/(<a\b[^>]*>.*?<\/a>|<code\b[^>]*>.*?<\/code>)/gi);
-  const pattern = /(?:[A-Za-z]:[\\/][^\s<>"']+?\.md|(?:reports|\.\/reports)\/[^\s<>"']+?\.md)/gi;
+  const pattern = /(?:[A-Za-z]:[\\/][^<>"'，。；;）)\]}]+?\.md|(?:reports|\.\/reports)[\\/][^<>"'，。；;）)\]}]+?\.md)/gi;
   return parts
     .map((part) => {
       if (/^<(a|code)\b/i.test(part)) return part;
       return part.replace(pattern, (pathText) => {
         const reportName = normalizeLocalReportName(pathText);
         if (!reportName) return pathText;
-        return `<button class="local-report-link" type="button" data-local-report-path="${escapeHtml(pathText)}">${pathText}</button>`;
+        const label = displayLocalReportPath(pathText);
+        return `<button class="local-report-link" type="button" data-local-report-path="${escapeHtml(pathText)}">${escapeHtml(label)}</button>`;
       });
     })
     .join("");

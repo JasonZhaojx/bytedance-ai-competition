@@ -29,6 +29,37 @@ REPORT_DIR = ROOT / "reports"
 ANALYZE_WORKER = ROOT / "analyze_product_worker.py"
 
 
+def portable_source_url(value: str | Path) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if re.match(r"^[a-z][a-z0-9+.-]*://", text, flags=re.I) and not re.match(r"^file:", text, flags=re.I):
+        return text
+
+    normalized = text.replace("\\", "/")
+    normalized = re.sub(r"^file:/+", "", normalized, flags=re.I)
+    normalized = re.sub(r"/{2,}", "/", normalized.replace("\\", "/"))
+    lower = normalized.lower()
+
+    if lower.startswith("./reports/"):
+        return "reports/" + normalized[len("./reports/") :].lstrip("/")
+    if lower.startswith("reports/"):
+        return "reports/" + normalized[len("reports/") :].lstrip("/")
+
+    marker = "/reports/"
+    reports_index = lower.rfind(marker)
+    if reports_index >= 0:
+        return "reports/" + normalized[reports_index + len(marker) :].lstrip("/")
+
+    try:
+        path = Path(text)
+        if not path.is_absolute():
+            path = ROOT / path
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except Exception:
+        return normalized
+
+
 def load_local_env(path: Path) -> None:
     """Load simple KEY=VALUE entries from .env without overriding shell env."""
     if not path.exists():
@@ -905,7 +936,7 @@ def build_report_agent_sources(
         sources.append(
             {
                 "title": f"{item.product_name} 单品调研报告",
-                "url": str(item.path),
+                "url": portable_source_url(item.path),
                 "snippet": item.final_summary,
                 "content": content,
                 "source": "single_product_report",
@@ -919,14 +950,14 @@ def build_report_agent_sources(
         "用途: 这是用户自己的产品/我方产品参数提炼出的对标维度，不是竞品参数，也不是竞品事实。后续报告需要围绕这些参数检查各竞品是否有证据支撑，缺失时明确写未找到明确证据。",
         comparison_keyword_library.strip() or "无",
         "===== 问卷分析补充背景 =====",
-        f"来源: {questionnaire_analysis_path}" if questionnaire_analysis_path else "来源: 无",
+        f"来源: {portable_source_url(questionnaire_analysis_path)}" if questionnaire_analysis_path else "来源: 无",
         "用途: 这是需求侧、用户侧、采购侧和风险侧的补充背景。可用于校准用户画像、场景优先级、价格敏感度、替换意愿、采购顾虑和功能偏好，但不能当作某个竞品的官方事实。",
         questionnaire_analysis_text.strip() or "无",
     ]
     sources.append(
         {
             "title": "用户需求、参数词库与问卷补充背景",
-            "url": questionnaire_analysis_path or "",
+            "url": portable_source_url(questionnaire_analysis_path),
             "snippet": product_description,
             "content": "\n\n".join(context_parts),
             "source": "workflow_context",
@@ -1326,6 +1357,7 @@ def build_evidence_cards_markdown(package) -> str:
         evidence_id = str(card.get("evidence_id") or "未知证据").strip()
         source_id = str(card.get("source_id") or "").strip()
         source = source_by_id.get(source_id, {})
+        source_url = portable_source_url(source.get("url") or "")
         lines.extend(
             [
                 f'<a id="{_evidence_card_anchor(evidence_id)}"></a>',
@@ -1338,7 +1370,7 @@ def build_evidence_cards_markdown(package) -> str:
                 f"- 时效性: {card.get('freshness') or 'unknown'}",
                 f"- source_id: {source_id or '无'}",
                 f"- 来源标题: {source.get('title') or '无'}",
-                f"- 来源URL: {source.get('url') or '无'}",
+                f"- 来源URL: {source_url or '无'}",
                 f"- 来源类型: {source.get('source') or '无'}",
                 f"- content_source: {source.get('content_source') or '无'}",
                 "",
@@ -1362,12 +1394,13 @@ def build_evidence_cards_markdown(package) -> str:
         if not isinstance(source, dict):
             continue
         source_id = str(source.get("source_id") or "未知来源").strip()
+        source_url = portable_source_url(source.get("url") or "")
         lines.extend(
             [
                 f"### {source_id}",
                 "",
                 f"- 标题: {source.get('title') or '无'}",
-                f"- URL: {source.get('url') or '无'}",
+                f"- URL: {source_url or '无'}",
                 f"- 来源类型: {source.get('source') or '无'}",
                 f"- content_source: {source.get('content_source') or '无'}",
                 f"- 发布日期: {source.get('publish_date') or '无'}",
