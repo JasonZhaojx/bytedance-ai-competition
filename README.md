@@ -188,15 +188,15 @@ python -m agent.quality_agent.cli reports\your_report.md --save
 
 ## 目录结构
 
-| 路径 | 说明 |
+| 路径 | 说明打*号的是有独立子项目readme的|
 | --- | --- |
-| [backend/](backend/) | Web 后端，提供任务、报告、问卷、Skill Wiki 和质检接口。 |
+| [backend/](backend/) | *Web 后端，提供任务、报告、问卷、Skill Wiki 和质检接口。 |
 | [frontend/](frontend/) | Web 前端页面、样式和交互逻辑。 |
-| [extracted_core/](extracted_core/) | 搜索、抓取、LLM 客户端和产品定位分析核心能力。 |
-| [report_agent/](report_agent/) | 综合报告生成 Agent、证据结构化、表格补全和策略建议。 |
-| [agent/quality_agent/](agent/quality_agent/) | 报告质量检查 Agent、检查器、评分、反馈和导出逻辑。 |
+| [extracted_core/](extracted_core/) | *搜索、抓取、LLM 客户端和产品定位分析核心能力。 |
+| [report_agent/](report_agent/) | *综合报告生成 Agent、证据结构化、表格补全和策略建议。 |
+| [agent/quality_agent/](agent/quality_agent/) | *报告质量检查 Agent、检查器、评分、反馈和导出逻辑。 |
 | [workflows/](workflows/) | 质量闭环等流程编排代码。 |
-| [skill_wiki_builder/](skill_wiki_builder/README.md) | 从报告构建 Skill Wiki，并支持基于 Wiki 问答。 |
+| [skill_wiki_builder/](skill_wiki_builder/README.md) | *从报告构建 Skill Wiki，并支持基于 Wiki 问答。 |
 | [questionnaires/](questionnaires/) | 问卷 JSONL、模拟回答 CSV/JSONL、问卷分析报告。 |
 | [reports/](reports/) | 运行生成的单品报告、综合报告、质检结果和 Skill Wiki。 |
 | [logs/](logs/) | 运行日志和 Quality Agent 追踪记录。 |
