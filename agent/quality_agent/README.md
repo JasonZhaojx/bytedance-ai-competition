@@ -22,7 +22,7 @@ flowchart TD
         CFG["QualityConfig<br/>检查模式 / LLM / 阈值 / 输出"]
         ADP["Report Adapter<br/>adapt_report_package"]
         RA["ReportAnalysis<br/>统一内部数据模型"]
-        ROUTER{"InspectionMode<br/>检查路由"}
+        ROUTER{"InspectionMode<br/>检查路由(可以自行选择检查模式如:规则,llm,混合)"}
     end
 
     subgraph Inspectors["质检能力层"]
