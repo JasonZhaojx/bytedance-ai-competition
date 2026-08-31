@@ -32,42 +32,18 @@ const reportSelect = document.querySelector("#reportSelect");
 const reportViewer = document.querySelector("#reportViewer");
 const resultSummary = document.querySelector("#resultSummary");
 const downloadBtn = document.querySelector("#downloadBtn");
-const backToReportsBtn = document.querySelector("#backToReportsBtn");
-const reportSidePanel = document.querySelector("#reportSidePanel");
-const reportSideBackdrop = document.querySelector("#reportSideBackdrop");
-const closeSideReportBtn = document.querySelector("#closeSideReportBtn");
-const sideReportType = document.querySelector("#sideReportType");
-const sideReportTitle = document.querySelector("#sideReportTitle");
-const sideReportName = document.querySelector("#sideReportName");
-const sideReportSummary = document.querySelector("#sideReportSummary");
-const sideReportViewer = document.querySelector("#sideReportViewer");
-const sideDownloadBtn = document.querySelector("#sideDownloadBtn");
 const nodeCards = Array.from(document.querySelectorAll(".node-card"));
 const navButtons = Array.from(document.querySelectorAll(".nav-list button"));
 const pagePanels = Array.from(document.querySelectorAll("[data-page-panel]"));
 const reportLibrary = document.querySelector("#reportLibrary");
-const qualityReportLibrary = document.querySelector("#qualityReportLibrary");
 const reloadReportsBtn = document.querySelector("#reloadReportsBtn");
-const reloadQualityReportsBtn = document.querySelector("#reloadQualityReportsBtn");
 const qualityLoopStatus = document.querySelector("#qualityLoopStatus");
-const qualityCenterStatus = document.querySelector("#qualityCenterStatus");
 const qualityModePreview = document.querySelector("#qualityModePreview");
 const maxIterationPreview = document.querySelector("#maxIterationPreview");
 
 startBtn.addEventListener("click", startJob);
 refreshBtn.addEventListener("click", handleRefresh);
 reloadReportsBtn?.addEventListener("click", () => loadReports({ preserveSelection: true }));
-reloadQualityReportsBtn?.addEventListener("click", () => loadReports({ preserveSelection: true }));
-closeSideReportBtn?.addEventListener("click", closeReportSidePanel);
-reportSideBackdrop?.addEventListener("click", closeReportSidePanel);
-backToReportsBtn?.addEventListener("click", () => {
-  const [page, taskId] = String(reportReturnPage || "reports").split(":", 2);
-  showPage(page || "reports");
-  if (taskId) {
-    renderTaskFilePage(page || "reports", taskId);
-  }
-  backToReportsBtn.classList.add("hidden");
-});
 reportSelect.addEventListener("change", () => {
   if (reportSelect.value) loadReport(reportSelect.value);
 });
@@ -235,7 +211,7 @@ async function startJob() {
     llm_provider: llmProvider.value,
     top_n: Number(topN.value || 5),
     quality_mode: qualityMode.value,
-    max_iterations: Number(maxIterations.value || 2),
+    max_iterations: Number(maxIterations.value || 3),
     enable_quality_loop: enableQualityLoop.checked,
     ark_api_key: arkApiKey.value.trim(),
     bocha_api_key: bochaApiKey.value.trim(),
@@ -328,8 +304,6 @@ async function refresh() {
 let lastReportName = "";
 let currentReportName = "";
 let lastJobStatus = "";
-let reportReturnPage = "";
-let allReportsCache = [];
 
 async function pollJob() {
   if (!currentJobId) return;
@@ -399,7 +373,7 @@ function renderJob(job) {
   logBox.textContent = (job.logs || []).join("\n") || "等待任务日志...";
   logBox.scrollTop = logBox.scrollHeight;
   renderNodeFlow(job);
-  updateQualityStatus(job.stage || job.status);
+  qualityLoopStatus.textContent = job.stage || job.status;
 }
 
 function renderNodeFlow(job) {
@@ -428,7 +402,7 @@ function inferStage(job) {
   if (job.status === "completed") return "done";
   const logs = (job.logs || []).join("\n");
   if (/总总结已保存|最终报告通过质检|达到最大迭代次数/.test(logs)) return "done";
-  if (/Quality Agent 质检|\[quality-loop\]/.test(logs)) return "quality";
+  if (/最终报告质检闭环|\[quality-loop\]/.test(logs)) return "quality";
   if (/生成所选产品大总结|FINAL COMPARISON|横向对比/.test(logs)) return "summarize";
   if (/等待所选产品分析报告完成|启动独立命令行窗口分析|将要分析的产品|分析窗口已经启动/.test(logs)) {
     return "analyze";
@@ -454,7 +428,6 @@ async function loadReports(options = {}) {
       renderSummary(null);
       setDownload("");
       renderReportLibrary([]);
-      renderQualityReportLibrary([]);
       return;
     }
 
@@ -463,15 +436,13 @@ async function loadReports(options = {}) {
       if (finalDelta) return finalDelta;
       return b.modified_at - a.modified_at;
     });
-    allReportsCache = sorted;
 
     renderReportLibrary(sorted);
-    renderQualityReportLibrary(sorted.filter((report) => report.summary?.is_quality));
 
     sorted.forEach((report) => {
       const option = document.createElement("option");
       option.value = report.name;
-      const typeLabel = reportTypeLabel(report);
+      const typeLabel = report.summary?.is_final ? "最终报告" : "单品报告";
       const title = report.summary?.title || report.name;
       option.textContent = `${typeLabel} · ${title}`;
       reportSelect.appendChild(option);
@@ -512,7 +483,7 @@ function renderReportLibrary(reports) {
 
   reportLibrary.innerHTML = reports
     .map((report, index) => {
-      const type = reportTypeLabel(report);
+      const type = report.summary?.is_final ? "最终报告" : "单品报告";
       const title = escapeHtml(report.summary?.title || report.name);
       const size = formatSize(report.size || 0);
       const date = new Date(report.modified_at * 1000).toLocaleDateString("zh-CN");
@@ -669,7 +640,7 @@ document.head.appendChild(skeletonStyle);
 function renderSummary(summary) {
   const values = summary
     ? [
-        summary.is_quality ? "质检报告" : summary.is_final ? "最终报告" : "单品报告",
+        summary.is_final ? "最终报告" : "单品报告",
         summary.quality_feedback_applied ? "已应用" : "无",
         String(summary.sections || 0),
         formatCharCount(summary.chars || 0),
@@ -680,80 +651,6 @@ function renderSummary(summary) {
   cards.forEach((card, index) => {
     card.textContent = values[index];
   });
-}
-
-function renderQualityReportLibrary(reports) {
-  if (!qualityReportLibrary) return;
-
-  if (!reports.length) {
-    qualityReportLibrary.innerHTML = `
-      <div class="report-empty">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <p>暂无质检报告</p>
-        <span>启用质检闭环并完成运行后会显示在这里。</span>
-      </div>
-    `;
-    return;
-  }
-
-  qualityReportLibrary.innerHTML = reports
-    .map((report, index) => {
-      const title = escapeHtml(report.summary?.title || report.name);
-      const size = formatSize(report.size || 0);
-      const date = new Date(report.modified_at * 1000).toLocaleString("zh-CN");
-      const feedback = report.summary?.quality_feedback_applied ? "已记录反馈" : "质检明细";
-
-      return `
-        <div class="report-card slide-in quality-report-card" style="animation-delay: ${index * 50}ms">
-          <div class="report-card-header">
-            <div class="report-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div>
-              <h3>${title}</h3>
-              <time>${date}</time>
-            </div>
-          </div>
-          <p class="report-card-preview">${escapeHtml(report.name)}</p>
-          <div class="report-card-footer">
-            <div class="report-meta">
-              <span class="report-tag">质检报告</span>
-              <span class="report-tag">${feedback}</span>
-              <span class="report-tag">${size}</span>
-            </div>
-            <button class="btn btn-ghost" data-report="${escapeHtml(report.name)}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              查看
-            </button>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-
-  qualityReportLibrary.querySelectorAll("button[data-report]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const name = button.dataset.report;
-      showPage("workspace");
-      reportSelect.value = name;
-      loadReport(name);
-    });
-  });
-}
-
-function reportTypeLabel(report) {
-  if (report.summary?.is_quality) return "质检报告";
-  if (report.summary?.is_final) return "最终报告";
-  return "单品报告";
 }
 
 function formatCharCount(chars) {
@@ -792,8 +689,8 @@ function showPage(page) {
 
 function updateQualityPreview() {
   qualityModePreview.textContent = qualityMode.value;
-  maxIterationPreview.textContent = maxIterations.value || "2";
-  updateQualityStatus(enableQualityLoop.checked ? "已启用" : "已关闭");
+  maxIterationPreview.textContent = maxIterations.value || "3";
+  qualityLoopStatus.textContent = enableQualityLoop.checked ? "已启用" : "已关闭";
 }
 
 function loadSettings() {
@@ -806,7 +703,7 @@ function loadSettings() {
 
   settingsTopN.value = settings.top_n || "5";
   settingsQualityMode.value = settings.quality_mode || "rule";
-  settingsMaxIterations.value = settings.max_iterations || "2";
+  settingsMaxIterations.value = settings.max_iterations || "3";
   settingsEnableQualityLoop.checked = settings.enable_quality_loop !== false;
 
   syncSettingsToWorkspace();
@@ -847,14 +744,9 @@ function saveSettings() {
 function syncSettingsToWorkspace() {
   topN.value = settingsTopN.value || "5";
   qualityMode.value = settingsQualityMode.value || "rule";
-  maxIterations.value = settingsMaxIterations.value || "2";
+  maxIterations.value = settingsMaxIterations.value || "3";
   enableQualityLoop.checked = settingsEnableQualityLoop.checked;
   updateQualityPreview();
-}
-
-function updateQualityStatus(value) {
-  if (qualityLoopStatus) qualityLoopStatus.textContent = value;
-  if (qualityCenterStatus) qualityCenterStatus.textContent = value;
 }
 
 function formatSize(value) {
@@ -985,288 +877,3 @@ function readFileInto(input, textarea) {
 }
 
 reportViewer.style.transition = "opacity 0.3s ease-out";
-
-function renderReportLibrary(reports) {
-  if (!reportLibrary) return;
-  renderGroupedReportLibrary(
-    reportLibrary,
-    reports,
-    "reports",
-    "暂无报告",
-    "开始分析后将在这里按任务文件夹显示。"
-  );
-}
-
-function renderQualityReportLibrary(reports) {
-  if (!qualityReportLibrary) return;
-  renderGroupedReportLibrary(
-    qualityReportLibrary,
-    reports,
-    "quality",
-    "暂无质检报告",
-    "启用质检闭环并完成运行后会显示在这里。"
-  );
-}
-
-function reportTypeLabel(report) {
-  const type = reportType(report);
-  if (type === "quality" || report.summary?.is_quality) return "质检报告";
-  if (type === "final" || report.summary?.is_final) return "最终报告";
-  if (type === "report_agent" || report.summary?.is_report_agent) return "分析总报告";
-  return "单品报告";
-}
-
-function renderGroupedReportLibrary(container, reports, returnPage, emptyTitle, emptyText) {
-  if (!reports.length) {
-    container.innerHTML = `
-      <div class="report-empty">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        </svg>
-        <p>${emptyTitle}</p>
-        <span>${emptyText}</span>
-      </div>
-    `;
-    return;
-  }
-
-  const groups = groupReportsByTask(reports);
-  container.innerHTML = groups
-    .map((group, index) => renderReportFolder(group, index, returnPage))
-    .join("");
-
-  container.querySelectorAll("button[data-task]").forEach((button) => {
-    button.addEventListener("click", () => {
-      renderTaskFilePage(button.dataset.returnPage, button.dataset.task);
-    });
-  });
-}
-
-function renderReportFolder(group, index, returnPage) {
-  const date = new Date(group.modifiedAt * 1000).toLocaleString("zh-CN");
-  const reports = [...group.reports].sort(compareReportsInTask);
-  const tags = summarizeTaskTags(reports);
-  return `
-    <div class="report-folder slide-in" style="animation-delay: ${index * 45}ms">
-      <div class="report-folder-header">
-        <div class="report-folder-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          </svg>
-        </div>
-        <div>
-          <h3>${escapeHtml(group.taskId)}</h3>
-          <time>${date}</time>
-        </div>
-      </div>
-      <div class="report-meta report-folder-tags">
-        ${tags.map((tag) => `<span class="report-tag">${escapeHtml(tag)}</span>`).join("")}
-      </div>
-      <p class="report-card-preview">${reports.length} 个报告文件</p>
-      <div class="report-card-footer">
-        <span class="report-tag">任务文件夹</span>
-        <button class="btn btn-ghost btn-sm" data-task="${escapeHtml(group.taskId)}" data-return-page="${returnPage}">
-          打开
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function renderTaskFilePage(returnPage, taskId) {
-  const sourceReports =
-    returnPage === "quality"
-      ? allReportsCache.filter((report) => report.summary?.is_quality)
-      : allReportsCache;
-  const group = groupReportsByTask(sourceReports).find((item) => item.taskId === taskId);
-  const container = returnPage === "quality" ? qualityReportLibrary : reportLibrary;
-  if (!container || !group) return;
-
-  const reports = [...group.reports].sort(compareReportsInTask);
-  container.innerHTML = `
-    <div class="report-file-page">
-      <div class="report-file-page-header">
-        <button class="btn btn-ghost btn-sm" data-back-folders="${returnPage}">
-          返回文件夹
-        </button>
-        <div>
-          <h3>${escapeHtml(group.taskId)}</h3>
-          <p>${reports.length} 个报告文件</p>
-        </div>
-      </div>
-      <div class="report-file-list">
-        ${reports.map((report) => renderReportFileRow(report, returnPage, group.taskId)).join("")}
-      </div>
-    </div>
-  `;
-
-  container.querySelector("button[data-back-folders]")?.addEventListener("click", () => {
-    if (returnPage === "quality") {
-      renderQualityReportLibrary(allReportsCache.filter((report) => report.summary?.is_quality));
-    } else {
-      renderReportLibrary(allReportsCache);
-    }
-  });
-  container.querySelectorAll("button[data-report]").forEach((button) => {
-    button.addEventListener("click", () => {
-      openReportFromLibrary(button.dataset.report, button.dataset.returnPage, button.dataset.task);
-    });
-  });
-}
-
-function renderReportFileRow(report, returnPage, taskId) {
-  const round = report.summary?.round ? ` · ${report.summary.round}` : "";
-  const title = escapeHtml(report.summary?.title || report.name);
-  return `
-    <div class="report-file-row">
-      <div class="report-file-main">
-        <span class="report-file-type">${escapeHtml(reportTypeLabel(report) + round)}</span>
-        <strong>${title}</strong>
-        <small>${escapeHtml(report.name)}</small>
-      </div>
-      <div class="report-file-actions">
-        <span class="report-tag">${formatSize(report.size || 0)}</span>
-        <button class="btn btn-ghost btn-sm" data-report="${escapeHtml(report.name)}" data-return-page="${returnPage}" data-task="${escapeHtml(taskId)}">
-          查看
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function openReportFromLibrary(name, returnPage, taskId) {
-  reportReturnPage = taskId ? `${returnPage || "reports"}:${taskId}` : returnPage || "reports";
-  openReportSidePanel(name);
-}
-
-async function openReportSidePanel(name) {
-  if (!reportSidePanel || !sideReportViewer) return;
-
-  reportSidePanel.classList.add("open");
-  reportSidePanel.setAttribute("aria-hidden", "false");
-  if (reportSideBackdrop) reportSideBackdrop.hidden = false;
-  sideReportViewer.innerHTML = `
-    <div class="skeleton-container">
-      <div class="skeleton skeleton-title"></div>
-      <div class="skeleton skeleton-text"></div>
-      <div class="skeleton skeleton-text"></div>
-      <div class="skeleton skeleton-text" style="width: 70%"></div>
-    </div>
-  `;
-  if (sideReportTitle) sideReportTitle.textContent = "加载中...";
-  if (sideReportName) sideReportName.textContent = name;
-
-  try {
-    const data = await api(`/api/reports/${encodeURIComponent(name)}`);
-    const summary = data.summary || {};
-    if (sideReportType) sideReportType.textContent = reportTypeLabel({ summary });
-    if (sideReportTitle) sideReportTitle.textContent = summary.title || data.name || name;
-    if (sideReportName) sideReportName.textContent = data.name || name;
-    if (sideReportSummary) sideReportSummary.innerHTML = renderSideSummaryHtml(data);
-    if (sideDownloadBtn) {
-      sideDownloadBtn.href = `/download/reports/${encodeURIComponent(data.name || name)}`;
-      sideDownloadBtn.style.pointerEvents = "auto";
-      sideDownloadBtn.style.opacity = "1";
-    }
-    sideReportViewer.innerHTML = markdownToHtml(data.content);
-  } catch (error) {
-    sideReportViewer.innerHTML = `<p style="color: var(--accent-danger);">加载报告失败: ${escapeHtml(error.message)}</p>`;
-    showToast("加载报告失败", "error");
-  }
-}
-
-function closeReportSidePanel() {
-  reportSidePanel?.classList.remove("open");
-  reportSidePanel?.setAttribute("aria-hidden", "true");
-  if (reportSideBackdrop) reportSideBackdrop.hidden = true;
-}
-
-function renderSummaryHtml(summary) {
-  const values = [
-    reportTypeLabel({ summary }),
-    summary.quality_feedback_applied ? "已应用" : "无",
-    String(summary.sections || 0),
-    formatCharCount(summary.chars || 0),
-  ];
-  const labels = ["类型", "反馈", "章节", "字符"];
-  return values
-    .map(
-      (value, index) => `
-        <div class="summary-item">
-          <span>${labels[index]}</span>
-          <strong>${escapeHtml(value)}</strong>
-        </div>
-      `
-    )
-    .join("");
-}
-
-function renderSideSummaryHtml(data) {
-  const summary = data.summary || {};
-  const values = [
-    reportTypeLabel({ summary }),
-    summary.task_id || inferTaskId(data.name),
-    summary.round || "主报告",
-    formatSize(data.size || 0),
-  ];
-  const labels = ["类型", "任务", "轮次", "大小"];
-  return values
-    .map(
-      (value, index) => `
-        <div class="summary-item">
-          <span>${labels[index]}</span>
-          <strong>${escapeHtml(String(value))}</strong>
-        </div>
-      `
-    )
-    .join("");
-}
-
-function groupReportsByTask(reports) {
-  const groups = new Map();
-  for (const report of reports) {
-    const taskId = report.summary?.task_id || inferTaskId(report.name);
-    if (!groups.has(taskId)) {
-      groups.set(taskId, { taskId, modifiedAt: 0, reports: [] });
-    }
-    const group = groups.get(taskId);
-    group.reports.push(report);
-    group.modifiedAt = Math.max(group.modifiedAt, report.modified_at || 0);
-  }
-  return [...groups.values()].sort((a, b) => b.modifiedAt - a.modifiedAt);
-}
-
-function compareReportsInTask(a, b) {
-  const order = { final: 0, report_agent: 1, single: 2, quality: 3 };
-  const aType = reportType(a);
-  const bType = reportType(b);
-  const typeDelta = (order[aType] ?? 9) - (order[bType] ?? 9);
-  if (typeDelta) return typeDelta;
-  return String(a.name).localeCompare(String(b.name), "zh-CN");
-}
-
-function reportType(report) {
-  if (report.summary?.type) return report.summary.type;
-  if (report.summary?.is_quality) return "quality";
-  if (report.summary?.is_final) return "final";
-  if (report.summary?.is_report_agent) return "report_agent";
-  const name = String(report.name || report.summary?.relative_name || "").toUpperCase();
-  if (name.includes("QUALITY_WORKFLOW") || name.endsWith("QUALITY_REPORT.MD")) return "quality";
-  if (name.includes("FINAL_COMPARISON")) return "final";
-  if (name.includes("REPORT_AGENT_ANALYSIS")) return "report_agent";
-  return "single";
-}
-
-function summarizeTaskTags(reports) {
-  const counts = reports.reduce((acc, report) => {
-    const label = reportTypeLabel(report);
-    acc[label] = (acc[label] || 0) + 1;
-    return acc;
-  }, {});
-  return Object.entries(counts).map(([label, count]) => `${label} ${count}`);
-}
-
-function inferTaskId(name) {
-  const match = String(name || "").match(/(\d{8}_\d{6})/);
-  return match ? match[1] : "未分组";
-}

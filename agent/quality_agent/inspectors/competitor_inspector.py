@@ -1,11 +1,40 @@
 """Competitor coverage inspection functions."""
+import json
+import re
 from typing import Any, Dict, List, Set
 
 from ..adapters.report_adapter import ReportAnalysis
 from ..config import IssueSeverity, IssueType, QualityIssue
 
 
-COMPETITOR_KEYS = ("competitor", "竞品", "name", "product_name", "产品", "产品名称")
+COMPETITOR_KEYS = (
+    "competitor",
+    "competitor_name",
+    "name",
+    "product",
+    "product_name",
+    "竞品",
+    "竞品名",
+    "竞品名称",
+    "产品",
+    "产品名",
+    "产品名称",
+    "名称",
+)
+
+
+def _normalize_name(value: Any) -> str:
+    return re.sub(r"\s+", "", str(value or "")).strip().lower()
+
+
+def _name_matches(expected: Any, observed: Any) -> bool:
+    left = _normalize_name(expected)
+    right = _normalize_name(observed)
+    if not left or not right:
+        return False
+    if left == right:
+        return True
+    return min(len(left), len(right)) >= 4 and (left.endswith(right) or right.endswith(left))
 
 
 def _extract_table_competitor_names(rows: List[Any]) -> Set[str]:
@@ -13,6 +42,11 @@ def _extract_table_competitor_names(rows: List[Any]) -> Set[str]:
     for row in rows:
         if isinstance(row, str) and row.strip():
             names.add(row.strip())
+            continue
+        if isinstance(row, (list, tuple)) and row:
+            first_cell = row[0]
+            if isinstance(first_cell, str) and first_cell.strip():
+                names.add(first_cell.strip())
             continue
         if not isinstance(row, dict):
             continue
@@ -23,6 +57,14 @@ def _extract_table_competitor_names(rows: List[Any]) -> Set[str]:
                 names.add(value.strip())
                 break
     return names
+
+
+def _competitor_appears_in_table(table: Dict[str, Any], competitor: str) -> bool:
+    needle = _normalize_name(competitor)
+    if not needle:
+        return False
+    table_text = _normalize_name(json.dumps(table, ensure_ascii=False, default=str))
+    return needle in table_text
 
 
 # 检查竞品分析覆盖完整性
@@ -62,14 +104,23 @@ def check_competitor_coverage(analysis: ReportAnalysis) -> List[QualityIssue]:
     
     # 检查是否有对比表缺少竞品
     if analysis.comparison_tables:
+        reported_missing_sets: Set[tuple[str, ...]] = set()
         # 检查每个对比表是否包含所有竞品
         for table in analysis.comparison_tables:
             table_competitors = table.get("competitors", []) or table.get("rows", [])
             if isinstance(table_competitors, list) and len(table_competitors) > 0:
                 table_comp_names = _extract_table_competitor_names(table_competitors)
                 
-                missing_in_table = [c for c in competitors if c not in table_comp_names]
+                missing_in_table = [
+                    c for c in competitors
+                    if not any(_name_matches(c, name) for name in table_comp_names)
+                    and not _competitor_appears_in_table(table, c)
+                ]
                 if missing_in_table:
+                    missing_key = tuple(sorted(_normalize_name(name) for name in missing_in_table))
+                    if missing_key in reported_missing_sets:
+                        continue
+                    reported_missing_sets.add(missing_key)
                     issues.append(QualityIssue(
                         type=IssueType.INCOMPLETE_INFO,
                         severity=IssueSeverity.MINOR,

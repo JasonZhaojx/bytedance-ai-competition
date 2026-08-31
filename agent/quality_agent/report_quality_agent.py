@@ -1,5 +1,6 @@
 """Main entry for report quality inspection."""
 
+import os
 from typing import Optional
 
 try:
@@ -14,6 +15,7 @@ from .adapters import adapt_report_package
 from .config import (
     ConfidenceLevel,
     InspectionMode,
+    IssueSeverity,
     OutputFormat,
     ProductType,
     QualityConfig,
@@ -96,7 +98,10 @@ def inspect_report_package(
     analysis = adapt_report_package(package)
     
     # Step 4: Execute inspections based on config
-    if active_config.inspection_mode != InspectionMode.RULE_ONLY:
+    check_scope = os.getenv("REPORT_AGENT_QUALITY_CHECK_SCOPE", "acceptance").strip().lower()
+    if check_scope in {"acceptance", "format", "workflow", "delivery"}:
+        issues = _execute_acceptance_inspections(analysis)
+    elif active_config.inspection_mode != InspectionMode.RULE_ONLY:
         # 使用混合检查器
         inspector = HybridInspector.from_config(active_config)
         issues = inspector.inspect(analysis)
@@ -194,6 +199,24 @@ def _execute_rule_inspections(analysis) -> list:
     # Recommendation checks
     issues.extend(check_recommendation_feasibility(analysis))
     
+    return issues
+
+
+def _execute_acceptance_inspections(analysis) -> list:
+    """Check only delivery format and workflow completeness.
+
+    This mode intentionally avoids fact/evidence adjudication. Upstream search
+    and analysis own factual correctness; the quality gate only verifies that
+    the final report is structurally usable.
+    """
+    issues = []
+    issues.extend(check_report_structure(analysis))
+    issues.extend(
+        issue
+        for issue in check_competitor_coverage(analysis)
+        if issue.severity == IssueSeverity.MINOR
+    )
+    issues.extend(check_recommendation_feasibility(analysis))
     return issues
 
 
